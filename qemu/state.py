@@ -17,8 +17,8 @@ def fingerprint(root,lock,previous,stage=None):
       'build-emulationstation':['build.sh','build-guest.sh','capture.c','chroot-run.sh','with-disk.sh','patches/emulationstation/'],
       'build-retroarch':['build.sh','build-guest.sh','capture.c','chroot-run.sh','with-disk.sh'],
       'build-351files':['build.sh','build-guest.sh','capture.c','chroot-run.sh','with-disk.sh','patches/351files/'],
-      'kernel':['kernel.sh','scripts/build-kernel.sh','scripts/common.sh','configs/'],
-      'image':['image.sh','prepare-runtime.sh','configure.py','strip-compilers.sh','manifest.py','inventory.py','grow.sh','with-disk.sh','chroot-run.sh','runtime/','test-roms.py','test-roms.json','install-test-roms.py'],
+      'kernel':['kernel.sh','scripts/build-kernel.sh','scripts/common.sh','components.py','configs/'],
+      'image':['image.sh','prepare-runtime.sh','configure.py','strip-compilers.sh','manifest.py','components.py','inventory.py','grow.sh','with-disk.sh','chroot-run.sh','runtime/','test-roms.py','test-roms.json','install-test-roms.py'],
     }
     if stage in groups:
         paths=[root/'lib.sh',root/'state.py']

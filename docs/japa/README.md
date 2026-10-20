@@ -241,3 +241,26 @@ některých balíčků než dnes. Ty se zaznamenají do manifestu a lokální ca
 Zatím nejde o záruku bitově shodného výsledného obrazu.
 
 Další technické podrobnosti jsou v [QEMU README](../../qemu/README.md).
+
+## Přehled změn při přechodu na další release
+
+Bez buildu nebo spuštění VM zobrazit nahrazované komponenty:
+
+```bash
+make qemu-components
+```
+
+Porovnat připravovaný lockfile s dnešním základem:
+
+```bash
+RELEASE_LOCK=qemu/releases/novy-release.json make qemu-components \
+  PREVIOUS_LOCK=qemu/releases/g350-v01302026.json
+```
+
+Tabulka ukáže původní a cílové verze, repozitáře, SHA a změněné i ponechané
+revize. Neznámé původní verze jsou označené; údaje o verzi z jiného obrazu se
+nepřebírají. Při konverzi se přehled vypíše po inspekci, před přípravou a buildem,
+a uloží do `$WORK_DIR/logs/components.md`. Samotný přehled nic nepřestavuje.
+Kernel už bere URL i SHA výhradně ze `sources.kernel` ve zvoleném lockfilu.
+Pro další release použít nový pracovní adresář a projít i ponechané verze,
+abychom novější obsah obrazu omylem nenahradili starší komponentou.

@@ -63,6 +63,41 @@ versions and hashes are cached under `artifacts/graphics`; changing repository
 contents does not silently refresh a completed graphics stage. For a deliberate
 dependency refresh, use a new WORK_DIR and review the new manifests.
 
+## Review a release upgrade
+
+```bash
+make qemu-components
+RELEASE_LOCK=qemu/releases/new-release.json make qemu-components \
+  PREVIOUS_LOCK=qemu/releases/g350-v01302026.json
+```
+
+This command only reads metadata and any matching original-image inventory; it
+never imports an image, mounts a disk, compiles or starts a VM. The same table
+is printed after inspection, before preparation/build, and saved to
+`$WORK_DIR/logs/components.md`. It lists replaced versions, source URLs and full
+commits, retained content, and changed/unchanged selections between two locks.
+The report does not automatically approve an unchanged or older selection.
+
+`replacements` in the release lock records original and target versions. Original
+ES and RetroArch version strings were inspected statically in the read-only G350
+image and are tied to its image and binary hashes. An image upgrade invalidates
+that version evidence until reviewed; unknown versions stay explicit. Embedded
+version strings do not prove the original source commit. 351Files and the original
+hardware kernel currently have no established version. Debian library versions
+are resolved separately by APT and recorded in the graphics package manifests.
+
+All kernel builds, including direct `scripts/build-kernel.sh` invocation, read
+`sources.kernel.repo` and `sources.kernel.commit` from `RELEASE_LOCK`. There is no
+second SHA in shell code. `SOURCE_REPO` may supply a local mirror containing that
+same commit; an existing checkout at another revision fails without resetting it.
+Successful builds record the actual commit, transport repository and binary hash
+in `artifacts/kernel-source.json`; image manifests verify these against the lock.
+
+For a new release, copy the lock, review the image identity, source pins, target
+version labels and original-version evidence, then use a fresh `WORK_DIR`.
+Lock changes invalidate pipeline receipts; the next conversion rechecks stages
+and may rebuild components. Existing runtime launch commands do not rebuild it.
+
 ## Run and develop
 
 ```bash

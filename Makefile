@@ -177,3 +177,8 @@ qemu-attest:
 .PHONY: qemu-check
 qemu-check:
 	bash qemu/check.sh
+
+# Read-only release review: no import, mount, compilation or VM boot.
+.PHONY: qemu-components
+qemu-components:
+	python3 qemu/components.py $(if $(PREVIOUS_LOCK),--compare-lock "$(PREVIOUS_LOCK)",)

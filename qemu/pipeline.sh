@@ -18,6 +18,7 @@ run_stage() {
 run_stage import "$WORK_DIR/state/resolved-release.json" "$WORK_DIR/state/base-image.sha256" "$RAW_IMAGE"
 [[ $requested != import ]] || exit 0
 run_stage inspect "$WORK_DIR/state/profile.json" "$WORK_DIR/logs/inspect/files.json" "$WORK_DIR/logs/inspect/elf.json"
+python3 "$QEMU_DIR/components.py" --lock "$RELEASE_LOCK" --work-dir "$WORK_DIR" --output "$WORK_DIR/logs/components.md"
 [[ $requested != inspect ]] || exit 0
 run_stage prepare "$WORK_DIR/logs/chroot-preflight.log"
 [[ $requested != prepare ]] || exit 0
@@ -38,7 +39,7 @@ for component in emulationstation retroarch 351files; do
 done
 [[ $requested != build ]] || exit 0
 previous=$WORK_DIR/state/graphics.json
-run_stage kernel "$KERNEL_IMAGE" "$WORK_DIR/build/.config"
+run_stage kernel "$KERNEL_IMAGE" "$WORK_DIR/build/.config" "$WORK_DIR/artifacts/kernel-source.json"
 sha256sum "$WORK_DIR/state/kernel.json" "$WORK_DIR/state/build-emulationstation.json" "$WORK_DIR/state/build-retroarch.json" "$WORK_DIR/state/build-351files.json" > "$WORK_DIR/state/image-inputs.sha256"
 previous=$WORK_DIR/state/image-inputs.sha256
 run_stage image "$WORK_DIR/state/runtime-id" "$WORK_DIR/artifacts/delta.json"
