@@ -6,18 +6,22 @@ mkdir -p "$prefix" /opt/darkos-qemu/packages
 cd /opt/darkos-qemu/packages
 # Install build dependencies only on the disposable build disk. The runtime
 # dependency closure is exported separately and installed without compilers.
-if [[ -f build-package-debs.sha256 ]]; then
+build=(build-essential cmake ninja-build pkg-config git ca-certificates libfreetype-dev libfreeimage-dev libsdl2-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev libcurl4-openssl-dev libvlc-dev rapidjson-dev libasound2-dev libudev-dev libdrm-dev libgbm-dev libegl-dev libgles-dev libgl-dev libopengl-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev libpulse-dev zlib1g-dev libxml2-dev libssl-dev)
+build_request=$(printf '%s\n' "${build[@]}" | sha256sum | cut -d ' ' -f 1)
+if [[ -f build-package-debs.sha256 && -f build-requests.sha256 && $(cat build-requests.sha256) == "$build_request" ]]; then
  sha256sum -c build-package-debs.sha256
  if [[ ! -f /opt/darkos-qemu/build-packages-applied ]]; then
   apt-get -y --no-download --no-install-recommends install "$PWD"/build/*.deb
  fi
-elif [[ ! -f build-packages.lock ]]; then
+else
  apt-get -o Acquire::Retries=3 update
- build=(build-essential cmake ninja-build pkg-config git ca-certificates libfreetype-dev libfreeimage-dev libsdl2-dev libsdl2-mixer-dev libcurl4-openssl-dev libvlc-dev rapidjson-dev libasound2-dev libudev-dev libdrm-dev libgbm-dev libegl-dev libgles-dev libgl-dev libopengl-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev libpulse-dev zlib1g-dev libxml2-dev libssl-dev)
  apt-get -s --no-install-recommends install "${build[@]}" > build-apt-plan.txt
  ! grep -q '^Remv ' build-apt-plan.txt
  DEBIAN_FRONTEND=noninteractive apt-get -y -o Acquire::Retries=3 --no-install-recommends install "${build[@]}"
  dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > build-packages.lock
+ # The selected build dependency set changed: record a new exact .deb cache.
+ [[ ! -d build ]] || mv build "build.previous.$(date +%s)"
+ rm -f build-package-debs.sha256
 fi
 
 if [[ ! -f build-package-debs.sha256 ]]; then
@@ -38,9 +42,10 @@ PY
  (cd build; xargs -r apt-get download < ../build-changes.lock)
  sha256sum build/*.deb > build-package-debs.sha256
 fi
+echo "$build_request" > build-requests.sha256
 touch /opt/darkos-qemu/build-packages-applied
 
-runtime=(libsdl2-2.0-0 libsdl2-mixer-2.0-0 libgbm1 libegl1 libgles2 libegl-mesa0 libgl1-mesa-dri mesa-libgallium libopengl0 libgl1 libglx0 libglx-mesa0 libglvnd0 libdrm2 libdrm-tests libfreeimage3 libfreetype6 libcurl4t64 libvlc5 libasound2t64 libudev1 libavcodec61 libavformat61 libavutil59 libswscale8 libswresample5)
+runtime=(libsdl2-2.0-0 libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-ttf-2.0-0 libgbm1 libegl1 libgles2 libegl-mesa0 libgl1-mesa-dri mesa-libgallium libopengl0 libgl1 libglx0 libglx-mesa0 libglvnd0 libdrm2 libdrm-tests libfreeimage3 libfreetype6 libcurl4t64 libvlc5 libasound2t64 libudev1 libavcodec61 libavformat61 libavutil59 libswscale8 libswresample5)
 runtime_request=$(printf '%s\n' "${runtime[@]}" | sha256sum | cut -d ' ' -f 1)
 if [[ ! -f runtime-requests.sha256 || $(cat runtime-requests.sha256) != "$runtime_request" ]]; then
  mkdir -p runtime partial
@@ -55,7 +60,7 @@ sha256sum -c runtime-packages.sha256
 for deb in runtime/*.deb; do dpkg-deb -x "$deb" "$prefix"; done
 # Development files are build-only and must resolve graphics to this prefix.
 mkdir -p dev
-for p in libsdl2-dev libgbm-dev libegl-dev libgles-dev libgl-dev libopengl-dev libglx-dev; do
+for p in libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libgbm-dev libegl-dev libgles-dev libgl-dev libopengl-dev libglx-dev; do
  v=$(apt-cache policy "$p:arm64" | awk '/Candidate:/ {print $2}')
  (cd dev; [[ -n $(find . -name "${p}_*.deb" -print -quit) ]] || apt-get download "$p:arm64=$v")
 done

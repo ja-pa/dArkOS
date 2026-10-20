@@ -10,7 +10,7 @@ for name in ['import','inspect','prepare','graphics']:
     receipt=w/'state'/(name+'.json')
     sp.run([sys.executable,str(q/'state.py'),'check',str(q),str(lock),str(receipt),previous],check=True)
     previous=str(receipt)
-for name in ['build-emulationstation','build-retroarch','kernel']:
+for name in ['build-emulationstation','build-retroarch','build-351files','kernel']:
     sp.run([sys.executable,str(q/'state.py'),'check',str(q),str(lock),str(w/'state'/(name+'.json')),previous],check=True)
 sp.run([sys.executable,str(q/'state.py'),'check',str(q),str(lock),str(w/'state/image.json'),str(w/'state/image-inputs.sha256')],check=True)
 sp.run(['bash',str(q/'vm.sh'),'check'],check=True)
@@ -19,9 +19,13 @@ if not validation.get('passed') or set(validation.get('systems',{}))!={'gb','gbc
 current_id=(w/'state/runtime-id').read_text().strip()
 image_fingerprint=json.loads((w/'state/image.json').read_text())['fingerprint']
 if validation.get('runtime_id')!=current_id or validation.get('image_fingerprint')!=image_fingerprint:raise RuntimeError('Validation belongs to another image profile; rerun make qemu-test')
-files=[w/'artifacts/delta.json',w/'logs/test-results.json',Path(os.environ['KERNEL_IMAGE']),w/'artifacts/emulationstation/emulationstation',w/'artifacts/retroarch/retroarch',w/'artifacts/graphics/runtime-packages.sha256',w/'sdk/manifest.json']
+fm=json.loads((w/'logs/351files-results.json').read_text())
+if not fm.get('passed') or fm.get('runtime_id')!=current_id or fm.get('image_fingerprint')!=image_fingerprint:raise RuntimeError('Run current 351Files integration gate first')
+files=[w/'logs/351files-results.json',w/'artifacts/delta.json',w/'logs/test-results.json',Path(os.environ['KERNEL_IMAGE']),w/'artifacts/emulationstation/emulationstation',w/'artifacts/retroarch/retroarch',w/'artifacts/351files/351files',w/'artifacts/graphics/runtime-packages.sha256',w/'sdk/manifest.json']
 git=['git','-c','safe.directory='+str(q.parent),'-C',str(q.parent)]
 data={'schema':1,'created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'fork_commit':run(*git,'rev-parse','HEAD'),'worktree_dirty':bool(run(*git,'status','--porcelain')),'release_lock_sha256':digest(lock),'runtime_id':current_id,'image_fingerprint':image_fingerprint,'files':{str(p.relative_to(w)):digest(p) for p in files},'validation':validation}
-if (w/'logs/roundtrip.json').exists():data['bundle_roundtrip']=json.loads((w/'logs/roundtrip.json').read_text())
+if (w/'logs/roundtrip.json').exists():
+    roundtrip=json.loads((w/'logs/roundtrip.json').read_text())
+    if roundtrip.get('runtime_id')==current_id:data['bundle_roundtrip']=roundtrip
 target=w/'artifacts/attestation.json';temp=target.with_suffix('.partial');temp.write_text(json.dumps(data,indent=2)+'\n');temp.replace(target)
 print('Attestation recorded: '+str(target))

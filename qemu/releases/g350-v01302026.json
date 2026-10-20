@@ -47,6 +47,11 @@
     "kernel": {
       "repo": "https://github.com/ja-pa/kernel_5_10_226",
       "commit": "bef65b1793524bc7bd27c4d70d0ce59cbebee032"
+    },
+    "351files": {
+      "repo": "https://github.com/christianhaitian/351Files",
+      "commit": "5f25123a678e9ab863db963479c9d4215a3f9ec7",
+      "relationship_to_image": "inferred: latest default-branch commit before image timestamp; rebuilt with QEMU keyboard profile"
     }
   },
   "target": {

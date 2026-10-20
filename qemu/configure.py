@@ -64,3 +64,5 @@ lines=[line for line in text.splitlines() if line.split('=',1)[0].strip() not in
 write('/home/ark/.config/retroarch/retroarch.qemu.cfg','\n'.join(lines)+'\n'+''.join(f'{k} = "{v}"\n' for k,v in overrides.items()))
 for f in (q/'runtime').iterdir(): shutil.copy2(f,root/'opt/darkos-qemu'/f.name)
 print('G350 runtime profile configured:',profile)
+
+write('/opt/system/351Files.sh','#!/usr/bin/env bash\nexec bash /opt/darkos-qemu/351files.sh\n',0o755)

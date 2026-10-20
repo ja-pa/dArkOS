@@ -1,0 +1,85 @@
+diff --git a/src/def.h b/src/def.h
+index d677238..deb6467 100644
+--- a/src/def.h
++++ b/src/def.h
+@@ -107,10 +107,14 @@
+    #define KEYBOARD_SYMBOL_SIZE     24
+ 
+ // Parameters for RG351MP
+-#elif defined(DEVICE_RG351MP)
++#elif defined(DEVICE_RG351MP) || defined(DEVICE_QEMU)
+    #define SCREEN_WIDTH             640
+    #define SCREEN_HEIGHT            480
++   #if defined(DEVICE_QEMU)
++   #define HARDWARE_ACCELERATION    1
++   #else
+    #define HARDWARE_ACCELERATION    0
++   #endif
+    #define FULLSCREEN               1
+    #define FONT_NAME                "NotoSans-Regular.ttf"
+    #define FONT_NAME_MONO           "NotoSansMono-Regular.ttf"
+@@ -461,6 +465,11 @@
+    #define BUTTON_HELD_VALIDATE           SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RETURN]
+ #endif
+ 
++// A keyboard exit unwinds nested dialogs, then main performs normal SDL cleanup.
++#if defined(DEVICE_QEMU)
++struct QemuExit {};
++#endif
++
+ // Globals
+ extern SDL_Window* g_window;
+ extern SDL_Renderer* g_renderer;
+diff --git a/src/main.cpp b/src/main.cpp
+index cd1f3dd..4d5d151 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -85,11 +85,18 @@ int main(int argc, char* args[])
+    g_charW = SDLUtils::getCharWidthMono();
+ 
+    // Execute main window
++#if defined(DEVICE_QEMU)
++   try
++#endif
+    {
+       MainWindow mainWindow(START_PATH);
+       mainWindow.execute();
+    }
+ 
++#if defined(DEVICE_QEMU)
++   catch (const QemuExit&) {}
++#endif
++
+    // Clean up font
+    TTF_CloseFont(g_font);
+    g_font = NULL;
+diff --git a/src/sdlutils.cpp b/src/sdlutils.cpp
+index ba56240..eb94cd8 100644
+--- a/src/sdlutils.cpp
++++ b/src/sdlutils.cpp
+@@ -58,6 +58,9 @@ bool SDLUtils::init()
+    }
+ 
+    // Create renderer
++#if defined(DEVICE_QEMU)
++   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
++#endif
+    #if HARDWARE_ACCELERATION == 1
+    g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED);
+    #else
+diff --git a/src/window.cpp b/src/window.cpp
+index 78fb472..a29cc82 100644
+--- a/src/window.cpp
++++ b/src/window.cpp
+@@ -64,6 +64,11 @@ int IWindow::execute(void)
+       // Handle events
+       while (SDL_PollEvent(&event) != 0 )
+       {
++#if defined(DEVICE_QEMU)
++         if (event.type == SDL_KEYDOWN && event.key.repeat == 0 &&
++             (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_F4))
++            throw QemuExit{};
++#endif
+          // Quit
+          if (event.type == SDL_QUIT)
+             return 0;

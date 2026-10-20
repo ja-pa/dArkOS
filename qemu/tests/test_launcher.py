@@ -21,7 +21,8 @@ class LauncherTests(unittest.TestCase):
         subprocess.run(['qemu-img', 'create', '-f', 'qcow2', '-F', 'raw', '-b',
                         str(self.raw), str(self.overlay)], check=True, capture_output=True)
         self.env = dict(os.environ, KERNEL_IMAGE=str(self.kernel),
-                        DISK_IMAGE=str(self.overlay), SSH_PORT='2222', WORK_DIR=str(self.path), ROOT_PARTUUID='test-image-02', ROOT_FSTYPE='btrfs')
+                        DISK_IMAGE=str(self.overlay), SSH_PORT='2222', WORK_DIR=str(self.path),
+                        ES_SYSROOT=str(self.path / 'sdk/sysroot'), ROOT_PARTUUID='test-image-02', ROOT_FSTYPE='btrfs')
 
     def run_launcher(self, *arguments, **env):
         return subprocess.run(['bash', str(LAUNCHER), *arguments],
