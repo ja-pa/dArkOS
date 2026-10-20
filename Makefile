@@ -172,3 +172,8 @@ qemu-sdk:
 .PHONY: qemu-attest
 qemu-attest:
 	bash qemu/attest.sh
+
+# Run static/regression checks only when requested on the local host.
+.PHONY: qemu-check
+qemu-check:
+	bash qemu/check.sh
