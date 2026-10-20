@@ -14,3 +14,6 @@ rg351/
 *.img
 .img.*
 wget-log*
+/images/
+qemu/**/__pycache__/
+qemu/.pytest_cache/

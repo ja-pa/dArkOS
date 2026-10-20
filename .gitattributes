@@ -1,0 +1,6 @@
+/qemu/**/*.sh text eol=lf
+/build_qemu.sh text eol=lf
+/build_*-qemu.sh text eol=lf
+
+# Patch context must preserve upstream whitespace verbatim.
+qemu/patches/** whitespace=-trailing-space,-space-before-tab,-blank-at-eof

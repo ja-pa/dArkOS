@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "input": {
+    "upstream_release": "v01302026",
+    "image_filename": "dArkOS_G350_trixie_02012026.img",
+    "image_size": 8301576192,
+    "source_board": "g350",
+    "chipset": "rk3326",
+    "debian_codename": "trixie",
+    "image_created": "2026-02-01T20:57:32Z",
+    "archives": [
+      {
+        "name": "dArkOS_G350_trixie_02012026.img.7z.001",
+        "sha256": "520f33db70230121c0de0d55e12c865c0b4e64b86d92955abba21fbdb84f0d5c"
+      },
+      {
+        "name": "dArkOS_G350_trixie_02012026.img.7z.002",
+        "sha256": "239063a4c2a4f56d83d57865e890d44e0ab39e76541eeb806b6b2542f80cf2d0"
+      }
+    ],
+    "image_sha256": "b3dff3ae75589c7af85f0aa117d95da4512d4e2c7f8f64e780297a056f18a98a",
+    "image_timestamp_source": "7z l -slt with TZ=UTC"
+  },
+  "sources": {
+    "darkos": {
+      "repo": "https://github.com/christianhaitian/dArkOS",
+      "commit": "4518be7d0a665fb03619b840ce6015775d88765a",
+      "relationship_to_image": "release-tag; binary build provenance unverified"
+    },
+    "emulationstation": {
+      "repo": "https://github.com/christianhaitian/EmulationStation-fcamod",
+      "branch": "351v",
+      "commit": "2c34c43976b0b03737c9b947b060c5727ef5dcff",
+      "relationship_to_image": "inferred: latest branch commit before image timestamp"
+    },
+    "core_builds": {
+      "repo": "https://github.com/christianhaitian/rk3326_core_builds",
+      "commit": "bea1d57ea6ab064594ce636032c6bb402867db86",
+      "relationship_to_image": "inferred: latest branch commit before image timestamp"
+    },
+    "retroarch": {
+      "repo": "https://github.com/libretro/RetroArch",
+      "tag": "v1.22.2",
+      "commit": "69a4f0ea1e8aaf442ae4858f2e7f2b31a1776576",
+      "relationship_to_image": "version selected by pinned rk3326 recipe"
+    },
+    "kernel": {
+      "repo": "https://github.com/ja-pa/kernel_5_10_226",
+      "commit": "bef65b1793524bc7bd27c4d70d0ce59cbebee032"
+    }
+  },
+  "target": {
+    "machine": "virt",
+    "architecture": "arm64",
+    "graphics": "mesa-sdl2-kmsdrm",
+    "default_build_mode": "arm64-chroot",
+    "audio": "dummy",
+    "ssh_port": 2232
+  }
+}

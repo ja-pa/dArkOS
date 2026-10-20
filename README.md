@@ -45,3 +45,10 @@ kloptops for testing and feedback \
 Fraxinus88 for testing and feedback \
 ImCoKeMaN for testing and feedback \
 [PortMaster](https://portmaster.games/) team for support in figuring out PM interface issues
+
+## QEMU development target
+
+Convert the official G350 release image into an ARM64 QEMU runtime with the
+[release-to-QEMU pipeline](qemu/README.md). This target preserves the release
+userspace and builds only hardware-dependent frontends; handheld builds retain
+their existing commands.

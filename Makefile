@@ -147,3 +147,28 @@ clean_complete: clean
 	[ -d "$${PWD}/Arkbuild_ccache" ] && sudo rm -rf Arkbuild_ccache || true
 	[ -d "$${PWD}/Arkbuild_package_cache" ] && sudo rm -rf Arkbuild_package_cache || true
 	sudo rm -f build.log*
+
+# Release-to-QEMU conversion; existing physical-device recipes are unchanged.
+.PHONY: qemu qemu-import qemu-inspect qemu-prepare qemu-graphics qemu-build qemu-image qemu-test qemu-sdk
+qemu:
+	bash ./build_qemu.sh all
+qemu-import:
+	bash ./build_qemu.sh import
+qemu-inspect:
+	bash ./build_qemu.sh inspect
+qemu-prepare:
+	bash ./build_qemu.sh prepare
+qemu-graphics:
+	bash ./build_qemu.sh graphics
+qemu-build:
+	COMPONENT="$(COMPONENT)" bash ./build_qemu.sh build
+qemu-image:
+	bash ./build_qemu.sh image
+qemu-test:
+	bash ./build_qemu.sh test
+qemu-sdk:
+	bash ./build_qemu.sh sdk
+
+.PHONY: qemu-attest
+qemu-attest:
+	bash qemu/attest.sh

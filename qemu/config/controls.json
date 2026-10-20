@@ -1,0 +1,72 @@
+{
+  "profiles": [
+    {
+      "name": "EmulationStation",
+      "note": "Default QEMU keyboard profile. Select the QEMU window before typing. Up/Down also switch systems in the original theme.",
+      "controls": [
+        [
+          "D-pad / navigation",
+          "↑ ↓ ← →"
+        ],
+        [
+          "A / confirm / launch",
+          "Enter"
+        ],
+        [
+          "B / back",
+          "Escape"
+        ],
+        [
+          "Start / main menu",
+          "Space"
+        ],
+        [
+          "Select / options",
+          "Tab"
+        ],
+        [
+          "Quit EmulationStation",
+          "F4"
+        ]
+      ]
+    },
+    {
+      "name": "RetroArch ARM64",
+      "note": "Verified QEMU keyboard profile for all six systems. F2 saves state, F4 loads it; Escape returns to ES.",
+      "controls": [
+        [
+          "D-pad",
+          "↑ ↓ ← →"
+        ],
+        [
+          "A / B",
+          "Z / X"
+        ],
+        [
+          "X / Y",
+          "S / A"
+        ],
+        [
+          "L / R",
+          "Q / W"
+        ],
+        [
+          "Start / Select",
+          "Enter / Right Shift"
+        ],
+        [
+          "RetroArch menu",
+          "F1"
+        ],
+        [
+          "Save / load state",
+          "F2 / F4"
+        ],
+        [
+          "Exit / return to ES",
+          "Escape"
+        ]
+      ]
+    }
+  ]
+}

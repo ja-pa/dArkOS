@@ -1,0 +1,78 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index fb60e26..a34b631 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,10 +1,17 @@
+-cmake_minimum_required(VERSION 2.8)
++cmake_minimum_required(VERSION 3.5)
+ 
+ option(GLES "Set to ON if targeting Embedded OpenGL" ${GLES})
+ option(GL "Set to ON if targeting Desktop OpenGL" ${GL})
+ option(RPI "Set to ON to enable the Raspberry PI video player (omxplayer)" ${RPI})
+ option(CEC "Set to ON to enable CEC" ${CEC})
+ 
++option(SDL_KMSDRM "Require the standard SDL2 KMSDRM backend" OFF)
++if(SDL_KMSDRM AND (GLES OR NOT GL))
++    message(FATAL_ERROR "SDL_KMSDRM requires GL=ON and GLES=OFF")
++endif()
++if(SDL_KMSDRM)
++    add_definitions(-DUSE_SDL_KMSDRM)
++endif()
+ project(emulationstation-all)
+ 
+ #-------------------------------------------------------------------------------
+@@ -276,7 +283,7 @@ endif()
+ 
+ #-------------------------------------------------------------------------------
+ # set up build directories
+-set(dir ${CMAKE_CURRENT_SOURCE_DIR})
++set(dir ${CMAKE_CURRENT_BINARY_DIR})
+ set(EXECUTABLE_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
+ set(LIBRARY_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
+ 
+diff --git a/es-core/src/renderers/Renderer.cpp b/es-core/src/renderers/Renderer.cpp
+index c848191..62d7cfd 100644
+--- a/es-core/src/renderers/Renderer.cpp
++++ b/es-core/src/renderers/Renderer.cpp
+@@ -81,8 +81,18 @@ namespace Renderer
+ 			return false;
+ 		}
+ 
++#ifdef USE_SDL_KMSDRM
++        const char* driver = SDL_GetCurrentVideoDriver();
++        LOG(LogInfo) << "SDL video backend: " << (driver ? driver : "<null>");
++        if (!driver || SDL_strcasecmp(driver, "kmsdrm") != 0)
++        {
++            LOG(LogError) << "QEMU build requires SDL KMSDRM";
++            SDL_QuitSubSystem(SDL_INIT_VIDEO);
++            return false;
++        }
++#endif
+ //#if 0
+-		static SDL_DisplayMode dispMode;
++        static SDL_DisplayMode dispMode;
+ 
+ 		if (windowWidth == 0)
+ 		{
+diff --git a/es-core/src/renderers/Renderer_GL21.cpp b/es-core/src/renderers/Renderer_GL21.cpp
+index 966ed56..ed880fc 100644
+--- a/es-core/src/renderers/Renderer_GL21.cpp
++++ b/es-core/src/renderers/Renderer_GL21.cpp
+@@ -73,7 +73,7 @@ namespace Renderer
+ 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+ 
+ 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
++		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+ 
+ 		// Antialias : Not supported on every machine
+ 		// SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+diff --git a/es-core/src/utils/StringUtil.cpp b/es-core/src/utils/StringUtil.cpp
+index e51916a..a9f57ad 100644
+--- a/es-core/src/utils/StringUtil.cpp
++++ b/es-core/src/utils/StringUtil.cpp
+@@ -1,3 +1,4 @@
++#include <cstdint>
+ #include <string>
+ #include "utils/StringUtil.h"
+ 
