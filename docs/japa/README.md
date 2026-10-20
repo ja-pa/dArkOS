@@ -153,11 +153,16 @@ Potřebuje WSLg a při prvním spuštění stáhne volné testovací ROM. Konver
 včetně `qemu-test` kontrolují své předchozí kroky; chybějící nebo neplatné výstupy
 mohou způsobit jejich nové provedení. GitHub Actions workflow v této větvi není.
 
-Pro běžné používání:
+Pro běžné používání teď na tomto počítači spouštím z `~/projects/darkos-g350`:
 
 ```bash
-bash qemu/vm.sh es
+cd "$HOME/projects/darkos-g350"
+env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET WORK_DIR="$HOME/darkos-g350-qemu" bash qemu/vm.sh es
 ```
+
+`env -u` pro toto spuštění odstraní případné zděděné proměnné ze starého portu
+nebo SDK. Explicitní `WORK_DIR` vybere naše aktuální G350 prostředí. Nastavení
+rodičovského terminálu se tím nemění.
 
 Otevře QEMU, ES a nápovědu s fotkou G350 a mapováním kláves. V nápovědě přepínat
 mezi ES, ovládáním ve hře a 351Files. Klávesy posílat do okna QEMU, ne do okna nápovědy.
