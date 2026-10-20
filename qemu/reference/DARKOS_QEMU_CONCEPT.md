@@ -165,7 +165,7 @@ For large, tightly coupled upstream recipes like `build_retroarch.sh`, identify 
 
 Before implementation, map the exact call graph across the main dArkOS repo and `rk3566_core_builds` (including source versions/branches, generated artifacts, Mali/libgo2/RGA dependencies, target flags and install locations).
 
-**No blanket assumption:** Fork + merge detects textual conflicts, but it does not catch semantic drift. CI tests remain essential.
+**No blanket assumption:** Fork + merge detects textual conflicts, but it does not catch semantic drift. Local regression tests remain essential; GitHub Actions is intentionally disabled.
 
 ## 6. Git strategy and release provenance
 
@@ -176,7 +176,7 @@ Suggested conventions (adjust names to repository reality):
 - One active integration branch such as `qemu`; keep the fork changes small and documented.
 - Immutable tags for successful ports, e.g. `qemu/v01302026-r1`.
 - Maintenance branches for older ports **only if** they need fixes after the main QEMU branch advances.
-- Prefer normal upstream merges with reviewed conflict resolution and CI, rather than keeping a permanent queue of opaque external patches.
+- Prefer normal upstream merges with reviewed conflict resolution and local checks, rather than keeping a permanent queue of opaque external patches.
 
 Maintain **one release lockfile per supported input image**. Proposed structure:
 
@@ -209,7 +209,7 @@ target:
 
 This YAML is a **proposed schema**, not a record of verified release-specific SHA values. Pin package versions and sources by *resolved input metadata* or a generated build lock/manifest as needed. It is acceptable to record unknown provenance explicitly; do not invent a historic release commit.
 
-**Avoid the self-referential commit problem:** Do not embed the SHA of the commit containing this same manifest into the manifest itself. Record the fork `qemu_commit` in an **annotated Git tag**, release CI output or generated post-build attestation. The source tree's own commit SHA is inherently available from Git.
+**Avoid the self-referential commit problem:** Do not embed the SHA of the commit containing this same manifest into the manifest itself. Record the fork `qemu_commit` in an **annotated Git tag**, generated post-build attestation. The source tree's own commit SHA is inherently available from Git.
 
 Every successful build should generate an additional **delta manifest** with:
 

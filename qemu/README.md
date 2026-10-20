@@ -37,8 +37,20 @@ release is unverified. No upstream image/bootstrap script is executed.
 The original archive hashes come from GitHub release asset metadata. The base
 image stays read-only. Build and runtime use separate QCOW2 overlays, and the
 runtime receives runtime libraries and rebuilt binaries rather than the build
-rootfs. The G350 working overlays expand ROOTFS after backing up and relocating
-EASYROMS; original partition identities and its contents are preserved.
+rootfs.
+
+`qemu-prepare` automatically provisions disk capacity before the first chroot/APT
+check, dependency installation and component compilation. The official ROOTFS
+has insufficient free space for this work. `grow.sh` adds 12 GiB to the build
+overlay and 4 GiB to the runtime overlay, relocates EASYROMS with a verified
+backup, and expands the Btrfs ROOTFS. Partition identities and EASYROMS contents
+are preserved. These are increases in virtual capacity, not preallocation;
+QCOW2 files consume host space as writes occur. Keep sufficient free space on
+the WSL filesystem for the base image, both overlays, sources, caches and SDK.
+No manual `grow.sh` invocation is needed in a fresh build: every Make target
+from `qemu-prepare` onward runs the prerequisite preparation stage. Repeating
+preparation does not move partitions again once the growth marker is present.
+The call in `image.sh` is a defensive check for direct script invocation.
 
 Stages use an exclusive work lock, content fingerprints and verified output
 hashes. A receipt is written only after a successful command. Mounts and NBD
@@ -108,6 +120,16 @@ identity at import. Original bundles and the working disk are preserved.
 No image is publicly published by these commands.
 
 ## Validation and evidence
+
+This branch has no GitHub Actions workflow. All checks are explicitly local:
+
+```bash
+make qemu-check  # syntax, small host C helper, Python and regression checks
+make qemu-test   # local ARM64 VM / graphical integration, using WSLg
+```
+
+`qemu-check` does not invoke APT, build the kernel/frontends or boot a guest.
+Install host prerequisites first; Tk rendering tests run when DISPLAY is available.
 
 `make qemu-test` checks the base hash, boots QEMU, launches each original core
 through ES using QMP keyboard events, exercises save/load and return to ES,

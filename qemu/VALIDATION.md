@@ -28,9 +28,17 @@ Machine-readable evidence lives outside Git in WORK_DIR/logs/test-results.json,
 WORK_DIR/logs/roundtrip.json and WORK_DIR/artifacts/attestation.json. The latter
 records the final source commit, immutable stage receipts and artifact hashes.
 Source manifests distinguish historically inferred source revisions from proven
-binary provenance. CI covers static regressions; graphical tests require WSLg.
+binary provenance. Checks are run locally with make qemu-check; graphical tests
+require WSLg. GitHub Actions workflows have been removed by project policy.
 
 Acceptance covers functional keyboard operation and state persistence, not
 console timing or playable performance under TCG. Audio, physical gamepads,
 ARM32 and additional standalone emulators remain subsequent milestones.
 The original darkos_qemu checkout and its working disks were preserved.
+
+Follow-up preparation check (2026-10-20): fresh build/runtime overlays were
+expanded before the first chroot/APT check, then preparation was repeated.
+Both runs passed ARM64 shell, DNS and APT; the EASYROMS backups were not
+rewritten on repetition. Virtual disk sizes were 21,186,478,080 and
+12,596,543,488 bytes. The immutable raw image SHA256 remained unchanged.
+Evidence: WORK_DIR/logs/prepare-fresh-check.json and prepare-fresh-check.log.
