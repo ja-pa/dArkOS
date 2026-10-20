@@ -53,7 +53,7 @@ dependency refresh, use a new WORK_DIR and review the new manifests.
 
 ```bash
 bash qemu/vm.sh es
-bash qemu/vm.sh controls
+bash qemu/vm.sh controls  # reopen the G350 keyboard diagram
 bash qemu/vm.sh ssh 'uname -a'
 bash qemu/vm.sh stop
 bash qemu/sdk.sh prepare
@@ -68,6 +68,12 @@ To select the prepared G350 runtime independently of those overrides:
 env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET \
   WORK_DIR="$HOME/darkos-g350-qemu" bash qemu/vm.sh es
 ```
+
+`vm.sh es` also opens the keyboard help window with the supplied G350 photo.
+Switch between EmulationStation and RetroArch to see the actual per-profile
+keys at the physical buttons; closing help leaves QEMU running. `vm.sh stop`
+also closes help. It requires `python3-tk` and `python3-pil.imagetk`.
+The photo is a user-supplied reference under `qemu/config/g350_picture.jpg`.
 
 SSH is key-only on `127.0.0.1:2232` by default, separate from the old port's 2222.
 The serial console logs in as ark for development. Export `SSH_PORT` explicitly

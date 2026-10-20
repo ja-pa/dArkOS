@@ -2,37 +2,50 @@
   "profiles": [
     {
       "name": "EmulationStation",
-      "note": "Default QEMU keyboard profile. Select the QEMU window before typing. Up/Down also switch systems in the original theme.",
+      "note": "Ovládání nabídky ES. Před stiskem kláves klikněte do okna QEMU. Ve hře přepněte tuto nápovědu na RetroArch.",
       "controls": [
         [
-          "D-pad / navigation",
+          "D-pad / pohyb",
           "↑ ↓ ← →"
         ],
         [
-          "A / confirm / launch",
+          "A / potvrdit / spustit",
           "Enter"
         ],
         [
-          "B / back",
+          "B / zpět",
           "Escape"
         ],
         [
-          "Start / main menu",
+          "Start / hlavní nabídka",
           "Space"
         ],
         [
-          "Select / options",
+          "Select / možnosti",
           "Tab"
         ],
         [
-          "Quit EmulationStation",
+          "Ukončit ES",
           "F4"
         ]
-      ]
+      ],
+      "diagram": {
+        "dpad": "↑ ↓ ← →",
+        "a": "Enter",
+        "b": "Escape",
+        "x": "S",
+        "y": "A",
+        "start": "Space",
+        "select": "Tab",
+        "l": "Q",
+        "r": "W",
+        "l2": "1",
+        "r2": "2"
+      }
     },
     {
-      "name": "RetroArch ARM64",
-      "note": "Verified QEMU keyboard profile for all six systems. F2 saves state, F4 loads it; Escape returns to ES.",
+      "name": "Ve hře (RetroArch)",
+      "note": "Ovládání ve hře přes RetroArch. Před stiskem kláves klikněte do okna QEMU. Písmena A/B/X/Y označují tlačítka konzole, zvýrazněné klávesy klávesnici PC.",
       "controls": [
         [
           "D-pad",
@@ -55,18 +68,31 @@
           "Enter / Right Shift"
         ],
         [
-          "RetroArch menu",
+          "Menu RetroArch",
           "F1"
         ],
         [
-          "Save / load state",
+          "Uložit / načíst stav",
           "F2 / F4"
         ],
         [
-          "Exit / return to ES",
+          "Zpět do ES",
           "Escape"
         ]
-      ]
+      ],
+      "diagram": {
+        "dpad": "↑ ↓ ← →",
+        "a": "Z",
+        "b": "X",
+        "x": "S",
+        "y": "A",
+        "start": "Enter",
+        "select": "Right Shift",
+        "l": "Q",
+        "r": "W",
+        "l2": "—",
+        "r2": "—"
+      }
     }
   ]
 }
