@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")/lib.sh"
 source "$QEMU_DIR/scripts/workflow-common.sh"
+# Reject a foreign/unfinished work directory before starting QEMU or appending logs.
+case ${1:-help} in
+ start|es)
+  [[ -s $WORK_DIR/state/profile.env ]] || fail "Missing G350 image profile in WORK_DIR=$WORK_DIR.
+An exported WORK_DIR from the old port overrides the default.
+For the prepared G350 runtime, run:
+  env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET WORK_DIR=\"\$HOME/darkos-g350-qemu\" bash qemu/vm.sh ${1}
+For a new work directory, run make qemu-image or import a runtime bundle first."
+  ;;
+esac
 controls() { python3 "$QEMU_DIR/scripts/controls-window.py" "$1" "$WORK_DIR" || true; }
 case ${1:-help} in
  start) vm start "${2:-gtk-gl}";;

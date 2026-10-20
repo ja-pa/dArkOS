@@ -21,6 +21,8 @@ class WorkflowTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
+        (self.root / "state").mkdir()
+        (self.root / "state/profile.env").write_text("export ROOT_PARTUUID=test-02\nexport ROOT_FSTYPE=btrfs\n")
         with socket.socket() as probe:
             probe.bind(('127.0.0.1', 0))
             port = probe.getsockname()[1]

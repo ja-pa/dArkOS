@@ -60,6 +60,15 @@ bash qemu/sdk.sh prepare
 bash qemu/app.sh build qemu/demos/sdk-app
 ```
 
+If this shell was used for the original port, its exported `WORK_DIR` and
+other path overrides still apply. Inspect the exported variables with `env`.
+To select the prepared G350 runtime independently of those overrides:
+
+```bash
+env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET \
+  WORK_DIR="$HOME/darkos-g350-qemu" bash qemu/vm.sh es
+```
+
 SSH is key-only on `127.0.0.1:2232` by default, separate from the old port's 2222.
 The serial console logs in as ark for development. Export `SSH_PORT` explicitly
 when using a second VM. Graphics require WSLg; the tested path is VirtIO GPU,
