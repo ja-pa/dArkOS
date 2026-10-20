@@ -86,6 +86,9 @@ def main():
             return 0
         # A listening non-QEMU service must never be mistaken for our guest.
         with socket.socket() as sock:
+            # Closed SSH connections may retain TIME_WAIT after clean poweroff.
+            # Reuse that state, while still rejecting an active TCP listener.
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind(('127.0.0.1', PORT))
         with LOG.open('ab') as out:
             process = sp.Popen(['bash', str(PROJECT / 'scripts/run-qemu.sh'), args.mode],

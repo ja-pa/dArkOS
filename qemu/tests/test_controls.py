@@ -68,6 +68,10 @@ class ControlsTests(unittest.TestCase):
                     diagram_text = [canvas.itemcget(item, 'text') for item in canvas.find_all() if canvas.type(item) == 'text']
                     for key in ['Z', 'X', 'S', 'A', 'Right Shift', 'R1 → W', 'L1 → Q']:
                         self.assertIn(key, diagram_text)
+                    picker.current(2)
+                    picker.event_generate('<<ComboboxSelected>>')
+                    root.update_idletasks()
+                    self.assertIn('Backspace', [w.cget('text') for w in rows.winfo_children()])
                     root.geometry('1040x760')
                     root.update_idletasks()
                     self.assertGreaterEqual(root.winfo_width(), 1040)

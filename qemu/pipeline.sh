@@ -26,7 +26,7 @@ run_stage graphics "$WORK_DIR/artifacts/graphics/runtime-packages.lock" "$WORK_D
 (cd "$WORK_DIR/artifacts/graphics"; sha256sum -c runtime-packages.sha256 > /dev/null)
 [[ $requested != graphics ]] || exit 0
 # Component requests use separate receipts to avoid marking the other build complete.
-for component in emulationstation retroarch; do
+for component in emulationstation retroarch 351files; do
  [[ $requested != build || -z ${COMPONENT:-} || ${COMPONENT:-} == all || $COMPONENT == "$component" ]] || continue
  receipt=$WORK_DIR/state/build-$component.json
  if ! python3 "$QEMU_DIR/state.py" check "$QEMU_DIR" "$RELEASE_LOCK" "$receipt" "$previous"; then
@@ -34,12 +34,12 @@ for component in emulationstation retroarch; do
   bash "$QEMU_DIR/build.sh" "$component" |& tee "$WORK_DIR/logs/build-$component.log"
   python3 "$QEMU_DIR/state.py" record "$QEMU_DIR" "$RELEASE_LOCK" "$receipt" "$previous" "$WORK_DIR/artifacts/$component/$component"
  fi
- # Both build receipts depend on graphics, not on the component selection/order.
+ # Component build receipts depend on graphics, not on the component selection/order.
 done
 [[ $requested != build ]] || exit 0
 previous=$WORK_DIR/state/graphics.json
 run_stage kernel "$KERNEL_IMAGE" "$WORK_DIR/build/.config"
-sha256sum "$WORK_DIR/state/kernel.json" "$WORK_DIR/state/build-emulationstation.json" "$WORK_DIR/state/build-retroarch.json" > "$WORK_DIR/state/image-inputs.sha256"
+sha256sum "$WORK_DIR/state/kernel.json" "$WORK_DIR/state/build-emulationstation.json" "$WORK_DIR/state/build-retroarch.json" "$WORK_DIR/state/build-351files.json" > "$WORK_DIR/state/image-inputs.sha256"
 previous=$WORK_DIR/state/image-inputs.sha256
 run_stage image "$WORK_DIR/state/runtime-id" "$WORK_DIR/artifacts/delta.json"
 [[ $requested != image ]] || exit 0

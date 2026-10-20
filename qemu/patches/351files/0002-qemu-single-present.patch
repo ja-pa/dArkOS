@@ -1,0 +1,12 @@
+diff --git a/src/window.cpp b/src/window.cpp
+--- a/src/window.cpp
++++ b/src/window.cpp
+@@ -218,7 +218,7 @@
+ void IWindow::renderPresent(void)
+ {
+    SDL_RenderPresent(g_renderer);
+-   #ifndef DEVICE_PC
++   #if !defined(DEVICE_PC) && !defined(DEVICE_QEMU)
+    SDL_RenderPresent(g_renderer);
+    SDL_RenderPresent(g_renderer);
+    #endif

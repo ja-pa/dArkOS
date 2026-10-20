@@ -67,3 +67,18 @@ void SDL_GL_SwapWindow(void *window) {
     }
     if (swap) swap(window);
 }
+
+/* SDL renderer clients queue drawing commands until presentation. Flush only
+ * for an explicitly requested diagnostic frame; normal launches do not preload. */
+void SDL_RenderPresent(void *renderer) {
+    static void (*present)(void*);
+    if (!present) present=dlsym(RTLD_NEXT,"SDL_RenderPresent");
+    if (!access("/run/darkos-qemu/capture.request",F_OK)) {
+        int (*flush)(void*)=dlsym(RTLD_NEXT,"SDL_RenderFlush");
+        Display (*display)(void)=dlsym(egl_library(),"eglGetCurrentDisplay");
+        Surface (*surface)(int)=dlsym(egl_library(),"eglGetCurrentSurface");
+        if (flush) flush(renderer);
+        if (display && surface) capture(display(),surface(0x3059));
+    }
+    if (present) present(renderer);
+}

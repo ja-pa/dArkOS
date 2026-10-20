@@ -24,6 +24,7 @@ if action.startswith('export-'):
   shutil.copy2(kernel,stage/'Image')
   for a,b in [('state/runtime-id','runtime-id'),('state/profile.json','profile.json'),('state/profile.env','profile.env'),('artifacts/delta.json','provenance.json')]: shutil.copy2(work/a,stage/b)
   if (work/'artifacts/attestation.json').exists(): shutil.copy2(work/'artifacts/attestation.json',stage/'attestation.json')
+  if (work/'logs/351files-results.json').exists(): shutil.copy2(work/'logs/351files-results.json',stage/'351files-validation.json')
   if (work/'logs/test-results.json').exists(): shutil.copy2(work/'logs/test-results.json',stage/'validation.json')
   (stage/'LICENSES.txt').write_text('Local development export. Original package licenses remain in /usr/share/doc.\nSource revisions and changes: provenance.json; test ROM sources: accompanying qemu/test-roms.json.\nLinux: GPL-2.0; RetroArch: GPL-3.0; EmulationStation: see pinned source LICENSE. No new license grant.\n')
   helpers.seal(stage,'runtime')

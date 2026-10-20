@@ -87,6 +87,23 @@ class WorkflowTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('Address already in use', result.stderr)
 
+    def test_restart_probe_accepts_time_wait(self):
+        listener=socket.socket()
+        listener.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+        listener.bind(('127.0.0.1',0));listener.listen()
+        port=listener.getsockname()[1]
+        peer=socket.create_connection(('127.0.0.1',port))
+        accepted,_=listener.accept()
+        accepted.close()  # Active close leaves the server port in TIME_WAIT.
+        peer.recv(1);peer.close();listener.close()
+        with socket.socket() as probe:
+            with self.assertRaises(OSError):probe.bind(('127.0.0.1',port))
+        result=subprocess.run(['bash',str(SCRIPTS.parent/'vm.sh'),'start','serial'],
+                              env=dict(os.environ,SSH_PORT=str(port)),text=True,capture_output=True)
+        self.assertNotEqual(result.returncode,0)
+        self.assertNotIn('Address already in use',result.stderr)
+        self.assertIn('Missing kernel',(self.root/'logs/workflow/serial.log').read_text())
+
     def test_missing_archive_before_privileged_setup(self):
         env = dict(os.environ, ARCHIVE_DIR=str(self.root / 'missing-archives'))
         result = subprocess.run(['bash', str(SCRIPTS.parent / 'setup.sh'), 'source'],

@@ -18,14 +18,18 @@ def wait(command,timeout=120):
 def key(code):
     qmp.command('send-key',{'keys':[{'type':'qcode','data':code}],'hold-time':150});time.sleep(.6)
 def screenshot(name):
-    p=logs/(name+'.ppm')
-    remote('sudo -n mkdir -p /run/darkos-qemu; sudo -n rm -f /run/darkos-qemu/frame.ppm; sudo -n touch /run/darkos-qemu/capture.request')
-    wait('test -s /run/darkos-qemu/frame.ppm && test ! -e /run/darkos-qemu/capture.request')
-    captured=sp.run(['bash',str(Q/'scripts/graphics-ssh.sh'),'sudo -n cat /run/darkos-qemu/frame.ppm'],check=True,capture_output=True).stdout
-    p.write_bytes(captured)
-    im=Image.open(p).convert('RGB');im.save(p.with_suffix('.png'))
-    if len(im.getcolors(im.width*im.height))<2: raise RuntimeError('Blank/near-blank screen: '+name)
-    return hashlib.sha256(im.tobytes()).hexdigest()
+    p=logs/(name+'.ppm'); deadline=time.monotonic()+30
+    while True:
+        remote('sudo -n mkdir -p /run/darkos-qemu; sudo -n rm -f /run/darkos-qemu/frame.ppm; sudo -n touch /run/darkos-qemu/capture.request')
+        wait('test -s /run/darkos-qemu/frame.ppm && test ! -e /run/darkos-qemu/capture.request')
+        captured=sp.run(['bash',str(Q/'scripts/graphics-ssh.sh'),'sudo -n cat /run/darkos-qemu/frame.ppm'],check=True,capture_output=True).stdout
+        p.write_bytes(captured); im=Image.open(p).convert('RGB')
+        if len(im.getcolors(im.width*im.height))>=2:
+            im.save(p.with_suffix('.png'))
+            return hashlib.sha256(im.tobytes()).hexdigest()
+        # Window recreation can present a clear frame before the theme appears.
+        if time.monotonic()>=deadline:raise RuntimeError('Blank/near-blank screen: '+name)
+        time.sleep(1)
 def configure_start(system):
     code=r"""from pathlib import Path
 import xml.etree.ElementTree as E
@@ -40,6 +44,8 @@ p.write_text('<?xml version="1.0"?>'+chr(10)+chr(10).join(E.tostring(x,encoding=
     # Pass Python as stdin, avoiding shell interpolation of profile data.
     sp.run(['bash',str(Q/'scripts/graphics-ssh.sh'),'sudo -n python3 -'],input=code,text=True,check=True,capture_output=True)
 original_settings=remote('sudo -n cat /home/ark/.emulationstation/es_settings.cfg')
+(logs/'es-settings.before-test.cfg').write_text(original_settings)
+(W/'logs/test-results.json').write_text(json.dumps(results,indent=2)+'\n')
 try:
     remote('test "$(dpkg --print-architecture)" = arm64; test -e /dev/dri/card0; test -e /dev/input/event0; ! pidof emulationstation retroarch >/dev/null')
     for system in ['gb','gbc','nes','snes','gba','megadrive']:
@@ -83,7 +89,7 @@ try:
             f.close()
     results['passed']=True
 finally:
-    if results['passed']:
-        sp.run(['bash',str(Q/'scripts/graphics-ssh.sh'),'sudo -n tee /home/ark/.emulationstation/es_settings.cfg >/dev/null'],input=original_settings,text=True,check=True,capture_output=True)
+    # Restore startup selection on failure as well as success.
+    sp.run(['bash',str(Q/'scripts/graphics-ssh.sh'),'sudo -n tee /home/ark/.emulationstation/es_settings.cfg >/dev/null'],input=original_settings,text=True,check=True,capture_output=True)
     (W/'logs/test-results.json').write_text(json.dumps(results,indent=2)+'\n')
 print(json.dumps(results,indent=2))

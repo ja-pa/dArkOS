@@ -3,7 +3,7 @@
 set -euo pipefail
 cd -- "$(dirname -- "$0")/.."
 while IFS= read -r -d '' script; do bash -n "$script"; done < <(find qemu -name '*.sh' -print0)
-for script in build_qemu.sh build_emulationstation-qemu.sh build_retroarch-qemu.sh; do
+for script in build_qemu.sh build_emulationstation-qemu.sh build_retroarch-qemu.sh build_351files-qemu.sh; do
  bash -n "$script"
 done
 scratch=$(mktemp -d)

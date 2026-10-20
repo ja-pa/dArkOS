@@ -13,6 +13,19 @@ class IntegrityTests(unittest.TestCase):
             (p/'build.sh').write_text('second'); self.assertNotEqual(first,state.fingerprint(p,lock,str(dep)))
             (p/'build.sh').write_text('first');dep.write_text('second');self.assertNotEqual(first,state.fingerprint(p,lock,str(dep)))
             dep.write_text('first');lock.write_text('{"v":2}');self.assertNotEqual(first,state.fingerprint(p,lock,str(dep)))
+    def test_351files_patch_and_recipe_invalidate_its_build(self):
+        state=load('state')
+        with tempfile.TemporaryDirectory() as folder:
+            top=Path(folder);q=top/'qemu';patch=q/'patches/351files/keyboard.patch'
+            patch.parent.mkdir(parents=True);patch.write_text('first')
+            recipe=top/'build_351files-qemu.sh';recipe.write_text('first')
+            lock=top/'lock.json';lock.write_text('{}')
+            before=state.fingerprint(q,lock,'',stage='build-351files')
+            patch.write_text('second')
+            self.assertNotEqual(before,state.fingerprint(q,lock,'',stage='build-351files'))
+            patch.write_text('first');recipe.write_text('second')
+            self.assertNotEqual(before,state.fingerprint(q,lock,'',stage='build-351files'))
+
     def test_inventory_does_not_follow_absolute_guest_symlinks(self):
         inv=load('inventory')
         with tempfile.TemporaryDirectory() as t:

@@ -93,6 +93,53 @@
         "l2": "—",
         "r2": "—"
       }
+    },
+    {
+      "name": "351Files",
+      "note": "Správce souborů z Options. Escape nebo F4 ukončí aplikaci i z dialogu a vrátí se do ES. Backspace je zpět / zrušit. Klávesy posílejte do okna QEMU.",
+      "controls": [
+        [
+          "Pohyb",
+          "↑ ↓ ← →"
+        ],
+        [
+          "Otevřít / potvrdit",
+          "Enter"
+        ],
+        [
+          "Zpět / zrušit",
+          "Backspace"
+        ],
+        [
+          "Kontextová nabídka",
+          "X"
+        ],
+        [
+          "Označit položku",
+          "Insert"
+        ],
+        [
+          "Stránka nahoru / dolů",
+          "Page Up / Down"
+        ],
+        [
+          "Zpět do ES",
+          "Escape / F4"
+        ]
+      ],
+      "diagram": {
+        "dpad": "↑ ↓ ← →",
+        "a": "Enter",
+        "b": "Backspace",
+        "x": "X",
+        "y": "Insert",
+        "start": "—",
+        "select": "—",
+        "l": "Page Up",
+        "r": "Page Down",
+        "l2": "—",
+        "r2": "—"
+      }
     }
   ]
 }

@@ -15,7 +15,7 @@ for p in q.parent.glob('build*qemu.sh'): data['recipe_sha256'][p.name]=hashlib.s
 for p in q.parent.glob('build_*-qemu.sh'): data['recipe_sha256'][p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
 kernel=Path(os.environ['KERNEL_IMAGE'])
 data['kernel']={'sha256':hashlib.sha256(kernel.read_bytes()).hexdigest(),'config_sha256':hashlib.sha256((work/'build/.config').read_bytes()).hexdigest(),'source':data['release']['sources']['kernel'],'build_log':str(work/'logs/build-build.log')}
-for name in ['emulationstation','retroarch']:
+for name in ['emulationstation','retroarch','351files']:
  p=work/'artifacts'/name/name
  data['components'][name]={'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'source':data['release']['sources'][name],'build_log':str(work/'logs'/('build-'+name+'.log'))}
 (work/'artifacts/delta.json').write_text(json.dumps(data,indent=2)+'\n')

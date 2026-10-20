@@ -17,7 +17,7 @@ Completed checks:
 - Eight pipeline stages revalidated without rebuilding completed outputs.
 - Failed read-only stage with orphan child: status preserved, child terminated,
   temporary mounts and NBD connection cleaned up.
-- 31 regression unit tests, Bash syntax, ShellCheck error checks, Python compile
+- 34 regression unit tests, Bash syntax, ShellCheck error checks, Python compile
   and capture helper compilation with warnings treated as errors.
 - Runtime export/import into a fresh directory: new SSH host identity, matching
   SDK, original ES theme rendered through KMSDRM, keyboard F4 exit.
@@ -42,3 +42,15 @@ Both runs passed ARM64 shell, DNS and APT; the EASYROMS backups were not
 rewritten on repetition. Virtual disk sizes were 21,186,478,080 and
 12,596,543,488 bytes. The immutable raw image SHA256 remained unchanged.
 Evidence: WORK_DIR/logs/prepare-fresh-check.json and prepare-fresh-check.log.
+
+351Files keyboard follow-up (2026-10-20): the pinned upstream source is rebuilt
+with a QEMU-only 640x480 keyboard/OpenGL profile. The original hardware binaries
+remain intact; Options selects /opt/darkos-qemu/351Files through its wrapper.
+All nine local QMP checks passed: arrows, directory open/parent return, page
+navigation, selection, context-menu cancellation and repeated Escape/F4 returns
+to the same ES PID, including Escape from an open dialog. Runtime binary SHA256
+was compared with the build artifact. All six console/state gates also passed.
+The host restart probe now accepts TCP TIME_WAIT while still rejecting a live
+listener; both conditions have regression coverage. Clean immediate restart,
+SSH, DRM, ROM mounting, QCOW2 consistency and unchanged base SHA256 were checked.
+Evidence: WORK_DIR/logs/351files-results.json and 351files-restart.json.

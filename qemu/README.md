@@ -19,6 +19,7 @@ make qemu-prepare
 make qemu-graphics
 make qemu-build COMPONENT=emulationstation
 make qemu-build COMPONENT=retroarch
+make qemu-build COMPONENT=351files
 make qemu-image
 make qemu-test
 make qemu-sdk
@@ -28,7 +29,8 @@ make qemu-sdk
 accepts a raw image only when its hash is pinned in the selected `RELEASE_LOCK`.
 Do not run this target against an existing RG353M work directory.
 
-`build_emulationstation-qemu.sh` and `build_retroarch-qemu.sh` are small variations
+`build_emulationstation-qemu.sh`, `build_retroarch-qemu.sh` and
+`build_351files-qemu.sh` are small variations
 of the corresponding upstream recipes. Sources and submodules are pinned;
 EmulationStation uses historical `351v`, and RetroArch uses the version from the
 historical `rk3326_core_builds` recipe. Exact correspondence to binaries in the
@@ -100,7 +102,22 @@ The QEMU menu initially exposes GB/GBC, NES, SNES, GBA and Mega Drive only.
 
 The SDK is derived offline from the same build environment and tied to the
 runtime fingerprint. Source `"$WORK_DIR/sdk/environment.sh"` for host GCC 12
-cross builds; native chroot builds remain the default for the two frontends.
+cross builds; native chroot builds remain the default for the frontends and 351Files.
+
+### 351Files
+
+Options -> 351Files uses a pinned rebuild with the G350 640x480 layout,
+Mesa/OpenGL renderer and the upstream keyboard input branch. The original
+hardware binary and resources remain under /opt/351Files; the QEMU binary is
+/opt/darkos-qemu/351Files. The launcher selects it explicitly.
+
+Keys: arrows navigate, Enter opens, Backspace goes back/cancels, X opens the
+context menu, Insert selects, Page Up/Down scroll. Escape or F4 exits even from
+a nested dialog, releases SDL and returns to the same ES process. The host
+help window has a separate 351Files profile. DinguxCommander is unchanged.
+
+`make qemu-test` also exercises Options launch, navigation, selection, context
+menu and repeated Escape/F4 returns. Evidence is logs/351files-results.json.
 
 ## Export and import
 

@@ -4,7 +4,7 @@ Osobní návod pro reprodukci našeho prostředí. Je oddělený od hlavního RE
 projektu; popisuje postup z releasového obrazu až po funkční VM, SDK a exporty.
 
 Zapsáno 20. 10. 2026. Technický stav, ke kterému se postup vztahuje:
-`codex/qemu-arm64`, commit `475c877`. Upstream základ je tag `v01302026`,
+`codex/qemu-arm64`. Upstream základ je tag `v01302026`,
 commit `4518be7d0a665fb03619b840ce6015775d88765a`.
 
 **Nevytváříme celý oficiální dArkOS od začátku.** Stahujeme původní G350 obraz
@@ -44,10 +44,10 @@ git clone --branch codex/qemu-arm64 https://github.com/ja-pa/dArkOS.git darkos-g
 cd darkos-g350
 ```
 
-Větev se může dále vyvíjet. Pro přesně výše uvedený historický technický stav
-lze volitelně spustit `git checkout --detach 475c877`. Tím se přepneš mimo větev;
-tento osobní návod byl přidán později, takže v takto starém checkoutu nebude.
-Pro aktuální vývoj stačí zůstat na `codex/qemu-arm64`.
+Větev se může dále vyvíjet. Pro pozdější reprodukci si poznamenej konkrétní
+revizi pomocí `git rev-parse HEAD`; na druhém počítači lze přejít na tento commit
+přes `git checkout --detach <commit>`. Historický commit `475c877` ještě neobsahuje
+klávesový port 351Files popsaný v tomto aktualizovaném návodu.
 
 ## 3. Připravit hostitele
 
@@ -127,10 +127,11 @@ Na čistém prostředí není potřeba `grow.sh` spouštět ručně.
 make qemu-graphics
 make qemu-build COMPONENT=emulationstation
 make qemu-build COMPONENT=retroarch
+make qemu-build COMPONENT=351files
 make qemu-image
 ```
 
-Grafický krok připraví Debian SDL2/Mesa/DRM a závislosti. ES a RetroArch se
+Grafický krok připraví Debian SDL2/Mesa/DRM a závislosti. ES, RetroArch a 351Files se
 kompilují v ARM64 chrootu přes QEMU user-mode. Nebootuje při tom celá konzole.
 
 `qemu-image` zajistí také sestavení připnutého kernelu 5.10.226 pro QEMU pomocí
@@ -159,7 +160,9 @@ bash qemu/vm.sh es
 ```
 
 Otevře QEMU, ES a nápovědu s fotkou G350 a mapováním kláves. V nápovědě přepínat
-mezi ES a ovládáním ve hře. Klávesy posílat do okna QEMU, ne do okna nápovědy.
+mezi ES, ovládáním ve hře a 351Files. Klávesy posílat do okna QEMU, ne do okna nápovědy.
+351Files používá šipky, Enter, Backspace, X pro nabídku, Insert pro označení
+a Page Up/Down pro stránkování. Escape nebo F4 vrací do ES i z dialogu.
 Nápovědu lze znovu otevřít přes `bash qemu/vm.sh controls`.
 
 ```bash
