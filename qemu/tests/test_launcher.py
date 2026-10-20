@@ -27,6 +27,19 @@ class LauncherTests(unittest.TestCase):
         return subprocess.run(['bash', str(LAUNCHER), *arguments],
                               env=dict(self.env, **env), capture_output=True, text=True)
 
+    def test_foreign_work_directory_rejected_before_start(self):
+        sentinel = self.path / 'logs/workflow/serial.log'
+        sentinel.parent.mkdir(parents=True)
+        sentinel.write_text('old port log')
+        for action in ['start', 'es']:
+            result = subprocess.run(['bash', str(LAUNCHER.parents[1] / 'vm.sh'), action],
+                                    env=self.env, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('WORK_DIR=' + str(self.path), result.stderr)
+            self.assertIn('env -u DISK_IMAGE', result.stderr)
+            self.assertEqual(sentinel.read_text(), 'old port log')
+            self.assertFalse((self.path / 'state/vm.json').exists())
+
     def test_serial_and_space_paths(self):
         result = self.run_launcher('--dry-run')
         self.assertEqual(result.returncode, 0, result.stderr)
