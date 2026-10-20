@@ -2,6 +2,7 @@
 import hashlib,json,os,subprocess
 from pathlib import Path
 from inventory import inventory
+from components import verified_kernel
 root=Path(os.environ['ROOT']); work=Path(os.environ['WORK_DIR']); q=Path(__file__).parent
 before=json.loads((work/'logs/inspect/files.json').read_text()); after=inventory(root)
 # Exclude this generated attestation to avoid hashing its own previous version.
@@ -14,7 +15,7 @@ data['recipe_sha256']={str(p.relative_to(q.parent)):hashlib.sha256(p.read_bytes(
 for p in q.parent.glob('build*qemu.sh'): data['recipe_sha256'][p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
 for p in q.parent.glob('build_*-qemu.sh'): data['recipe_sha256'][p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
 kernel=Path(os.environ['KERNEL_IMAGE'])
-data['kernel']={'sha256':hashlib.sha256(kernel.read_bytes()).hexdigest(),'config_sha256':hashlib.sha256((work/'build/.config').read_bytes()).hexdigest(),'source':data['release']['sources']['kernel'],'build_log':str(work/'logs/build-build.log')}
+data['kernel']={'sha256':hashlib.sha256(kernel.read_bytes()).hexdigest(),'config_sha256':hashlib.sha256((work/'build/.config').read_bytes()).hexdigest(),'source':verified_kernel(work/'artifacts/kernel-source.json',data['release'],kernel),'build_log':str(work/'logs/build-build.log')}
 for name in ['emulationstation','retroarch','351files']:
  p=work/'artifacts'/name/name
  data['components'][name]={'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'source':data['release']['sources'][name],'build_log':str(work/'logs'/('build-'+name+'.log'))}

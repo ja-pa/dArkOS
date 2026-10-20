@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 source "$(dirname -- "$0")/common.sh"
+RELEASE_LOCK=${RELEASE_LOCK:-$PROJECT_DIR/releases/g350-v01302026.json}
+# One source of truth, including direct invocation of this script.
+source_info=$(python3 "$PROJECT_DIR/components.py" --lock "$RELEASE_LOCK" --kernel-source)
+readarray -t kernel_source <<< "$source_info"
+KERNEL_REPO=${kernel_source[0]}
+KERNEL_COMMIT=${kernel_source[1]}
+# A local mirror may supply the same pinned commit; it cannot select a revision.
+SOURCE_REPO=${SOURCE_REPO:-$KERNEL_REPO}
 for tool in git make gcc-12 aarch64-linux-gnu-gcc-12 flex bison bc; do need "$tool"; done
 mkdir -p "$WORK_DIR" "$BUILD_DIR" "$WORK_DIR/logs"
 if [[ ! -d "$KERNEL_SRC/.git" ]]; then
   [[ ! -e "$KERNEL_SRC" ]] || fail "Source path exists without .git: $KERNEL_SRC"
-  if [[ -z ${SOURCE_REPO:-} ]]; then
-    SOURCE_REPO=$PROJECT_DIR/repos/kernel_5_10_226
-    [[ -d "$SOURCE_REPO/.git" ]] || SOURCE_REPO=https://github.com/ja-pa/kernel_5_10_226
-  fi
   git clone --no-hardlinks --no-checkout "$SOURCE_REPO" "$KERNEL_SRC"
   git -C "$KERNEL_SRC" config core.autocrlf false
   git -C "$KERNEL_SRC" config core.symlinks true
@@ -38,3 +42,6 @@ args=(-C "$KERNEL_SRC" O="$BUILD_DIR" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu
   make "${args[@]}" -j"${JOBS:-4}" Image
   sha256sum "$BUILD_DIR/arch/arm64/boot/Image" "$BUILD_DIR/.config"
 } 2>&1 | tee "$WORK_DIR/logs/build-$(basename "$BUILD_DIR").log"
+# Record the actual checkout and bind it to the resulting binary.
+mkdir -p "$WORK_DIR/artifacts"
+python3 "$PROJECT_DIR/components.py" --lock "$RELEASE_LOCK" --record-kernel "$KERNEL_SRC" "$BUILD_DIR/arch/arm64/boot/Image" "$WORK_DIR/artifacts/kernel-source.json"

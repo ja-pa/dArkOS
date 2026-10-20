@@ -31,7 +31,8 @@
       "repo": "https://github.com/christianhaitian/EmulationStation-fcamod",
       "branch": "351v",
       "commit": "2c34c43976b0b03737c9b947b060c5727ef5dcff",
-      "relationship_to_image": "inferred: latest branch commit before image timestamp"
+      "relationship_to_image": "inferred: latest branch commit before image timestamp",
+      "version": "2.13.0.0 CHMOD"
     },
     "core_builds": {
       "repo": "https://github.com/christianhaitian/rk3326_core_builds",
@@ -42,11 +43,13 @@
       "repo": "https://github.com/libretro/RetroArch",
       "tag": "v1.22.2",
       "commit": "69a4f0ea1e8aaf442ae4858f2e7f2b31a1776576",
-      "relationship_to_image": "version selected by pinned rk3326 recipe"
+      "relationship_to_image": "version selected by pinned rk3326 recipe",
+      "version": "1.22.2"
     },
     "kernel": {
       "repo": "https://github.com/ja-pa/kernel_5_10_226",
-      "commit": "bef65b1793524bc7bd27c4d70d0ce59cbebee032"
+      "commit": "bef65b1793524bc7bd27c4d70d0ce59cbebee032",
+      "version": "5.10.226"
     },
     "351files": {
       "repo": "https://github.com/christianhaitian/351Files",
@@ -61,5 +64,39 @@
     "default_build_mode": "arm64-chroot",
     "audio": "dummy",
     "ssh_port": 2232
+  },
+  "replacements": {
+    "emulationstation": {
+      "base_path": "/usr/bin/emulationstation/emulationstation",
+      "base_version": "2.13.0.0 CHMOD",
+      "base_version_evidence": "Embedded version string inspected in the read-only official image; binary SHA256 recorded. This does not establish its source commit.",
+      "target_version": "2.13.0.0 CHMOD + QEMU patches (351v, inferred revision)",
+      "action": "replace",
+      "base_image_sha256": "b3dff3ae75589c7af85f0aa117d95da4512d4e2c7f8f64e780297a056f18a98a",
+      "base_sha256": "e9ee5283315f2207f74f1ce4fc82ecc9c7614691239e6017f7973c47c667b403"
+    },
+    "retroarch": {
+      "base_path": "/opt/retroarch/bin/retroarch",
+      "base_version": "1.22.2",
+      "base_version_evidence": "Embedded version string inspected in the read-only official image; binary SHA256 recorded. This does not establish its source commit.",
+      "target_version": "1.22.2",
+      "action": "replace",
+      "base_image_sha256": "b3dff3ae75589c7af85f0aa117d95da4512d4e2c7f8f64e780297a056f18a98a",
+      "base_sha256": "e61899c52f9292a138b3a5ad028b6dce1fcd6e25c1487a69cad07c6a37daaa6d"
+    },
+    "351files": {
+      "base_path": "/opt/351Files/351Files",
+      "base_version": null,
+      "base_version_evidence": "Original binary version not established.",
+      "target_version": "inferred source revision + QEMU keyboard patches",
+      "action": "private replacement; original preserved"
+    },
+    "kernel": {
+      "base_path": null,
+      "base_version": null,
+      "base_version_evidence": "Hardware kernel is not the QEMU kernel; original version not established.",
+      "target_version": "5.10.226 + QEMU virt config",
+      "action": "QEMU boot kernel"
+    }
   }
 }
