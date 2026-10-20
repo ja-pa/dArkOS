@@ -1,0 +1,3 @@
+/images/
+qemu/**/__pycache__/
+qemu/.pytest_cache/

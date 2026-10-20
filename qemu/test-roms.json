@@ -1,0 +1,52 @@
+[
+  {
+    "system": "gb",
+    "filename": "gb240p.gb",
+    "url": "https://github.com/pinobatch/240p-test-mini/releases/download/v0.23/gb240p.gb",
+    "sha256": "733eb6e7ec0719752ddd5fcda4e715c2f2e20f4ac4bc971c4bd1d49272f9bb04",
+    "license": "GPL-2.0-or-later",
+    "source": "https://github.com/pinobatch/240p-test-mini/tree/v0.23"
+  },
+  {
+    "system": "nes",
+    "filename": "240pee.nes",
+    "url": "https://github.com/pinobatch/240p-test-mini/releases/download/v0.23/240pee.nes",
+    "sha256": "04f01d7372f66ea2befe325b9bd655a9fcc395a31fa46d9466286bb8f9d2e62e",
+    "license": "GPL-2.0-or-later",
+    "source": "https://github.com/pinobatch/240p-test-mini/tree/v0.23"
+  },
+  {
+    "system": "gba",
+    "filename": "240pee_mb.gba",
+    "url": "https://github.com/pinobatch/240p-test-mini/releases/download/v0.23/240pee_mb.gba",
+    "sha256": "47844f7140738a06f8f3bc09780da3ab095539a250b870f614feed561d9d6f34",
+    "license": "GPL-2.0-or-later",
+    "source": "https://github.com/pinobatch/240p-test-mini/tree/v0.23"
+  },
+  {
+    "system": "snes",
+    "filename": "240pSuite.sfc",
+    "archive_filename": "240p-snes.zip",
+    "archive_member": "240pSuite.sfc",
+    "archive_sha256": "880696689fa9bfdf395cc47dd4be8a312192f63594f249382945e31f00db7b0c",
+    "sha256": "8c3f6028bb1246d2a4c5a695f9fb7b237b73dbb7c8242f042f11d8a85476cef8",
+    "itch_upload_id": "19403154",
+    "url": "https://artemiourbina.itch.io/240p-test-suite",
+    "license": "GPL-2.0-or-later",
+    "source": "https://github.com/ArtemioUrbina/240pTestSuite",
+    "version": "240p test Suite for SNES 1.10"
+  },
+  {
+    "system": "megadrive",
+    "filename": "240pSuite-1.32.bin",
+    "archive_filename": "240p-megadrive.zip",
+    "archive_member": "240pSuite-1.32.bin",
+    "archive_sha256": "0db29b9739cc75c44dcbf2f3fa74608fff57cf05835e88cf28ffeb1faa4b7970",
+    "sha256": "fe448a879eda25daffa1548385aff464d5373c687db0cccf18f071c31d0976c7",
+    "itch_upload_id": "17035733",
+    "url": "https://artemiourbina.itch.io/240p-test-suite",
+    "license": "GPL-2.0-or-later",
+    "source": "https://github.com/ArtemioUrbina/240pTestSuite",
+    "version": "240p test Suite for MegaDrive/Sega Genesis 1.32"
+  }
+]
