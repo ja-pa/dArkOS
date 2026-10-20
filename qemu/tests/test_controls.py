@@ -49,7 +49,14 @@ class ControlsTests(unittest.TestCase):
                 try:
                     frame = root.winfo_children()[0]
                     picker = next(w for w in frame.winfo_children() if isinstance(w, ttk.Combobox))
-                    rows = next(w for w in frame.winfo_children() if isinstance(w, ttk.Frame))
+                    def descendants(widget):
+                        for child in widget.winfo_children():
+                            yield child
+                            yield from descendants(child)
+                    rows = next(w for w in descendants(frame) if w.winfo_name() == 'rows')
+                    canvas = next(w for w in descendants(frame) if w.winfo_name() == 'diagram')
+                    self.assertTrue(canvas.find_all())
+                    self.assertEqual(len(canvas.images), 2)
                     self.assertIn('F4', [w.cget('text') for w in rows.winfo_children()])
                     picker.current(1)
                     picker.event_generate('<<ComboboxSelected>>')
@@ -58,9 +65,12 @@ class ControlsTests(unittest.TestCase):
                     self.assertIn('A / B', text)
                     self.assertIn('Z / X', text)
                     self.assertNotIn('F4', text)
-                    root.geometry('600x500')
+                    diagram_text = [canvas.itemcget(item, 'text') for item in canvas.find_all() if canvas.type(item) == 'text']
+                    for key in ['Z', 'X', 'S', 'A', 'Right Shift', 'R1 → W', 'L1 → Q']:
+                        self.assertIn(key, diagram_text)
+                    root.geometry('1040x760')
                     root.update_idletasks()
-                    self.assertGreaterEqual(root.winfo_width(), 590)
+                    self.assertGreaterEqual(root.winfo_width(), 1040)
                 except Exception as error:
                     errors.append(error)
                 finally:

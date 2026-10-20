@@ -20,6 +20,7 @@ case ${1:-help} in
  ssh) vm verify; shift; remote "$@";;
  es)
   vm start gtk-gl
+  controls start
   remote 'if pidof emulationstation retroarch >/dev/null; then echo "Quit existing graphical application first" >&2; exit 1; fi; cd /opt/darkos-es && sudo -n bash /opt/darkos-qemu/env.sh ./emulationstation --home /home/ark --debug --no-splash'
   ;;
  diagnose) vm verify; remote sudo -n bash -s < "$QEMU_DIR/scripts/graphics-diagnose.sh" | tee "$WORK_DIR/logs/graphics-diagnose.log";;
