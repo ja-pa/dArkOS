@@ -72,7 +72,7 @@ class ComponentTests(unittest.TestCase):
             fake.mkdir()
             # Real Git clone/checkout; only expensive compilation is simulated.
             make = fake / 'make'
-            options = 'SERIAL_AMBA_PL011 SERIAL_AMBA_PL011_CONSOLE PCI PCI_HOST_GENERIC VIRTIO_PCI VIRTIO_BLK VIRTIO_NET EFI_PARTITION BTRFS_FS DEVTMPFS DEVTMPFS_MOUNT DRM DRM_VIRTIO_GPU'
+            options = 'SERIAL_AMBA_PL011 SERIAL_AMBA_PL011_CONSOLE PCI PCI_HOST_GENERIC VIRTIO_PCI VIRTIO_BLK VIRTIO_NET EFI_PARTITION BTRFS_FS DEVTMPFS DEVTMPFS_MOUNT DRM DRM_VIRTIO_GPU SOUND SND SND_PCM SND_PCI SND_HDA SND_HDA_CORE SND_HDA_INTEL SND_HDA_GENERIC'
             make.write_text('#!/usr/bin/env python3\nimport sys\nfrom pathlib import Path\nb=Path(next(a[2:] for a in sys.argv if a.startswith("O=")))\nb.mkdir(parents=True,exist_ok=True)\n(b/".config").write_text(' + repr(''.join('CONFIG_' + o + '=y\n' for o in options.split())) + ')\np=b/"arch/arm64/boot/Image"\np.parent.mkdir(parents=True,exist_ok=True)\np.write_bytes(b"test kernel")\n')
             make.chmod(0o755)
             for name in ['gcc-12', 'aarch64-linux-gnu-gcc-12', 'flex', 'bison', 'bc']:

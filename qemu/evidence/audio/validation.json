@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "date_utc": "2026-10-21T17:43:16.113833+00:00",
+  "old_kernel_sha256": "e735c5e61c76bb426f7560acc32049a7ffd665f76b5fc5c08f525fa4ccdad59d",
+  "new_kernel_sha256": "de28ea079c8cbcf327cfcd5b0f224a3fafe06ef5342e35fa59399931e682c0d6",
+  "old_disk_sha256": "927741745590fa44bd737088a3f359dbaaaa1d58f395faa3181a6314dc3b9aeb",
+  "evidence_directory": "/home/japa1/darkos-g350-audio-test/logs/audio",
+  "backups": {
+    "build": "/home/japa1/darkos-g350-qemu/build.before-qemu-audio",
+    "disk": "/home/japa1/darkos-g350-qemu/images/work.before-qemu-audio.qcow2"
+  },
+  "runtime_libraries_changed": false,
+  "physical_listening": "User confirmed clean audible output in Windows on 2026-10-21",
+  "checks": [
+    "stereo output monitor",
+    "hardware mute",
+    "ES menu sounds",
+    "RetroArch game audio and return to same ES process",
+    "Peanut-GB audio",
+    "serial boot systemd running",
+    "qcow2 check",
+    "G350 GTK cold boot: stereo after restart; mixer 50% unmuted",
+    "user listening: clean audio"
+  ],
+  "remaining_observations": [
+    "Some ES ALSA underruns remain around graphics startup/return; no audible quality claim without listening."
+  ],
+  "unit_tests": {
+    "shared_repository": 34,
+    "g350_checkout": 48
+  },
+  "serial_mode_limitation": "Initial isolated serial boot passed. Later serial-mode reboot reached multi-user but SSH timed out; QMP powerdown was ignored. Recovered with QMP quit, qcow2 check passed, GTK reboot and stereo test passed.",
+  "new_config_sha256": "068f348a596600258037b2841630618efc8dbddb5e08915bd373f62ab8d339cc",
+  "recipe_sha256": {
+    "qemu/scripts/audio-profile.py": "c430c3ed512ab81a8e46995149baf2295404ec6ccef91c0695de482eda3ca30c",
+    "qemu/scripts/qemu-audio.sh": "a9d73380fca46858db9cf9a978b283d1ef942225bb98af2ef073f34db06941bf",
+    "qemu/scripts/run-qemu.sh": "3f8728acfeecaf4d8614ab6947a058ee811da8969a8bd9dd688b77d3112ab451",
+    "qemu/runtime/env.sh": "8cac8d345155411026abc01b52b0de3ea37b39b91628514bac08c4a71815bb12",
+    "qemu/configure.py": "df7002faff9541787616ff5726a79bcf6a129f713ef829165f9c98efb62929a0",
+    "qemu/vm.sh": "0c40ae7881dfa77af8c67825890fa09b99e624173931f9ebcaad88d266604cd7",
+    "qemu/bundle.py": "e0f4f1297d877962ee2bb7777458eec23d0085491302bc340f90ddc1a50dffc2"
+  },
+  "export": {
+    "path": "/home/japa1/darkos-g350-qemu/exports/runtime-g350-audio-20261021",
+    "manifest_verified": true,
+    "standalone_qcow2": true,
+    "sdk_runtime_id_unchanged": true
+  },
+  "cold_boot_stereo": {
+    "monitor": "RDPSink.monitor",
+    "left_marker_windows": 10,
+    "right_marker_windows": 11,
+    "expected_muted": false,
+    "passed": true,
+    "limitation": "Confirms samples at the WSLg output monitor; physical audibility and crackling require listening."
+  },
+  "es_menu_capture": {
+    "peak": 1162,
+    "nonzero_100ms_windows": 7
+  },
+  "retroarch_capture": {
+    "peak": 1839,
+    "nonzero_100ms_windows": 108,
+    "total_100ms_windows": 115,
+    "driver": "ALSA",
+    "returned_to_same_es_process": true
+  },
+  "es_underrun_messages_in_post_tuning_run": 4
+}

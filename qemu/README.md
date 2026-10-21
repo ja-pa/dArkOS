@@ -218,3 +218,9 @@ commit, stage fingerprints, SDK/component hashes and integration results in
 `artifacts/attestation.json`. It refuses stale or incomplete validation and
 does not rebuild or modify the guest. This avoids embedding a commit SHA in
 the commit that defines it.
+
+## Audio
+
+HDA playback through WSLg is configured by `qemu/vm.sh audio` and on ES startup.
+Rebuild the kernel with the current fragment before upgrading an older image.
+See [AUDIO.md](AUDIO.md) for migration, diagnostics and acceptance limits.

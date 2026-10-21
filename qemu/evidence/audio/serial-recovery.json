@@ -1,0 +1,6 @@
+{
+  "serial_ssh_timeout": true,
+  "qmp_powerdown_ignored": true,
+  "recovery": "QMP quit after diagnostic serial boot; check qcow2 and reboot GTK",
+  "backup_preserved": true
+}

@@ -1,0 +1,48 @@
+# Sourced by run-qemu.sh after mode and cmd have been initialized.
+audio=${QEMU_AUDIO:-auto}
+case $audio in
+  auto) if [[ $mode == gtk-gl ]]; then audio=pa; else audio=none; fi;;
+  pa|none) ;;
+  *) fail 'QEMU_AUDIO must be auto, pa or none';;
+esac
+if [[ $audio == pa ]]; then
+  devices=$(qemu-system-aarch64 -device help 2>&1)
+  for device in intel-hda hda-output; do
+    [[ $devices == *\"$device\"* ]] || fail "QEMU lacks $device; install qemu-system-arm"
+  done
+  backends=$(qemu-system-aarch64 -audiodev help 2>&1)
+  grep -qx 'pa' <<< "$backends" || fail 'QEMU lacks PulseAudio backend (pa); install qemu-system-gui'
+  # Connect using libpulse itself: checking the socket alone misses a dead server.
+  need python3
+  need timeout
+  timeout 8s python3 - <<'PY' || fail 'PulseAudio connection failed; check PULSE_SERVER/WSLg or use QEMU_AUDIO=none'
+import ctypes as c
+import ctypes.util
+import os
+import socket
+
+server = os.environ.get('PULSE_SERVER', '')
+if server.startswith('unix:'):
+    with socket.socket(socket.AF_UNIX) as sock:
+        sock.settimeout(3)
+        sock.connect(server[5:])
+lib = c.CDLL(ctypes.util.find_library('pulse-simple') or 'libpulse-simple.so.0')
+class Spec(c.Structure):
+    _fields_ = [('format', c.c_int), ('rate', c.c_uint32), ('channels', c.c_uint8)]
+lib.pa_simple_new.restype = c.c_void_p
+lib.pa_simple_new.argtypes = [c.c_char_p, c.c_char_p, c.c_int, c.c_char_p,
+                             c.c_char_p, c.POINTER(Spec), c.c_void_p, c.c_void_p,
+                             c.POINTER(c.c_int)]
+lib.pa_simple_free.argtypes = [c.c_void_p]
+error = c.c_int()
+# Playback stream only; preflight emits no samples and requests no microphone.
+stream = lib.pa_simple_new(server.encode() or None, b'dArkOS audio check', 1,
+                          None, b'preflight', c.byref(Spec(3, 44100, 2)),
+                          None, None, c.byref(error))
+if not stream:
+    raise SystemExit(f'libpulse error {error.value}')
+lib.pa_simple_free(stream)
+PY
+  cmd+=(-audiodev pa,id=audio0 -device intel-hda,id=hda0
+    -device hda-output,bus=hda0.0,audiodev=audio0)
+fi

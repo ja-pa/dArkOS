@@ -5,7 +5,7 @@ from workflow_qmp import QMP
 from PIL import Image
 Q=Path(__file__).resolve().parents[1]; W=Path(os.environ['WORK_DIR']); logs=W/'logs/integration';logs.mkdir(exist_ok=True,parents=True)
 qmp=QMP(os.environ.get('QMP_SOCKET',str(W/'state/qmp.sock')))
-results={'runtime_id':(W/'state/runtime-id').read_text().strip(),'image_fingerprint':json.loads((W/'state/image.json').read_text())['fingerprint'],'passed':False,'systems':{},'limitations':['Dummy audio; no physical gamepad; no timing/playability claim']}
+results={'runtime_id':(W/'state/runtime-id').read_text().strip(),'image_fingerprint':json.loads((W/'state/image.json').read_text())['fingerprint'],'passed':False,'systems':{},'limitations':['Audio not validated by this graphics test; no physical gamepad; no timing/playability claim']}
 def remote(command,**kwargs):
     return sp.run(['bash',str(Q/'scripts/graphics-ssh.sh'),command],check=True,text=True,capture_output=True,**kwargs).stdout.strip()
 def wait(command,timeout=120):

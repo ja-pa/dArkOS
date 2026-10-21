@@ -43,4 +43,5 @@ else
   cmd+=(-device virtio-gpu-gl-pci,hostmem=512M -display gtk,gl=on
     -device qemu-xhci,id=usb -device usb-kbd,bus=usb.0)
 fi
+source "$PROJECT_DIR/scripts/qemu-audio.sh"
 if $dry_run; then printf '%q ' "${cmd[@]}"; printf '\n'; else exec "${cmd[@]}"; fi

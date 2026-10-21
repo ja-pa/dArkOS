@@ -9,5 +9,5 @@ export LD_LIBRARY_PATH=$lib
 export LIBGL_DRIVERS_PATH=$lib/dri GBM_BACKENDS_PATH=$lib/gbm
 export __EGL_VENDOR_LIBRARY_FILENAMES=$prefix/usr/share/glvnd/egl_vendor.d/50_mesa.json
 export SDL_VIDEO_EGL_DRIVER=$lib/libEGL.so.1 SDL_VIDEO_GL_DRIVER=$lib/libOpenGL.so.0
-export SDL_VIDEODRIVER=kmsdrm SDL_AUDIODRIVER=dummy SDL_OPENGL_ES_DRIVER=0
+export SDL_VIDEODRIVER=kmsdrm SDL_AUDIODRIVER=${SDL_AUDIODRIVER:-alsa} SDL_OPENGL_ES_DRIVER=0
 exec "$@"

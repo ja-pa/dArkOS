@@ -23,6 +23,17 @@ if action.startswith('export-'):
   run('qemu-img','check',str(stage/'runtime.qcow2'))
   shutil.copy2(kernel,stage/'Image')
   for a,b in [('state/runtime-id','runtime-id'),('state/profile.json','profile.json'),('state/profile.env','profile.env'),('artifacts/delta.json','provenance.json')]: shutil.copy2(work/a,stage/b)
+  if (work/'artifacts/audio-upgrade.json').exists():
+   upgrade=json.loads((work/'artifacts/audio-upgrade.json').read_text())
+   if upgrade['new_kernel_sha256']!=helpers.checksum(kernel): raise RuntimeError('Audio upgrade/kernel mismatch')
+   shutil.copy2(work/'artifacts/audio-upgrade.json',stage/'audio-upgrade.json')
+   provenance=json.loads((stage/'provenance.json').read_text())
+   provenance['pre_audio_kernel']=provenance.get('kernel')
+   provenance['kernel']={'sha256':helpers.checksum(kernel),'config_sha256':helpers.checksum(work/'build/.config'),'source':json.loads((work/'artifacts/kernel-source.json').read_text()),'build_log':str(work/'logs/audio/build.log')}
+   provenance['post_image_updates']=['audio-upgrade.json']
+   provenance['audio_validation']=upgrade['checks']
+   (stage/'provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
+   if (work/'logs/audio/host-stereo.json').exists(): shutil.copy2(work/'logs/audio/host-stereo.json',stage/'audio-stereo-validation.json')
   if (work/'artifacts/attestation.json').exists(): shutil.copy2(work/'artifacts/attestation.json',stage/'attestation.json')
   if (work/'logs/351files-results.json').exists(): shutil.copy2(work/'logs/351files-results.json',stage/'351files-validation.json')
   if (work/'logs/test-results.json').exists(): shutil.copy2(work/'logs/test-results.json',stage/'validation.json')
