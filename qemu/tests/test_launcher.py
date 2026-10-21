@@ -21,7 +21,7 @@ class LauncherTests(unittest.TestCase):
         subprocess.run(['qemu-img', 'create', '-f', 'qcow2', '-F', 'raw', '-b',
                         str(self.raw), str(self.overlay)], check=True, capture_output=True)
         self.env = dict(os.environ, KERNEL_IMAGE=str(self.kernel),
-                        DISK_IMAGE=str(self.overlay), SSH_PORT='2222', WORK_DIR=str(self.path),
+                        DISK_IMAGE=str(self.overlay), SSH_PORT='2222', QEMU_AUDIO='none', WORK_DIR=str(self.path),
                         ES_SYSROOT=str(self.path / 'sdk/sysroot'), ROOT_PARTUUID='test-image-02', ROOT_FSTYPE='btrfs')
 
     def run_launcher(self, *arguments, **env):
@@ -56,6 +56,55 @@ class LauncherTests(unittest.TestCase):
         self.assertIn('virtio-gpu-gl-pci', result.stdout)
         self.assertIn('hostmem=512M', result.stdout)
         self.assertIn('gtk', result.stdout)
+
+    def test_auto_serial_has_no_audio(self):
+        result = self.run_launcher('serial', '--dry-run', QEMU_AUDIO='auto')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn('-audiodev', result.stdout)
+
+    def test_invalid_audio_mode(self):
+        result = self.run_launcher('--dry-run', QEMU_AUDIO='invalid')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('QEMU_AUDIO', result.stderr)
+
+    def fake_qemu(self, devices, backends):
+        directory = self.path / 'bin'
+        directory.mkdir()
+        executable = directory / 'qemu-system-aarch64'
+        executable.write_text('#!/usr/bin/env bash\ncase "$1" in\n'
+                              f' -device) printf \'%s\\n\' \'{devices}\';;\n'
+                              f' -audiodev) printf \'%s\\n\' \'{backends}\';;\n'
+                              'esac\n')
+        executable.chmod(0o755)
+        return str(directory) + os.pathsep + os.environ['PATH']
+
+    def test_missing_audio_backend(self):
+        path = self.fake_qemu('name "intel-hda"\nname "hda-output"', 'none\nalsa')
+        result = self.run_launcher('--dry-run', QEMU_AUDIO='pa', PATH=path)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('lacks PulseAudio', result.stderr)
+
+    def test_missing_audio_device(self):
+        path = self.fake_qemu('name "intel-hda"', 'pa')
+        result = self.run_launcher('--dry-run', QEMU_AUDIO='pa', PATH=path)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('lacks hda-output', result.stderr)
+
+    def test_dead_pulse_server(self):
+        result = self.run_launcher('--dry-run', QEMU_AUDIO='pa',
+                                   PULSE_SERVER='unix:' + str(self.path / 'absent.sock'))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('PulseAudio connection failed', result.stderr)
+
+    @unittest.skipUnless(os.environ.get('PULSE_SERVER'), 'requires an active Pulse server')
+    def test_pulse_audio_command(self):
+        for mode in ('pa', 'auto'):
+            with self.subTest(mode=mode):
+                result = self.run_launcher('gtk-gl', '--dry-run', QEMU_AUDIO=mode)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('-audiodev pa', result.stdout)
+                self.assertIn('hda-output', result.stdout)
+                self.assertNotIn('hda-duplex', result.stdout)
 
     def test_rejects_raw_image(self):
         result = self.run_launcher('--dry-run', DISK_IMAGE=str(self.raw))

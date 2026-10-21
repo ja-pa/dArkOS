@@ -62,6 +62,17 @@ class WorkflowTests(unittest.TestCase):
         with patch.object(vm, 'processes', return_value=[(42, True, True, [])]):
             self.assertEqual(vm.identity()[0], 42)
 
+    def test_start_requires_restart_to_change_audio(self):
+        vm = load('workflow-vm')
+        running = (42, True, True, ['qemu-system-aarch64', 'virtio-gpu-gl-pci'])
+        with patch.object(vm, 'identity', return_value=running), \
+                patch.object(vm, 'wait_ssh') as wait, \
+                patch.dict(os.environ, {'QEMU_AUDIO': 'pa'}), \
+                patch('sys.argv', ['workflow-vm.py', 'start', 'gtk-gl']):
+            with self.assertRaisesRegex(RuntimeError, 'audio mode differs'):
+                vm.main()
+            wait.assert_not_called()
+
     def test_readiness_does_not_consume_command_stdin(self):
         vm = load('workflow-vm')
         with patch.object(vm, 'identity', return_value=(42, True, True, [])), patch.object(vm, 'ssh') as ssh:

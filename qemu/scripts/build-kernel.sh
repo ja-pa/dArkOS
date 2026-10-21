@@ -36,7 +36,7 @@ args=(-C "$KERNEL_SRC" O="$BUILD_DIR" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu
   make "${args[@]}" defconfig
   KCONFIG_CONFIG="$BUILD_DIR/.config" bash "$KERNEL_SRC/scripts/kconfig/merge_config.sh" -m -O "$BUILD_DIR" "$BUILD_DIR/.config" "$PROJECT_DIR/configs/qemu-arm64.fragment"
   make "${args[@]}" olddefconfig
-  for option in SERIAL_AMBA_PL011 SERIAL_AMBA_PL011_CONSOLE PCI PCI_HOST_GENERIC VIRTIO_PCI VIRTIO_BLK VIRTIO_NET EFI_PARTITION BTRFS_FS DEVTMPFS DEVTMPFS_MOUNT DRM DRM_VIRTIO_GPU; do
+  for option in SERIAL_AMBA_PL011 SERIAL_AMBA_PL011_CONSOLE PCI PCI_HOST_GENERIC VIRTIO_PCI VIRTIO_BLK VIRTIO_NET EFI_PARTITION BTRFS_FS DEVTMPFS DEVTMPFS_MOUNT DRM DRM_VIRTIO_GPU SOUND SND SND_PCM SND_PCI SND_HDA SND_HDA_CORE SND_HDA_INTEL SND_HDA_GENERIC; do
     grep -qx "CONFIG_${option}=y" "$BUILD_DIR/.config" || fail "CONFIG_${option} must be built in"
   done
   make "${args[@]}" -j"${JOBS:-4}" Image

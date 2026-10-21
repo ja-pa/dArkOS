@@ -82,6 +82,13 @@ def main():
         if current:
             if args.mode == 'gtk-gl' and not any('virtio-gpu-gl-pci' in a for a in current[3]):
                 raise RuntimeError('VM is in serial mode; stop it before starting gtk-gl')
+            audio = os.environ.get('QEMU_AUDIO', 'auto')
+            if audio not in ('auto', 'pa', 'none'):
+                raise RuntimeError('QEMU_AUDIO must be auto, pa or none')
+            wants_audio = audio == 'pa' or (audio == 'auto' and args.mode == 'gtk-gl')
+            has_audio = any('hda-output' in a for a in current[3])
+            if wants_audio != has_audio:
+                raise RuntimeError('VM audio mode differs; stop it before changing QEMU_AUDIO')
             wait_ssh(current[0])
             return 0
         # A listening non-QEMU service must never be mistaken for our guest.

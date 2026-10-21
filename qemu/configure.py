@@ -15,7 +15,7 @@ lines=[]
 for part,mount,fs,opts in [('root','/',profile['root_fstype'],'defaults,noatime,compress=zlib:1'),('boot','/boot','vfat','defaults,nofail'),('roms','/roms','vfat','defaults,umask=000,uid=1000,gid=1000,nofail')]:
     if profile.get(part+'_partuuid'): lines.append(f'PARTUUID={profile[part+"_partuuid"]} {mount} {fs} {opts} 0 0')
 write('/etc/fstab','\n'.join(lines)+'\n')
-for name in ['firstboot','emulationstation','ogage','audiostate','shutdowntasks','welcome-message','buttonmon','panel','check_battery']:
+for name in ['firstboot','emulationstation','ogage','audiostate','audiopath','shutdowntasks','welcome-message','buttonmon','panel','check_battery']:
     link('/etc/systemd/system/'+name+'.service','/dev/null')
 link('/etc/systemd/system/multi-user.target.wants/ssh.service','/usr/lib/systemd/system/ssh.service')
 link('/etc/systemd/system/getty.target.wants/serial-getty@ttyAMA0.service','/usr/lib/systemd/system/serial-getty@.service')
@@ -51,14 +51,14 @@ ET.ElementTree(inputs).write(root/'etc/emulationstation/es_input.cfg',encoding='
 # ES uses sibling XML settings; preserve original theme and unrelated defaults.
 p=root/'home/ark/.emulationstation/es_settings.cfg'
 t=p.read_text().replace('<?xml version="1.0"?>',''); settings=ET.fromstring('<settings>'+t+'</settings>')
-for tag,name,value in [('string','LogLevel','debug'),('string','PowerSaverMode','disabled'),('bool','BrightnessPopup','false'),('bool','VolumePopup','false'),('bool','audio.bgmusic','false'),('bool','EnableSounds','false'),('bool','VideoAudio','false'),('bool','BackgroundMusic','false'),('bool','ShowBattery','false'),('bool','HideWindow','true'),('int','ScreenRotate','0')]:
+for tag,name,value in [('string','LogLevel','debug'),('string','PowerSaverMode','disabled'),('bool','BrightnessPopup','false'),('bool','VolumePopup','false'),('bool','EnableSounds','true'),('bool','ShowBattery','false'),('bool','HideWindow','true'),('int','ScreenRotate','0')]:
     for old in list(settings):
         if old.get('name')==name: settings.remove(old)
     ET.SubElement(settings,tag,name=name,value=value)
 p.write_text('<?xml version="1.0"?>\n'+''.join(ET.tostring(x,encoding='unicode')+'\n' for x in settings))
 # Preserve the released RetroArch defaults and override only QEMU I/O.
 base=root/'home/ark/.config/retroarch/retroarch.cfg'
-text=base.read_text(); overrides={'video_driver':'gl','video_context_driver':'kms','audio_driver':'null','audio_enable':'false','midi_driver':'null','quit_press_twice':'false','input_driver':'udev','input_joypad_driver':'udev','video_fullscreen':'true','input_enable_hotkey':'nul','input_enable_hotkey_btn':'nul','input_enable_hotkey_axis':'nul','input_enable_hotkey_mbtn':'nul','input_exit_emulator':'escape','input_menu_toggle':'f1','input_save_state':'f2','input_load_state':'f4','savestate_auto_save':'false','savestate_auto_load':'false','menu_driver':'ozone','video_shader_enable':'false','input_player1_a':'z','input_player1_b':'x','input_player1_x':'s','input_player1_y':'a','input_player1_l':'q','input_player1_r':'w','input_player1_start':'enter','input_player1_select':'rshift','input_player1_up':'up','input_player1_down':'down','input_player1_left':'left','input_player1_right':'right','video_rotation':'0','video_allow_rotate':'false','savefile_directory':'/home/ark/.config/retroarch/saves','savestate_directory':'/home/ark/.config/retroarch/states'}
+text=base.read_text(); overrides={'video_driver':'gl','video_context_driver':'kms','audio_driver':'alsathread','audio_enable':'true','midi_driver':'null','quit_press_twice':'false','input_driver':'udev','input_joypad_driver':'udev','video_fullscreen':'true','input_enable_hotkey':'nul','input_enable_hotkey_btn':'nul','input_enable_hotkey_axis':'nul','input_enable_hotkey_mbtn':'nul','input_exit_emulator':'escape','input_menu_toggle':'f1','input_save_state':'f2','input_load_state':'f4','savestate_auto_save':'false','savestate_auto_load':'false','menu_driver':'ozone','video_shader_enable':'false','input_player1_a':'z','input_player1_b':'x','input_player1_x':'s','input_player1_y':'a','input_player1_l':'q','input_player1_r':'w','input_player1_start':'enter','input_player1_select':'rshift','input_player1_up':'up','input_player1_down':'down','input_player1_left':'left','input_player1_right':'right','video_rotation':'0','video_allow_rotate':'false','savefile_directory':'/home/ark/.config/retroarch/saves','savestate_directory':'/home/ark/.config/retroarch/states'}
 for name in ['saves','states','logs']: (base.parent/name).mkdir(exist_ok=True)
 lines=[line for line in text.splitlines() if line.split('=',1)[0].strip() not in overrides]
 write('/home/ark/.config/retroarch/retroarch.qemu.cfg','\n'.join(lines)+'\n'+''.join(f'{k} = "{v}"\n' for k,v in overrides.items()))
