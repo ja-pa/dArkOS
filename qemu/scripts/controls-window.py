@@ -40,6 +40,7 @@ def show(work, state):
         profiles = json.loads(CONFIG.read_text())['profiles']
         root = tk.Tk()
         root.title('dArkOS — Controls')
+        root.attributes('-type', 'normal')
         root.geometry(f'{min(1120, root.winfo_screenwidth()-60)}x{min(920, root.winfo_screenheight()-90)}+40+40')
         root.minsize(980, 720)
         outer = ttk.Frame(root, padding=16)
@@ -138,6 +139,8 @@ def show(work, state):
             root.after(200, tick)  # Allow Python to deliver SIGTERM while idle in Tk.
 
         tick()
+        root.update_idletasks()
+        root.lift()
         pid = os.getpid()
         started = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()[19]
         state.write_text(json.dumps({'pid': pid, 'started': started}))
@@ -183,7 +186,7 @@ def main():
             if child.poll() is not None:
                 break
             time.sleep(0.1)
-        print(f'Warning: controls window unavailable; install python3-tk and check WSLg. Log: {log}',
+        print(f'Warning: controls window unavailable; install python3-tk python3-pil python3-pil.imagetk and check WSLg. Log: {log}',
               file=sys.stderr)
 
 

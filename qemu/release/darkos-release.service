@@ -1,0 +1,24 @@
+[Unit]
+Description=dArkOS QEMU release frontend
+After=systemd-user-sessions.service systemd-udev-settle.service alsa-restore.service
+Wants=systemd-udev-settle.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/darkos-es
+ExecStart=/bin/bash /opt/darkos-qemu/release-start.sh
+StandardInput=tty
+StandardOutput=journal+console
+StandardError=journal+console
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+KillMode=control-group
+TimeoutStopSec=30
+# Leaving ES should leave it closed, not restart it over the user's action.
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
