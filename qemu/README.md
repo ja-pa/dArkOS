@@ -224,3 +224,7 @@ the commit that defines it.
 HDA playback through WSLg is configured by `qemu/vm.sh audio` and on ES startup.
 Rebuild the kernel with the current fragment before upgrading an older image.
 See [AUDIO.md](AUDIO.md) for migration, diagnostics and acceptance limits.
+## Standalone release
+
+Run `./make_qemu_release.sh` from the repository root to package a stopped,
+prepared runtime. See [release creation and validation](RELEASE.md).

@@ -1,0 +1,26 @@
+dArkOS QEMU runtime — component notices and source locations
+
+This bundle combines third-party software under its respective licenses. No
+new license grant for the complete image is implied. Original package notices
+remain in /usr/share/doc and /usr/share/common-licenses inside the guest.
+
+dArkOS upstream: https://github.com/christianhaitian/dArkOS
+The exact original image and release are recorded in provenance.json.
+
+Linux kernel: GPL-2.0
+https://github.com/ja-pa/kernel_5_10_226/tree/bef65b1793524bc7bd27c4d70d0ce59cbebee032
+Kernel configuration and build recipes:
+https://github.com/ja-pa/dArkOS/tree/codex/qemu-arm64
+The recipe revision, dirty-worktree flag and hashes are in provenance.json.
+
+EmulationStation-fcamod sources and component license notices:
+For G350, exact component sources and revisions are in
+provenance.json -> source -> component_sources, including ES and RetroArch.
+EmulationStation, RetroArch, libretro cores, dArkOS applications and themes
+retain their individual licenses and notices inside the image.
+
+QEMU, Python/Tk and host libraries are installed separately, not bundled here.
+G350 test ROM source and attribution notices: G350-ROM-NOTICES.md when included.
+This command creates a local directory; it does not publish a release. Public
+redistributors must provide the corresponding source and notices required by
+the licenses of every included component, including local modifications.

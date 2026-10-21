@@ -182,3 +182,7 @@ qemu-check:
 .PHONY: qemu-components
 qemu-components:
 	python3 qemu/components.py $(if $(PREVIOUS_LOCK),--compare-lock "$(PREVIOUS_LOCK)",)
+
+.PHONY: qemu-release
+qemu-release:
+	bash ./make_qemu_release.sh
