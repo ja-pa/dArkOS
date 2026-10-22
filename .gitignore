@@ -19,3 +19,5 @@ qemu/**/__pycache__/
 qemu/.pytest_cache/
 
 /qemu-release/
+
+/dist/qemu/

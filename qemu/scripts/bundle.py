@@ -1,13 +1,13 @@
 """Portable runtime/SDK bundles with verified manifests and image profiles."""
 import json,os,shutil,subprocess as sp,sys,re,shlex
 from pathlib import Path
-sys.path.insert(0,str(Path(__file__).parent/'scripts'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 # Reuse the existing checksum and path validation helpers without executing CLI.
 import importlib.util
-spec=importlib.util.spec_from_file_location('bundles',Path(__file__).parent/'scripts/workflow-bundle.py'); helpers=importlib.util.module_from_spec(spec)
+spec=importlib.util.spec_from_file_location('bundles',Path(__file__).resolve().parents[1]/'scripts/workflow-bundle.py'); helpers=importlib.util.module_from_spec(spec)
 os.environ.setdefault('KERNEL_IMAGE',str(Path(os.environ['WORK_DIR'])/'build/arch/arm64/boot/Image'))
 spec.loader.exec_module(helpers)
-q=Path(__file__).parent; work=Path(os.environ['WORK_DIR']); disk=Path(os.environ['DISK_IMAGE']); kernel=Path(os.environ['KERNEL_IMAGE'])
+q=Path(__file__).resolve().parents[1]; work=Path(os.environ['WORK_DIR']); disk=Path(os.environ['DISK_IMAGE']); kernel=Path(os.environ['KERNEL_IMAGE'])
 action,arg=sys.argv[1:]; target=Path(arg).resolve()
 def run(*args): sp.run(args,check=True)
 def root(*args): run(*((['sudo'] if os.geteuid() else [])+list(args)))
@@ -19,7 +19,7 @@ if action.startswith('export-'):
   # Reject live disks before conversion or sanitization.
   run('bash',str(q/'vm.sh'),'check')
   run('qemu-img','convert','-f','qcow2','-O','qcow2',str(disk),str(stage/'runtime.qcow2'))
-  root('env','WORK_DIR='+str(work),'RELEASE_LOCK='+os.environ['RELEASE_LOCK'],'bash',str(q/'with-disk.sh'),str(stage/'runtime.qcow2'),'rw','bash',str(q/'sanitize.sh'))
+  root('env','WORK_DIR='+str(work),'RELEASE_LOCK='+os.environ['RELEASE_LOCK'],'bash',str(q/'scripts/with-disk.sh'),str(stage/'runtime.qcow2'),'rw','bash',str(q/'scripts/sanitize.sh'))
   run('qemu-img','check',str(stage/'runtime.qcow2'))
   shutil.copy2(kernel,stage/'Image')
   for a,b in [('state/runtime-id','runtime-id'),('state/profile.json','profile.json'),('state/profile.env','profile.env'),('artifacts/delta.json','provenance.json')]: shutil.copy2(work/a,stage/b)

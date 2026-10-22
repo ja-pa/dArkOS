@@ -2,17 +2,17 @@
 import datetime,json,os,subprocess as sp,sys
 from pathlib import Path
 from state import digest
-q=Path(__file__).parent;w=Path(os.environ['WORK_DIR']);lock=Path(os.environ['RELEASE_LOCK'])
+q=Path(__file__).resolve().parents[1];w=Path(os.environ['WORK_DIR']);lock=Path(os.environ['RELEASE_LOCK'])
 def run(*args,**kw):return sp.check_output(args,text=True,**kw).strip()
 # Check immutable stage outputs without rebuilding anything.
 previous=''
 for name in ['import','inspect','prepare','graphics']:
     receipt=w/'state'/(name+'.json')
-    sp.run([sys.executable,str(q/'state.py'),'check',str(q),str(lock),str(receipt),previous],check=True)
+    sp.run([sys.executable,str(q/'scripts/state.py'),'check',str(q),str(lock),str(receipt),previous],check=True)
     previous=str(receipt)
 for name in ['build-emulationstation','build-retroarch','build-351files','kernel']:
-    sp.run([sys.executable,str(q/'state.py'),'check',str(q),str(lock),str(w/'state'/(name+'.json')),previous],check=True)
-sp.run([sys.executable,str(q/'state.py'),'check',str(q),str(lock),str(w/'state/image.json'),str(w/'state/image-inputs.sha256')],check=True)
+    sp.run([sys.executable,str(q/'scripts/state.py'),'check',str(q),str(lock),str(w/'state'/(name+'.json')),previous],check=True)
+sp.run([sys.executable,str(q/'scripts/state.py'),'check',str(q),str(lock),str(w/'state/image.json'),str(w/'state/image-inputs.sha256')],check=True)
 sp.run(['bash',str(q/'vm.sh'),'check'],check=True)
 validation=json.loads((w/'logs/test-results.json').read_text())
 if not validation.get('passed') or set(validation.get('systems',{}))!={'gb','gbc','nes','snes','gba','megadrive'}:raise RuntimeError('Run the complete QEMU integration gate first')

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/scripts/lib.sh"
 export ES_SYSROOT=$WORK_DIR/sdk/sysroot
 case ${1:-help} in
  prepare)
@@ -26,6 +26,6 @@ case ${1:-help} in
   chown "$(stat -c %u "$WORK_DIR"):$(stat -c %g "$WORK_DIR")" "$WORK_DIR/sdk"
   ;;
  check) python3 "$QEMU_DIR/scripts/workflow-sdk.py" check;;
- export|import) python3 "$QEMU_DIR/bundle.py" "$1-sdk" "$2";;
+ export|import) python3 "$QEMU_DIR/scripts/bundle.py" "$1-sdk" "$2";;
  *) echo 'Usage: qemu/sdk.sh prepare|check|export <directory>|import <directory>'; exit 2;;
 esac

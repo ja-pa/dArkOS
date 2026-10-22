@@ -3,7 +3,7 @@ import importlib.util,json,os,subprocess,tempfile,unittest
 from pathlib import Path
 Q=Path(__file__).resolve().parents[1]
 def load(name):
-    s=importlib.util.spec_from_file_location(name,Q/(name+'.py')); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); return m
+    s=importlib.util.spec_from_file_location(name,Q/'scripts'/(name+'.py')); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); return m
 class IntegrityTests(unittest.TestCase):
     def test_recipe_dependency_and_lock_invalidate_receipt(self):
         state=load('state')
@@ -26,6 +26,33 @@ class IntegrityTests(unittest.TestCase):
             patch.write_text('first');recipe.write_text('second')
             self.assertNotEqual(before,state.fingerprint(q,lock,'',stage='build-351files'))
 
+    def test_moved_dependencies_invalidate_their_stages(self):
+        state = load('state')
+        cases = {
+            'import': ['scripts/import.sh', 'scripts/lib.sh', 'scripts/state.py'],
+            'inspect': ['scripts/inventory.py'],
+            'prepare': ['scripts/grow.sh'],
+            'graphics': ['scripts/graphics-guest.sh'],
+            'build-emulationstation': ['tests/helpers/capture.c', 'scripts/build-guest.sh'],
+            'build-retroarch': ['tests/helpers/capture.c'],
+            'build-351files': ['tests/helpers/capture.c'],
+            'kernel': ['config/kernel/qemu-arm64.fragment', 'scripts/components.py'],
+            'image': ['scripts/configure.py', 'tests/helpers/install-test-roms.py',
+                      'tests/helpers/test-roms.py', 'tests/fixtures/test-roms.json'],
+        }
+        for stage, dependencies in cases.items():
+            for dependency in dependencies:
+                with self.subTest(stage=stage, dependency=dependency), tempfile.TemporaryDirectory() as folder:
+                    root = Path(folder)
+                    lock = root/'lock.json'
+                    lock.write_text('{}')
+                    path = root/dependency
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text('first')
+                    before = state.fingerprint(root, lock, '', stage=stage)
+                    path.write_text('second')
+                    self.assertNotEqual(before, state.fingerprint(root, lock, '', stage=stage))
+
     def test_inventory_does_not_follow_absolute_guest_symlinks(self):
         inv=load('inventory')
         with tempfile.TemporaryDirectory() as t:
@@ -37,7 +64,7 @@ class IntegrityTests(unittest.TestCase):
             p=Path(t); disk=p/'base';disk.touch()
             env=dict(os.environ,WORK_DIR=t,QEMU_MOUNT_NAMESPACE='yes')
             # Even without root, cannot reach any mount or block-device mutation.
-            x=subprocess.run(['bash',str(Q/'with-disk.sh'),str(disk),'invalid','true'],env=env,text=True,capture_output=True)
+            x=subprocess.run(['bash',str(Q/'scripts/with-disk.sh'),str(disk),'invalid','true'],env=env,text=True,capture_output=True)
             self.assertNotEqual(x.returncode,0);self.assertFalse(list(p.glob('.mount.*')))
     def test_valid_input_cannot_bless_a_foreign_existing_base(self):
         import hashlib
@@ -47,13 +74,13 @@ class IntegrityTests(unittest.TestCase):
             base=work/'images/base.img';base.write_bytes(b'evil')
             lock=p/'release.json';lock.write_text(json.dumps({'input':{'image_filename':'base.img','image_size':4,'image_sha256':hashlib.sha256(b'good').hexdigest()}}))
             env=dict(os.environ,WORK_DIR=str(work),IMAGE=str(source),RELEASE_LOCK=str(lock))
-            result=subprocess.run(['bash',str(Q/'import.sh')],env=env,text=True,capture_output=True)
+            result=subprocess.run(['bash',str(Q/'scripts/import.sh')],env=env,text=True,capture_output=True)
             self.assertNotEqual(result.returncode,0)
             self.assertIn('pinned release hash',result.stderr)
             self.assertEqual(base.read_bytes(),b'evil')
             self.assertFalse((work/'state/resolved-release.json').exists())
     def test_g350_lock_has_verified_size_and_sources(self):
-        v=json.loads((Q/'releases/g350-v01302026.json').read_text())
+        v=json.loads((Q/'locks/g350-v01302026.json').read_text())
         self.assertEqual(v['input']['image_size'],8301576192)
         for src in v['sources'].values(): self.assertRegex(src['commit'],r'^[a-f0-9]{40}$')
 if __name__=='__main__': unittest.main()

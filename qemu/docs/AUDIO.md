@@ -9,7 +9,7 @@ codec support. `build-kernel.sh` verifies the required built-in dependencies.
 
 Run inside Ubuntu WSL as the normal user, from the G350 checkout. Keep a backup
 of the old kernel and stop the VM before replacing it. Build with
-`bash qemu/kernel.sh`; `qemu/configs/qemu-arm64.fragment` is the source
+`bash qemu/scripts/kernel.sh`; `qemu/config/kernel/qemu-arm64.fragment` is the source
 configuration. Use the image-aware launcher:
 
 ```bash

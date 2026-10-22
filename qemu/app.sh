@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/scripts/lib.sh"
 export ES_SYSROOT=$WORK_DIR/sdk/sysroot
 python3 "$QEMU_DIR/scripts/workflow-sdk.py" check
 source "$WORK_DIR/sdk/environment.sh"

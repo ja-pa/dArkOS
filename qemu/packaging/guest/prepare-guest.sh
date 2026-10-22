@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Invoked only on the exported copy by with-disk.sh in its private mount namespace.
 set -euo pipefail
-source "$(dirname -- "$0")/../sanitize.sh"
+source "$(dirname -- "$0")/../../scripts/sanitize.sh"
 assets=$(cd -- "$(dirname -- "$0")" && pwd)
 [[ -f $ROOT/opt/darkos-qemu/env.sh && -x $ROOT/opt/darkos-es/emulationstation ]]
 install -m 755 "$assets/guest-start.sh" "$ROOT/opt/darkos-qemu/release-start.sh"
-install -m 644 "$assets/../scripts/audio-profile.py" "$ROOT/opt/darkos-qemu/audio-profile.py"
+install -m 644 "$assets/../../scripts/audio-profile.py" "$ROOT/opt/darkos-qemu/audio-profile.py"
 install -m 644 "$assets/darkos-release.service" "$ROOT/etc/systemd/system/darkos-release.service"
 mkdir -p "$ROOT/etc/systemd/system/multi-user.target.wants" "$ROOT/etc/systemd/logind.conf.d"
 ln -sfn ../darkos-release.service "$ROOT/etc/systemd/system/multi-user.target.wants/darkos-release.service"

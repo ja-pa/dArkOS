@@ -253,8 +253,8 @@ make qemu-components
 Porovnat připravovaný lockfile s dnešním základem:
 
 ```bash
-RELEASE_LOCK=qemu/releases/novy-release.json make qemu-components \
-  PREVIOUS_LOCK=qemu/releases/g350-v01302026.json
+RELEASE_LOCK=qemu/locks/novy-release.json make qemu-components \
+  PREVIOUS_LOCK=qemu/locks/g350-v01302026.json
 ```
 
 Tabulka ukáže původní a cílové verze, repozitáře, SHA a změněné i ponechané

@@ -11,6 +11,10 @@ import time
 
 SCRIPT = Path(__file__).resolve()
 CONFIG = SCRIPT.parents[1] / 'config/controls.json'
+# Source checkout stores assets separately; standalone bundles keep config/photo together.
+PHOTO = SCRIPT.parents[1] / 'assets/g350_picture.jpg'
+if not PHOTO.is_file():
+    PHOTO = CONFIG.parent / 'g350_picture.jpg'
 
 
 def window_pid(state, work):
@@ -65,7 +69,7 @@ def show(work, state):
         ttk.Label(side, text='Toto okno pouze ukazuje nápovědu.\nKlávesy posílejte do okna QEMU.',
                   wraplength=255, justify='left').pack(anchor='w', pady=(20, 0))
         from PIL import Image, ImageTk
-        photo = Image.open(CONFIG.parent / 'g350_picture.jpg').convert('RGB')
+        photo = Image.open(PHOTO).convert('RGB')
         # Crops are UI viewports of the original photograph; labels stay live canvas items.
         front = photo.crop((170, 240, 537, 812))
         rear = photo.crop((570, 380, 930, 505))

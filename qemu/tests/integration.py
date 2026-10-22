@@ -1,7 +1,7 @@
 """Local GTK/WSLg integration gate using QMP keyboard events and original cores."""
 import hashlib,json,os,shlex,subprocess as sp,sys,time,re
 from pathlib import Path
-from workflow_qmp import QMP
+from helpers.workflow_qmp import QMP
 from PIL import Image
 Q=Path(__file__).resolve().parents[1]; W=Path(os.environ['WORK_DIR']); logs=W/'logs/integration';logs.mkdir(exist_ok=True,parents=True)
 qmp=QMP(os.environ.get('QMP_SOCKET',str(W/'state/qmp.sock')))

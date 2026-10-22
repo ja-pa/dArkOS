@@ -4,6 +4,31 @@ Release-to-QEMU conversion in `ja-pa/darkos`, branch `codex/qemu-arm64`.
 The branch starts at upstream `v01302026`, commit
 `4518be7d0a665fb03619b840ce6015775d88765a`. Existing handheld builds are unchanged.
 
+## Directory layout
+
+- `scripts/`: build stages, image preparation and development helpers.
+- `packaging/package.py`: standalone exporter; `packaging/templates/` contains
+  host launchers and documentation, and `packaging/guest/` contains export-only
+  guest preparation and service files.
+- `locks/`: pinned input images, source revisions and checksums, not output releases.
+- `config/`: controls mapping; `config/kernel/`: kernel config and fragment.
+- `assets/`: static inputs such as the G350 controls photograph.
+- `runtime/`: scripts installed in the development guest.
+- `tests/`: regression and integration checks; `tests/helpers/`: diagnostic tools;
+  `tests/fixtures/`: test ROM metadata and licenses.
+- `docs/`: detailed guides, historical `reference/` and saved validation `evidence/`.
+- `patches/` and `demos/`: source patches and example applications.
+
+`vm.sh`, `sdk.sh`, `app.sh` and `setup.sh` remain the public shell entry points.
+The repository-root Makefile and build/release launchers retain their commands.
+Internal script paths have moved to the directories above; update personal
+scripts that invoked them directly, including explicit `RELEASE_LOCK` paths.
+
+Generated standalone bundles go to repository-root `dist/qemu/` (Git-ignored),
+or the explicit `--output-root` destination. Existing `qemu-release/` exports
+are left untouched and remain ignored. Working disks, builds, caches and logs
+stay in the external `$WORK_DIR`; they are not source inputs or release locks.
+
 ## Build
 
 Run on the native Linux filesystem inside Ubuntu WSL2 with WSLg. Install host
@@ -43,16 +68,16 @@ rootfs.
 
 `qemu-prepare` automatically provisions disk capacity before the first chroot/APT
 check, dependency installation and component compilation. The official ROOTFS
-has insufficient free space for this work. `grow.sh` adds 12 GiB to the build
+has insufficient free space for this work. `scripts/grow.sh` adds 12 GiB to the build
 overlay and 4 GiB to the runtime overlay, relocates EASYROMS with a verified
 backup, and expands the Btrfs ROOTFS. Partition identities and EASYROMS contents
 are preserved. These are increases in virtual capacity, not preallocation;
 QCOW2 files consume host space as writes occur. Keep sufficient free space on
 the WSL filesystem for the base image, both overlays, sources, caches and SDK.
-No manual `grow.sh` invocation is needed in a fresh build: every Make target
+No manual `scripts/grow.sh` invocation is needed in a fresh build: every Make target
 from `qemu-prepare` onward runs the prerequisite preparation stage. Repeating
 preparation does not move partitions again once the growth marker is present.
-The call in `image.sh` is a defensive check for direct script invocation.
+The call in `scripts/image.sh` is a defensive check for direct script invocation.
 
 Stages use an exclusive work lock, content fingerprints and verified output
 hashes. A receipt is written only after a successful command. Mounts and NBD
@@ -67,8 +92,8 @@ dependency refresh, use a new WORK_DIR and review the new manifests.
 
 ```bash
 make qemu-components
-RELEASE_LOCK=qemu/releases/new-release.json make qemu-components \
-  PREVIOUS_LOCK=qemu/releases/g350-v01302026.json
+RELEASE_LOCK=qemu/locks/new-release.json make qemu-components \
+  PREVIOUS_LOCK=qemu/locks/g350-v01302026.json
 ```
 
 This command only reads metadata and any matching original-image inventory; it
@@ -122,7 +147,7 @@ env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SO
 Switch between EmulationStation and RetroArch to see the actual per-profile
 keys at the physical buttons; closing help leaves QEMU running. `vm.sh stop`
 also closes help. It requires `python3-tk` and `python3-pil.imagetk`.
-The photo is a user-supplied reference under `qemu/config/g350_picture.jpg`.
+The photo is a user-supplied reference under `qemu/assets/g350_picture.jpg`.
 
 SSH is key-only on `127.0.0.1:2232` by default, separate from the old port's 2222.
 The serial console logs in as ark for development. Export `SSH_PORT` explicitly
@@ -188,23 +213,23 @@ through ES using QMP keyboard events, exercises save/load and return to ES,
 captures screenshots/runtime library maps, and performs a second cold boot.
 VirGL scanout has no QMP CPU surface on the tested QEMU: the test runner enables
 `capture.so` only during validation to read back the client EGL framebuffer.
-Normal launches do not preload this diagnostic helper. Its source is `capture.c`.
+Normal launches do not preload this diagnostic helper. Its source is `tests/helpers/capture.c`.
 It records `logs/test-results.json`; packaging alone is not milestone success.
-Free fixture licenses and source links are in `test-roms-LICENSES.md`, with
-exact hashes in `test-roms.json`. Tests do not claim console timing accuracy
+Free fixture licenses and source links are in `tests/fixtures/test-roms-LICENSES.md`, with
+exact hashes in `tests/fixtures/test-roms.json`. Tests do not claim console timing accuracy
 or playable performance on an x86 TCG host.
 
 `artifacts/delta.json` records the release lock, source commit, dirty-worktree
 status, exact runtime packages, component hashes and added/removed/changed files.
-The immutable source lock is `releases/g350-v01302026.json`. Historical audit
-material under `reference/` describes RG353M and must not be treated as G350
+The immutable source lock is `locks/g350-v01302026.json`. Historical audit
+material under `docs/reference/` describes RG353M and must not be treated as G350
 validation. The original `darkos_qemu` checkout and disks remain the reference.
 
 For the privileged interruption/failure check, run
 `sudo env WORK_DIR="$WORK_DIR" bash qemu/tests/cleanup.sh` with the conversion
 pipeline stopped. It deliberately fails a read-only stage with an orphan child,
 then verifies the error status, child termination and mount cleanup.
-`qemu/check-filesystem.sh` runs a read-only Btrfs consistency check on a stopped
+`qemu/scripts/check-filesystem.sh` runs a read-only Btrfs consistency check on a stopped
 working disk; it never repairs the original image.
 
 Sound, physical gamepads, ARM32, other standalone alternatives, Kodi and
@@ -223,8 +248,8 @@ the commit that defines it.
 
 HDA playback through WSLg is configured by `qemu/vm.sh audio` and on ES startup.
 Rebuild the kernel with the current fragment before upgrading an older image.
-See [AUDIO.md](AUDIO.md) for migration, diagnostics and acceptance limits.
+See [AUDIO.md](docs/AUDIO.md) for migration, diagnostics and acceptance limits.
 ## Standalone release
 
 Run `./make_qemu_release.sh` from the repository root to package a stopped,
-prepared runtime. See [release creation and validation](RELEASE.md).
+prepared runtime. See [release creation and validation](docs/RELEASE.md).

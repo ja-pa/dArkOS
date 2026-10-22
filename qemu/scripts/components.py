@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 
-Q = Path(__file__).resolve().parent
+Q = Path(__file__).resolve().parents[1]
 
 
 def digest(path):
@@ -116,7 +116,7 @@ def report(lock, work, previous=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--lock', type=Path, default=Path(os.environ.get('RELEASE_LOCK', Q / 'releases/g350-v01302026.json')))
+    parser.add_argument('--lock', type=Path, default=Path(os.environ.get('RELEASE_LOCK', Q/'locks/g350-v01302026.json')))
     parser.add_argument('--work-dir', type=Path, default=Path(os.environ.get('WORK_DIR', Path.home() / 'darkos-g350-qemu')))
     parser.add_argument('--compare-lock', type=Path)
     parser.add_argument('--output', type=Path)

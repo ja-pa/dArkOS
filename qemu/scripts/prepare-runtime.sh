@@ -5,7 +5,7 @@ if [[ ${1:-} != --mounted ]]; then
  exit
 fi
 mkdir -p "$ROOT/opt/darkos-qemu"
-python3 "$QEMU_DIR/configure.py"
+python3 "$QEMU_DIR/scripts/configure.py"
 if [[ ! -f $ROOT/etc/ssh/ssh_host_ed25519_key.qemu-created ]]; then
  key=$ROOT/etc/ssh/ssh_host_ed25519_key
  rm -f "$key" "$key.pub"

@@ -9,14 +9,14 @@ import tempfile
 import unittest
 
 Q = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location('components', Q / 'components.py')
+spec = importlib.util.spec_from_file_location('components', Q/'scripts/components.py')
 components = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(components)
 
 
 class ComponentTests(unittest.TestCase):
     def setUp(self):
-        self.lock = json.loads((Q / 'releases/g350-v01302026.json').read_text())
+        self.lock = json.loads((Q/'locks/g350-v01302026.json').read_text())
 
     def test_report_compares_pins_and_flags_unknown_versions(self):
         old = copy.deepcopy(self.lock)

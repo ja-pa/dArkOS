@@ -5,10 +5,10 @@ if [[ ${1:-} == --mounted ]]; then
  mkdir -p "$ROOT/opt/darkos-qemu" "$ROOT/opt/darkos-qemu/sources" "$ROOT/opt/darkos-qemu/output"
  mount --bind "$WORK_DIR/sources" "$ROOT/opt/darkos-qemu/sources"
  mount --bind "$WORK_DIR/artifacts" "$ROOT/opt/darkos-qemu/output"
- cp "$QEMU_DIR/build-guest.sh" "$ROOT/opt/darkos-qemu/build-guest.sh"
- cp "$QEMU_DIR/capture.c" "$ROOT/opt/darkos-qemu/capture.c"
+ cp "$QEMU_DIR/scripts/build-guest.sh" "$ROOT/opt/darkos-qemu/build-guest.sh"
+ cp "$QEMU_DIR/tests/helpers/capture.c" "$ROOT/opt/darkos-qemu/capture.c"
  cp "$REPO_DIR/build_emulationstation-qemu.sh" "$REPO_DIR/build_retroarch-qemu.sh" "$REPO_DIR/build_351files-qemu.sh" "$ROOT/opt/darkos-qemu/"
- bash "$QEMU_DIR/chroot-run.sh" /opt/darkos-qemu/build-guest.sh "$name"
+ bash "$QEMU_DIR/scripts/chroot-run.sh" /opt/darkos-qemu/build-guest.sh "$name"
  exit
 fi
 git() { command git -c safe.directory="$WORK_DIR/sources/emulationstation" -c safe.directory="$WORK_DIR/sources/retroarch" -c safe.directory="$WORK_DIR/sources/351files" "$@"; }
@@ -34,5 +34,5 @@ PY
   done
  fi
  if [[ $name == emulationstation ]]; then git -C "$src" submodule update --init --recursive --depth=1; fi
- with_disk "$WORK_DIR/images/build.qcow2" chroot bash "$QEMU_DIR/build.sh" --mounted "$name"
+ with_disk "$WORK_DIR/images/build.qcow2" chroot bash "$QEMU_DIR/scripts/build.sh" --mounted "$name"
 done

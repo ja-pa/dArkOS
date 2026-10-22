@@ -10,7 +10,7 @@ import shutil
 import subprocess as sp
 import sys
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 UNKNOWN = "unavailable"
 
 
@@ -66,14 +66,14 @@ def validate_release(selected, resolved):
 
 
 def package(stage, profile):
-    shutil.copytree(REPO / 'qemu/release/templates', stage, dirs_exist_ok=True,
+    shutil.copytree(REPO / 'qemu/packaging/templates', stage, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
     (stage / 'config').mkdir()
-    for name in ('controls.json', 'g350_picture.jpg'):
-        shutil.copy2(REPO / 'qemu/config' / name, stage / 'config' / name)
+    shutil.copy2(REPO / 'qemu/config/controls.json', stage / 'config/controls.json')
+    shutil.copy2(REPO / 'qemu/assets/g350_picture.jpg', stage / 'config/g350_picture.jpg')
     for name in ('controls-window.py', 'qemu-audio.sh'):
         shutil.copy2(REPO / 'qemu/scripts' / name, stage / 'scripts' / name)
-    shutil.copy2(REPO / 'qemu/test-roms-LICENSES.md', stage / 'G350-ROM-NOTICES.md')
+    shutil.copy2(REPO / 'qemu/tests/fixtures/test-roms-LICENSES.md', stage / 'G350-ROM-NOTICES.md')
     write(stage / 'config/image.json', {**profile, 'guest_layout': 'g350', 'memory_mb': 2048})
     for path in stage.rglob('*.sh'):
         path.chmod(0o755)
@@ -88,13 +88,13 @@ def seal(stage):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output-root', type=Path, default=REPO / 'qemu-release')
+    parser.add_argument('--output-root', type=Path, default=REPO / 'dist/qemu')
     parser.add_argument('--dry-run', action='store_true', help='show identity and paths without exporting')
     args = parser.parse_args(argv)
     work = Path(os.environ.get('WORK_DIR', Path.home() / 'darkos-g350-qemu')).resolve()
     disk = Path(os.environ.get('DISK_IMAGE', work / 'images/work.qcow2')).resolve()
     kernel = Path(os.environ.get('KERNEL_IMAGE', work / 'build/arch/arm64/boot/Image')).resolve()
-    lock = Path(os.environ.get('RELEASE_LOCK', REPO / 'qemu/releases/g350-v01302026.json')).resolve()
+    lock = Path(os.environ.get('RELEASE_LOCK', REPO / 'qemu/locks/g350-v01302026.json')).resolve()
     resolved = read(work / 'state/resolved-release.json')
     validate_release(read(lock), resolved)
     profile = read(work / 'state/profile.json')
@@ -141,8 +141,8 @@ def main(argv=None):
         package(stage, profile)
         output = stage / 'darkos.qcow2'
         sp.run(['qemu-img', 'convert', '-p', '-c', '-O', 'qcow2', str(disk), str(output)], check=True)
-        root_command = ['bash', str(REPO / 'qemu/with-disk.sh'), str(output), 'rw',
-                        'bash', str(REPO / 'qemu/release/prepare-guest.sh')]
+        root_command = ['bash', str(REPO / 'qemu/scripts/with-disk.sh'), str(output), 'rw',
+                        'bash', str(REPO / 'qemu/packaging/guest/prepare-guest.sh')]
         if os.geteuid() != 0:
             root_command = ['sudo', '--', 'env', f'WORK_DIR={work}', f'RELEASE_LOCK={lock}', *root_command]
         sp.run(root_command, env=env, check=True)
