@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "portmaster": {
+    "version": "2026.10.21-1534",
+    "channel": "alpha",
+    "url": "https://github.com/PortsMaster/PortMaster-GUI/releases/download/2026.10.21-1534/PortMaster.zip",
+    "sha256": "343c93641214a2a15e32cba8e8cf5f6ce8a4b1cece9276e0fdc8b770ee1cf43d"
+  },
+  "sdlpop": {
+    "version": "2025-07-16_2108",
+    "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2025-07-16_2108/sdlpop.zip",
+    "sha256": "71d977b7935ceae70dc7155e224e8788d66acec255276ea199368da4a9e7fad1"
+  }
+}

@@ -13,7 +13,7 @@ The branch starts at upstream `v01302026`, commit
 - `locks/`: pinned input images, source revisions and checksums, not output releases.
 - `config/`: controls mapping; `config/kernel/`: kernel config and fragment.
 - `assets/`: static inputs such as the G350 controls photograph.
-- `runtime/`: scripts installed in the development guest.
+- `runtime/`: scripts installed in the development guest; `ports/`: port launchers.
 - `tests/`: regression and integration checks; `tests/helpers/`: diagnostic tools;
   `tests/fixtures/`: test ROM metadata and licenses.
 - `docs/`: detailed guides, historical `reference/` and saved validation `evidence/`.
@@ -152,7 +152,7 @@ The photo is a user-supplied reference under `qemu/assets/g350_picture.jpg`.
 SSH is key-only on `127.0.0.1:2232` by default, separate from the old port's 2222.
 The serial console logs in as ark for development. Export `SSH_PORT` explicitly
 when using a second VM. Graphics require WSLg; the tested path is VirtIO GPU,
-Mesa and SDL2 KMSDRM. Audio uses the dummy/null drivers.
+Mesa and SDL2 KMSDRM. Audio uses PCI HDA through WSLg; see [AUDIO.md](docs/AUDIO.md).
 
 ES: arrows navigate, Enter confirms, Escape returns, Space opens the menu,
 Tab opens options, F4 exits. RetroArch: arrows, Z/X = A/B, S/A = X/Y,
@@ -232,8 +232,9 @@ then verifies the error status, child termination and mount cleanup.
 `qemu/scripts/check-filesystem.sh` runs a read-only Btrfs consistency check on a stopped
 working disk; it never repairs the original image.
 
-Sound, physical gamepads, ARM32, other standalone alternatives, Kodi and
-PortMaster-wide compatibility are deferred. When upgrading a release, add a new
+Physical gamepads, ARM32, other standalone alternatives, Kodi and
+PortMaster-wide compatibility are deferred. The first PortMaster/SDLPoP
+integration and shared G350/QEMU archive are described in [PORTMASTER.md](docs/PORTMASTER.md). When upgrading a release, add a new
 input lock, inspect it afresh, review upstream changes and run the full gate.
 Record why each QEMU patch exists; remove renderer/build compatibility changes
 when the relevant upstream branch incorporates them.
@@ -249,6 +250,16 @@ the commit that defines it.
 HDA playback through WSLg is configured by `qemu/vm.sh audio` and on ES startup.
 Rebuild the kernel with the current fragment before upgrading an older image.
 See [AUDIO.md](docs/AUDIO.md) for migration, diagnostics and acceptance limits.
+## Example PortMaster game
+
+SDLPoP is the first example port: the same generated ZIP can be installed in
+QEMU and on a dArkOS handheld. The QEMU image queues it for PortMaster's first
+launch; source versions and hashes are pinned, like the console validation ROMs.
+The user has verified gameplay, sound and controls on physical dArkOS using a
+similar base image to QEMU's source image. Save/load was not tested on hardware;
+this is an example of portability across related dArkOS environments.
+See [SDLPoP preparation, installation and sources](ports/README.md).
+
 ## Standalone release
 
 Run `./make_qemu_release.sh` from the repository root to package a stopped,

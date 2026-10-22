@@ -71,7 +71,7 @@ class ReleaseTests(unittest.TestCase):
             release.package(stage, {'root_partuuid': 'test', 'root_fstype': 'btrfs'})
             self.assertEqual({p.name for p in stage.iterdir()}, {
                 'start.sh', 'stop.sh', 'controls.sh', 'README.md', 'LICENSES.txt',
-                'scripts', 'config', 'G350-ROM-NOTICES.md'})
+                'scripts', 'config', 'G350-ROM-NOTICES.md', 'PORTMASTER.md'})
             self.assertEqual((stage / 'config/g350_picture.jpg').read_bytes(),
                              (REPO / 'qemu/assets/g350_picture.jpg').read_bytes())
             self.assertEqual(json.loads((stage / 'config/image.json').read_text())['root_partuuid'], 'test')

@@ -24,3 +24,10 @@ G350 test ROM source and attribution notices: G350-ROM-NOTICES.md when included.
 This command creates a local directory; it does not publish a release. Public
 redistributors must provide the corresponding source and notices required by
 the licenses of every included component, including local modifications.
+
+PortMaster (when installed): https://github.com/PortsMaster/PortMaster-GUI
+Pinned archive version and hashes: provenance.json -> portmaster.
+Upstream component notices: /opt/tools/PortMaster/licenses inside the guest.
+SDLPoP: https://github.com/NagyD/SDLPoP
+Port package: https://github.com/PortsMaster/PortMaster-New
+The pilot preserves the upstream game binary and data; see PORTMASTER.md.

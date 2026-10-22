@@ -40,9 +40,9 @@ done
 [[ $requested != build ]] || exit 0
 previous=$WORK_DIR/state/graphics.json
 run_stage kernel "$KERNEL_IMAGE" "$WORK_DIR/build/.config" "$WORK_DIR/artifacts/kernel-source.json"
-sha256sum "$WORK_DIR/state/kernel.json" "$WORK_DIR/state/build-emulationstation.json" "$WORK_DIR/state/build-retroarch.json" "$WORK_DIR/state/build-351files.json" > "$WORK_DIR/state/image-inputs.sha256"
+sha256sum "$WORK_DIR/state/kernel.json" "$WORK_DIR/state/build-emulationstation.json" "$WORK_DIR/state/build-retroarch.json" "$WORK_DIR/state/build-351files.json" "$QEMU_DIR/scripts/portmaster.py" "$QEMU_DIR/locks/portmaster.lock.json" "$QEMU_DIR/ports/SDLPoP.sh" > "$WORK_DIR/state/image-inputs.sha256"
 previous=$WORK_DIR/state/image-inputs.sha256
-run_stage image "$WORK_DIR/state/runtime-id" "$WORK_DIR/artifacts/delta.json"
+run_stage image "$WORK_DIR/state/runtime-id" "$WORK_DIR/artifacts/delta.json" "$WORK_DIR/artifacts/portmaster/manifest.json" "$WORK_DIR/artifacts/portmaster/portable/sdlpop.zip"
 [[ $requested != image ]] || exit 0
 if [[ $requested == sdk ]]; then bash "$QEMU_DIR/sdk.sh" prepare; exit; fi
 bash "$QEMU_DIR/scripts/test.sh"

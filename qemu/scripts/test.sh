@@ -8,10 +8,12 @@ sha256sum -c "$WORK_DIR/state/base-image.sha256"
 vm start gtk-gl
 python3 "$QEMU_DIR/tests/integration.py"
 python3 "$QEMU_DIR/tests/filemanager.py"
+python3 "$QEMU_DIR/tests/portmaster.py"
 vm stop
 # Verify a second cold boot and preserve the machine for normal user launches.
 vm start gtk-gl
 remote 'test -e /dev/dri/card0; systemctl is-active ssh; findmnt /roms'
+python3 "$QEMU_DIR/tests/portmaster.py" --cold
 vm stop
 qemu-img check "$DISK_IMAGE"
 sha256sum -c "$WORK_DIR/state/base-image.sha256"
