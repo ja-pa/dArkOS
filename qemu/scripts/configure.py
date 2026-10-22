@@ -42,6 +42,12 @@ for system in list(systems):
     for node in list(system):
         if node.tag in ['emulators','emulator']: system.remove(node)
 if found!=set(selected): raise RuntimeError('Unexpected G350 ES system names: '+str(found))
+# Ports are launched through the QEMU graphics adapter, independent of board hooks.
+ports=ET.SubElement(systems,'system')
+for tag,value in [('name','ports'),('fullname','Ports'),('path','/roms/ports'),
+                  ('extension','.sh .SH'),('command','/bin/bash /opt/darkos-qemu/ports.sh %ROM%'),
+                  ('platform','pc'),('theme','ports')]:
+    ET.SubElement(ports,tag).text=value
 tree.write(p,encoding='utf-8',xml_declaration=True)
 # Stable keyboard mappings, matching the existing QEMU profile.
 inputs=ET.Element('inputList'); keyboard=ET.SubElement(inputs,'inputConfig',type='keyboard',deviceName='Keyboard',deviceGUID='-1')
@@ -62,7 +68,8 @@ text=base.read_text(); overrides={'video_driver':'gl','video_context_driver':'km
 for name in ['saves','states','logs']: (base.parent/name).mkdir(exist_ok=True)
 lines=[line for line in text.splitlines() if line.split('=',1)[0].strip() not in overrides]
 write('/home/ark/.config/retroarch/retroarch.qemu.cfg','\n'.join(lines)+'\n'+''.join(f'{k} = "{v}"\n' for k,v in overrides.items()))
-for f in (q/'runtime').iterdir(): shutil.copy2(f,root/'opt/darkos-qemu'/f.name)
+for f in (q/'runtime').iterdir():
+    if f.is_file(): shutil.copy2(f,root/'opt/darkos-qemu'/f.name)
 print('G350 runtime profile configured:',profile)
 
 write('/opt/system/351Files.sh','#!/usr/bin/env bash\nexec bash /opt/darkos-qemu/351files.sh\n',0o755)

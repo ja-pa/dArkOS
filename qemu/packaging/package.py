@@ -74,6 +74,7 @@ def package(stage, profile):
     for name in ('controls-window.py', 'qemu-audio.sh'):
         shutil.copy2(REPO / 'qemu/scripts' / name, stage / 'scripts' / name)
     shutil.copy2(REPO / 'qemu/tests/fixtures/test-roms-LICENSES.md', stage / 'G350-ROM-NOTICES.md')
+    shutil.copy2(REPO / 'qemu/docs/PORTMASTER.md', stage / 'PORTMASTER.md')
     write(stage / 'config/image.json', {**profile, 'guest_layout': 'g350', 'memory_mb': 2048})
     for path in stage.rglob('*.sh'):
         path.chmod(0o755)
@@ -165,6 +166,7 @@ def main(argv=None):
             'disk': {'format': 'qcow2', 'backing_file': None, 'writable': True}}
         for key in ('image_sha256', 'upstream_release', 'archives'):
             provenance['source']['image'].setdefault(key, UNKNOWN)
+        provenance['portmaster'] = build.get('portmaster', {'status': 'not installed in this runtime'})
         write(stage / 'provenance.json', provenance)
         if code_identity() != code:
             raise ValueError('Packaging checkout changed during export; retry from a stable checkout')

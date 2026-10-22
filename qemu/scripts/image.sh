@@ -3,6 +3,7 @@ source "$(dirname "$0")/lib.sh"
 if [[ ${1:-} != --mounted ]]; then
  [[ -s $WORK_DIR/artifacts/emulationstation/emulationstation && -s $WORK_DIR/artifacts/retroarch/retroarch && -s $WORK_DIR/artifacts/351files/351files ]] || fail 'Build all components before packaging'
  python3 "$QEMU_DIR/tests/helpers/test-roms.py"
+ python3 "$QEMU_DIR/scripts/portmaster.py" prepare
  bash "$QEMU_DIR/scripts/grow.sh" "$DISK_IMAGE" 4
  with_disk "$DISK_IMAGE" chroot bash "$0" --mounted
  qemu-img check "$DISK_IMAGE"
@@ -26,6 +27,7 @@ mkdir -p "$ROOT/roms"
 mount "$ROMS_DEVICE" "$ROOT/roms"
 [[ -z $BOOT_DEVICE ]] || mount -o ro "$BOOT_DEVICE" "$ROOT/boot"
 python3 "$QEMU_DIR/tests/helpers/install-test-roms.py"
+python3 "$QEMU_DIR/scripts/portmaster.py" install
 # Fingerprint the exact libraries and binaries used by the runtime and SDK.
 {
  sha256sum "$WORK_DIR/artifacts/graphics/runtime-packages.sha256"

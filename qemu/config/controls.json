@@ -2,7 +2,7 @@
   "profiles": [
     {
       "name": "EmulationStation",
-      "note": "Ovládání nabídky ES. Před stiskem kláves klikněte do okna QEMU. Ve hře přepněte tuto nápovědu na RetroArch.",
+      "note": "Ovládání nabídky ES. Před stiskem kláves klikněte do okna QEMU. Přepněte profil nápovědy podle spuštěné aplikace.",
       "controls": [
         [
           "D-pad / pohyb",
@@ -137,6 +137,88 @@
         "select": "—",
         "l": "Page Up",
         "r": "Page Down",
+        "l2": "—",
+        "r2": "—"
+      }
+    },
+    {
+      "name": "PortMaster",
+      "note": "Klávesy posílejte do okna QEMU. Escape ukončí správce a vrátí se do ES.",
+      "controls": [
+        [
+          "Pohyb",
+          "↑ ↓ ← →"
+        ],
+        [
+          "A / potvrdit",
+          "Z / Space"
+        ],
+        [
+          "B / zpět",
+          "X"
+        ],
+        [
+          "Start",
+          "Enter"
+        ],
+        [
+          "Zpět do ES",
+          "Escape"
+        ]
+      ],
+      "diagram": {
+        "dpad": "↑ ↓ ← →",
+        "a": "Z / Space",
+        "b": "X",
+        "x": "A",
+        "y": "S",
+        "start": "Enter",
+        "select": "Escape",
+        "l": "Q",
+        "r": "E",
+        "l2": "—",
+        "r2": "—"
+      }
+    },
+    {
+      "name": "SDLPoP",
+      "note": "Nativní klávesnice hry. Escape otevře herní menu; Ctrl+Q vrátí do ES.",
+      "controls": [
+        [
+          "Pohyb / skok / skrčit",
+          "↑ ↓ ← →"
+        ],
+        [
+          "Opatrný krok / akce",
+          "Shift"
+        ],
+        [
+          "Menu",
+          "Escape"
+        ],
+        [
+          "Uložit / načíst stav",
+          "F6 / F9"
+        ],
+        [
+          "Restart úrovně",
+          "Ctrl+A"
+        ],
+        [
+          "Zpět do ES",
+          "Ctrl+Q"
+        ]
+      ],
+      "diagram": {
+        "dpad": "↑ ↓ ← →",
+        "a": "Shift",
+        "b": "—",
+        "x": "—",
+        "y": "—",
+        "start": "Enter",
+        "select": "Escape",
+        "l": "F6",
+        "r": "F9",
         "l2": "—",
         "r2": "—"
       }

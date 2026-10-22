@@ -56,6 +56,19 @@ ukončit emulátor bez řádného vypnutí hostovaného systému. Pokud vypnutí
 skript selže nebo překročí timeout, VM zůstane běžet pro diagnostiku.
 Po opuštění ES přes F4 zůstane VM zapnutá; pro návrat do ES ji vypněte a spusťte.
 
+## Ukázková hra SDLPoP
+
+Pokud image obsahuje PortMaster, otevřete v ES **Ports -> PortMaster**. Při
+prvním spuštění se nainstaluje připravený ukázkový port SDLPoP. PortMaster
+ukončete a restartujte ES, aby se aktualizoval seznam her; poté zvolte
+**Ports -> SDLPoP**. Ovládání a podrobnosti najdete v [PORTMASTER.md](PORTMASTER.md).
+
+Stejný ZIP vytvořený vývojovým workflow je určen i k instalaci přes PortMaster
+na fyzickém dArkOS. Uživatel ověřil hraní, zvuk a ovládání na dArkOS s podobným
+výchozím obrazem, z jakého vychází QEMU. Ukládání a načítání pozice netestoval.
+Jde o ukázku přenositelnosti mezi příbuznými prostředími dArkOS, nikoli ověření
+všech modelů handheldů nebo dalších her z katalogu.
+
 ## Data, původ a diagnostika
 
 Nastavení a uložené hry se zapisují přímo do `darkos.qcow2`. Pro čistý návrat

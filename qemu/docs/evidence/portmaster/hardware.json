@@ -1,0 +1,21 @@
+{
+  "reported_on": "2026-10-22",
+  "source": "user report in chat",
+  "device_reported": "R36xx",
+  "exact_model": null,
+  "firmware": "dArkOS",
+  "firmware_version": null,
+  "example": "SDLPoP",
+  "artifact_description": "The same SDLPoP ZIP produced by the QEMU workflow",
+  "tested_zip_sha256": null,
+  "result": "User reports successful gameplay, sound and controls with the same QEMU-produced archive",
+  "individual_checks": {
+    "gameplay": "passed (user-reported)",
+    "sound": "passed (user-reported)",
+    "controls": "passed (user-reported)",
+    "save_load": "not tested",
+    "return_to_frontend": "not reported"
+  },
+  "scope": "Portability example across related dArkOS base images; not a certification of a particular model, all handhelds or other PortMaster games",
+  "base_image_relationship": "User reports the handheld used a similar dArkOS base image to the QEMU source image; exact image identity was not supplied"
+}

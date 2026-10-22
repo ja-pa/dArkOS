@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-22",
+  "repository": "ja-pa/darkos",
+  "branch": "codex/qemu-arm64",
+  "source_commit": "a0942b98c73700122371e3c58e3d54930ef8581a",
+  "worktree_dirty": true,
+  "qemu_check": {
+    "passed": true,
+    "unit_tests": 65
+  },
+  "qemu_test": {
+    "passed": true,
+    "consoles": [
+      "gb",
+      "gbc",
+      "nes",
+      "snes",
+      "gba",
+      "megadrive"
+    ],
+    "filemanager": true
+  },
+  "portmaster": {
+    "version": "2026.10.21-1534",
+    "channel": "alpha",
+    "catalogue_cached_ports": 1461,
+    "catalogue_install": "pm/sdlpop.zip installed by HarbourMaster; see logs/portmaster-catalogue-install.log"
+  },
+  "normal_boot": {
+    "passed": true,
+    "physical_g350": "unverified",
+    "cold_boot": false,
+    "runs": [
+      {
+        "game_pid": "8572",
+        "es_pid": "8395",
+        "save_load": true,
+        "returned": true
+      },
+      {
+        "game_pid": "9117",
+        "es_pid": "8395",
+        "save_load": true,
+        "returned": true
+      }
+    ],
+    "portmaster_returned_to_same_es": true,
+    "binary_sha256": "986f5606d272d775249fafe7086e47444effd8393941f0ae75bc61db058e6b5c",
+    "image_receipt": "39c0a40f4dc27418c8efa01fa96b6191cc2673f1d69e235f7ac3275248791d1c"
+  },
+  "cold_boot": {
+    "passed": true,
+    "physical_g350": "unverified",
+    "cold_boot": true,
+    "runs": [
+      {
+        "game_pid": "1698",
+        "es_pid": "1527",
+        "save_load": true,
+        "returned": true
+      }
+    ],
+    "portmaster_returned_to_same_es": true,
+    "binary_sha256": "986f5606d272d775249fafe7086e47444effd8393941f0ae75bc61db058e6b5c",
+    "image_receipt": "39c0a40f4dc27418c8efa01fa96b6191cc2673f1d69e235f7ac3275248791d1c"
+  },
+  "package": {
+    "schema": 1,
+    "sources": {
+      "schema": 1,
+      "portmaster": {
+        "version": "2026.10.21-1534",
+        "channel": "alpha",
+        "url": "https://github.com/PortsMaster/PortMaster-GUI/releases/download/2026.10.21-1534/PortMaster.zip",
+        "sha256": "343c93641214a2a15e32cba8e8cf5f6ce8a4b1cece9276e0fdc8b770ee1cf43d"
+      },
+      "sdlpop": {
+        "version": "2025-07-16_2108",
+        "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2025-07-16_2108/sdlpop.zip",
+        "sha256": "71d977b7935ceae70dc7155e224e8788d66acec255276ea199368da4a9e7fad1"
+      }
+    },
+    "portable_zip": {
+      "name": "portable/sdlpop.zip",
+      "sha256": "ad9da66a3a89f31aa08c377cd395127041581418766316fadcc6273ed2c3cd66"
+    },
+    "launcher_sha256": "5df6f3efc50713b1c0b053e7b4021a47c6587c04f3261417af852186ba88a0f2",
+    "game_binary": "Unmodified upstream prince.aarch64 shared by QEMU and G350",
+    "game_binary_sha256": "986f5606d272d775249fafe7086e47444effd8393941f0ae75bc61db058e6b5c",
+    "hardware_validation": "Not yet tested on physical G350"
+  },
+  "audio": {
+    "passed": true,
+    "monitor": "RDPSink.monitor",
+    "sample_rate": 44100,
+    "duration_seconds": 7.950907029478458,
+    "peak": 4018,
+    "rms": 325.43553561221,
+    "guest_uname": "Linux g350 5.10.226-darkos-qemu #4 SMP PREEMPT Thu Oct 22 01:13:45 CEST 2026 aarch64 GNU/Linux",
+    "limitation": "Output monitor only; physical listening not performed. ALSA underruns observed under TCG."
+  },
+  "stereo": {
+    "monitor": "RDPSink.monitor",
+    "left_marker_windows": 10,
+    "right_marker_windows": 11,
+    "expected_muted": false,
+    "passed": true,
+    "limitation": "Confirms samples at the WSLg output monitor; physical audibility and crackling require listening."
+  },
+  "kernel_sha256": "c5b5a5a91a36efbb4a672627f4a1e4764b292bef5e8e5138ee7fa2d3db3e68e7",
+  "physical_g350": "Not tested; shared ZIP ready for manual verification",
+  "limitations": [
+    "Only PortMaster and SDLPoP enabled by the QEMU Ports dispatcher.",
+    "ALSA underruns under TCG; physical listening not performed.",
+    "No gamepad, timing or performance claim."
+  ]
+}
