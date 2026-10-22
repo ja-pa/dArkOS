@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "es_pid": "1389",
+  "exits": [
+    "Escape",
+    "Enter"
+  ],
+  "returned_to_same_es": true,
+  "date": "2026-10-23",
+  "unit_tests": 70,
+  "original_failure_exit_code": 2,
+  "scope": "Existing installed Triangle ZIP; ES launch, rendering and return. No full image or hardware validation."
+}

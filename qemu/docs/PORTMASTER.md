@@ -28,9 +28,14 @@ F6/F9 for quicksave/load, and Ctrl+Q to return to ES. Saves live in
 `/home/ark/.SDLPoP`. Both profiles are in the host keyboard help window.
 
 The QEMU adapter uses private Mesa/SDL2 and skips board-specific library
-rewrites, gptokeyb and oga_events. The Ports adapter currently enables only PortMaster and SDLPoP. Other
-catalogue ports can be installed, but their board launch scripts are blocked
-until adapted; some rewrite physical-device graphics links.
+rewrites, gptokeyb and oga_events for the bundled examples. The Ports adapter
+also executes installed `.sh` and `.SH` launchers inside `/roms/ports`, with the
+QEMU graphics environment and the launcher's directory as the working directory.
+Names containing spaces are supported. PortMaster and SDLPoP retain their
+special adapters. Other ports still need QEMU-compatible launchers; accepting a
+launcher does not make board-specific code or graphics libraries compatible.
+For example, [dArkOS Triangle](https://github.com/ja-pa/darkos-portmaster-template)
+can now be launched from **Ports -> DarkOS Triangle**, using its existing ZIP.
 Automatic PortMaster self-update is suppressed while catalogue refresh stays
 online. An explicit update changes the pinned runtime; use a fresh work dir
 when changing source pins. Repackaging preserves installed ports and saves.
@@ -103,3 +108,20 @@ Detailed screenshots, maps and audio captures are in
 
 Shared ZIP SHA-256:
 `ad9da66a3a89f31aa08c377cd395127041581418766316fadcc6273ed2c3cd66`.
+
+## Installed launcher validation, 2026-10-23
+
+The previous dispatcher rejected the installed `DarkOS Triangle.sh` with exit
+status 2. After the generic launcher fix, the unchanged demo launched from ES
+Ports twice, rendered through KMSDRM/OpenGL, and exited cleanly using Escape and
+Enter. Both runs returned to the same ES process. All 70 host unit tests passed,
+including paths with spaces, uppercase extensions, environment/working directory,
+exit status, missing files, traversal and external symlinks.
+
+Evidence: [results](evidence/triangle-ports/results.json) and
+[rendered demo](evidence/triangle-ports/triangle.png). The local working VM was
+patched directly, with its previous dispatcher backed up as
+`/opt/darkos-qemu/ports.sh.before-generic-ports`. Its old image receipt was moved
+to `$WORK_DIR/logs/triangle-ports/image-receipt-before-fix.json`; rebuild and run
+full image acceptance before release/export. Fresh image builds copy the fixed
+runtime script automatically. Existing images can use the offline upgrade above.
