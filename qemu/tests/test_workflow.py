@@ -143,7 +143,7 @@ class WorkflowTests(unittest.TestCase):
         bundle.seal(source,'runtime')
         work=self.root/'import'; disk=work/'images/work.qcow2'; kernel=work/'Image'
         env=dict(os.environ,WORK_DIR=str(work),DISK_IMAGE=str(disk),KERNEL_IMAGE=str(kernel))
-        result=subprocess.run(['python3',str(SCRIPTS.parent/'bundle.py'),'import-runtime',str(source)],env=env,text=True,capture_output=True)
+        result=subprocess.run(['python3',str(SCRIPTS/'bundle.py'),'import-runtime',str(source)],env=env,text=True,capture_output=True)
         self.assertEqual(result.returncode,0,result.stderr)
         self.assertFalse(marker.exists())
         self.assertIn('ROOT_PARTUUID=9aef4565-02',(work/'state/profile.env').read_text())

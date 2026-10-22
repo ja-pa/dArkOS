@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 REPO = Path(__file__).resolve().parents[2]
-spec = importlib.util.spec_from_file_location('user_release', REPO / 'qemu/release.py')
+spec = importlib.util.spec_from_file_location('user_release', REPO / 'qemu/packaging/package.py')
 release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
@@ -73,7 +73,7 @@ class ReleaseTests(unittest.TestCase):
                 'start.sh', 'stop.sh', 'controls.sh', 'README.md', 'LICENSES.txt',
                 'scripts', 'config', 'G350-ROM-NOTICES.md'})
             self.assertEqual((stage / 'config/g350_picture.jpg').read_bytes(),
-                             (REPO / 'qemu/config/g350_picture.jpg').read_bytes())
+                             (REPO / 'qemu/assets/g350_picture.jpg').read_bytes())
             self.assertEqual(json.loads((stage / 'config/image.json').read_text())['root_partuuid'], 'test')
             self.assertEqual((stage / 'scripts/controls-window.py').read_bytes(),
                              (REPO / 'qemu/scripts/controls-window.py').read_bytes())
@@ -81,6 +81,23 @@ class ReleaseTests(unittest.TestCase):
             (stage / 'start.sh').write_text('tampered')
             result = sp.run(['sha256sum', '-c', 'SHA256SUMS'], cwd=stage, capture_output=True)
             self.assertNotEqual(result.returncode, 0)
+
+    def test_dry_run_resolves_default_and_custom_output_without_exporting(self):
+        import contextlib
+        import io
+        resolved = {'input': {'source_board': 'g350', 'image_filename': 'dArkOS_G350.img'}}
+        with tempfile.TemporaryDirectory(prefix='release destination ') as folder:
+            for options, parent in [([], REPO/'dist/qemu'), (['--output-root', folder], Path(folder))]:
+                with self.subTest(options=options), \
+                        patch.object(release, 'read', side_effect=[resolved, resolved, {}]), \
+                        patch.object(release, 'code_identity', return_value={'id': 'glayouttest'}), \
+                        patch.object(release, 'package') as package, \
+                        contextlib.redirect_stdout(io.StringIO()) as output:
+                    release.main(['--dry-run', *options])
+                    target = Path(json.loads(output.getvalue())['output'])
+                    self.assertEqual(target.parent, parent)
+                    self.assertFalse(target.exists())
+                    package.assert_not_called()
 
     def test_help_does_not_need_runtime(self):
         result = sp.run(['bash', str(REPO / 'make_qemu_release.sh'), '--help'],
@@ -91,7 +108,7 @@ class ReleaseTests(unittest.TestCase):
 
 
 
-vm_spec = importlib.util.spec_from_file_location('release_vm', REPO / 'qemu/release/templates/scripts/release-vm.py')
+vm_spec = importlib.util.spec_from_file_location('release_vm', REPO / 'qemu/packaging/templates/scripts/release-vm.py')
 vm = importlib.util.module_from_spec(vm_spec)
 vm_spec.loader.exec_module(vm)
 

@@ -1,8 +1,8 @@
 """Fetch pinned free 240p/144p/160p suites; never substitute arbitrary ROMs."""
 import hashlib,http.cookiejar,json,os,re,urllib.parse,urllib.request,zipfile,io
 from pathlib import Path
-q=Path(__file__).parent; out=Path(os.environ['WORK_DIR'])/'test-roms';out.mkdir(exist_ok=True)
-roms=json.loads((q/'test-roms.json').read_text())
+q=Path(__file__).resolve().parents[2]; out=Path(os.environ['WORK_DIR'])/'test-roms';out.mkdir(exist_ok=True)
+roms=json.loads((q/'tests/fixtures/test-roms.json').read_text())
 opener=None; download_page=None; token=None
 for item in roms:
     dest=out/item['filename']
@@ -33,4 +33,4 @@ for item in roms:
         data=zipfile.ZipFile(io.BytesIO(zipped)).read(item['archive_member'])
     if hashlib.sha256(data).hexdigest()!=item['sha256']: raise RuntimeError('Test ROM checksum failure')
     dest.write_bytes(data)
-print('All five free test ROMs verified against qemu/test-roms.json')
+print('All five free test ROMs verified against qemu/tests/fixtures/test-roms.json')

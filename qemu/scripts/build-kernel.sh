@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 source "$(dirname -- "$0")/common.sh"
-RELEASE_LOCK=${RELEASE_LOCK:-$PROJECT_DIR/releases/g350-v01302026.json}
+RELEASE_LOCK=${RELEASE_LOCK:-$PROJECT_DIR/locks/g350-v01302026.json}
 # One source of truth, including direct invocation of this script.
-source_info=$(python3 "$PROJECT_DIR/components.py" --lock "$RELEASE_LOCK" --kernel-source)
+source_info=$(python3 "$PROJECT_DIR/scripts/components.py" --lock "$RELEASE_LOCK" --kernel-source)
 readarray -t kernel_source <<< "$source_info"
 KERNEL_REPO=${kernel_source[0]}
 KERNEL_COMMIT=${kernel_source[1]}
@@ -34,7 +34,7 @@ args=(-C "$KERNEL_SRC" O="$BUILD_DIR" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu
   aarch64-linux-gnu-gcc-12 --version | head -1
   gcc-12 --version | head -1
   make "${args[@]}" defconfig
-  KCONFIG_CONFIG="$BUILD_DIR/.config" bash "$KERNEL_SRC/scripts/kconfig/merge_config.sh" -m -O "$BUILD_DIR" "$BUILD_DIR/.config" "$PROJECT_DIR/configs/qemu-arm64.fragment"
+  KCONFIG_CONFIG="$BUILD_DIR/.config" bash "$KERNEL_SRC/scripts/kconfig/merge_config.sh" -m -O "$BUILD_DIR" "$BUILD_DIR/.config" "$PROJECT_DIR/config/kernel/qemu-arm64.fragment"
   make "${args[@]}" olddefconfig
   for option in SERIAL_AMBA_PL011 SERIAL_AMBA_PL011_CONSOLE PCI PCI_HOST_GENERIC VIRTIO_PCI VIRTIO_BLK VIRTIO_NET EFI_PARTITION BTRFS_FS DEVTMPFS DEVTMPFS_MOUNT DRM DRM_VIRTIO_GPU SOUND SND SND_PCM SND_PCI SND_HDA SND_HDA_CORE SND_HDA_INTEL SND_HDA_GENERIC; do
     grep -qx "CONFIG_${option}=y" "$BUILD_DIR/.config" || fail "CONFIG_${option} must be built in"
@@ -44,4 +44,4 @@ args=(-C "$KERNEL_SRC" O="$BUILD_DIR" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu
 } 2>&1 | tee "$WORK_DIR/logs/build-$(basename "$BUILD_DIR").log"
 # Record the actual checkout and bind it to the resulting binary.
 mkdir -p "$WORK_DIR/artifacts"
-python3 "$PROJECT_DIR/components.py" --lock "$RELEASE_LOCK" --record-kernel "$KERNEL_SRC" "$BUILD_DIR/arch/arm64/boot/Image" "$WORK_DIR/artifacts/kernel-source.json"
+python3 "$PROJECT_DIR/scripts/components.py" --lock "$RELEASE_LOCK" --record-kernel "$KERNEL_SRC" "$BUILD_DIR/arch/arm64/boot/Image" "$WORK_DIR/artifacts/kernel-source.json"

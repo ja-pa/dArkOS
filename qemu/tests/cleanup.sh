@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Local privileged failure-path check against the disposable build overlay.
-source "$(dirname "$0")/../lib.sh"
+source "$(dirname "$0")/../scripts/lib.sh"
 exec 9>"$WORK_DIR/state/pipeline.lock"
 flock -n 9 || fail 'Stop the conversion pipeline before checking failure cleanup'
 set +e

@@ -10,17 +10,17 @@ Stop the prepared development VM, then run from the repository root:
 ```
 
 Defaults: `WORK_DIR=$HOME/darkos-g350-qemu`, its `images/work.qcow2` and
-`build/arch/arm64/boot/Image`, and `qemu/releases/g350-v01302026.json`.
+`build/arch/arm64/boot/Image`, and `qemu/locks/g350-v01302026.json`.
 `WORK_DIR`, `DISK_IMAGE`, `KERNEL_IMAGE`, `RELEASE_LOCK` can be specified in the
 environment. The selected lock must match the prepared runtime record.
 No guest rebuild or download is performed. Prepare the runtime using the
-[QEMU guide](README.md) first. Export requires Python 3.11+, qemu-img, qemu-nbd,
+[QEMU guide](../README.md) first. Export requires Python 3.11+, qemu-img, qemu-nbd,
 util-linux, Btrfs tools and sudo for mounting the exported copy.
 
 Example output:
 
 ```text
-qemu-release/darkos-qemu-g350-trixie-02012026-g172967430b47/
+dist/qemu/darkos-qemu-g350-trixie-02012026-g172967430b47/
 ```
 
 The image filename supplies the version; provenance records the full Git commit.
@@ -37,10 +37,10 @@ overwritten; failures retain the partial folder for inspection. Allow at least
 the virtual disk size plus 1 GiB of free temporary space. The source disk stays
 unchanged. Never boot or mutate it during export.
 
-Editable launchers and documentation live in `qemu/release/templates/`. Packaging
+Editable launchers and documentation live in `qemu/packaging/templates/`. Packaging
 adds the existing controls helper, audio helper, controls mapping and G350 photo
-from `qemu/scripts/` and `qemu/config/`, using an explicit copy list. Guest-only
-payloads and cleanup live under `qemu/release/`. Development tools, SDK, SSH keys
+from `qemu/scripts/`, `qemu/config/` and `qemu/assets/`, using an explicit copy list. Guest-only
+payloads and cleanup live under `qemu/packaging/guest/`. Development tools, SDK, SSH keys
 and the repository are excluded.
 
 The finished folder is movable and self-contained. Use `./start.sh`,

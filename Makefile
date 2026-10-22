@@ -150,17 +150,17 @@ qemu-sdk:
 
 .PHONY: qemu-attest
 qemu-attest:
-	bash qemu/attest.sh
+	bash qemu/scripts/attest.sh
 
 # Run static/regression checks only when requested on the local host.
 .PHONY: qemu-check
 qemu-check:
-	bash qemu/check.sh
+	bash qemu/scripts/check.sh
 
 # Read-only release review: no import, mount, compilation or VM boot.
 .PHONY: qemu-components
 qemu-components:
-	python3 qemu/components.py $(if $(PREVIOUS_LOCK),--compare-lock "$(PREVIOUS_LOCK)",)
+	python3 qemu/scripts/components.py $(if $(PREVIOUS_LOCK),--compare-lock "$(PREVIOUS_LOCK)",)
 
 .PHONY: qemu-release
 qemu-release:

@@ -3,7 +3,7 @@ import hashlib,json,os,subprocess
 from pathlib import Path
 from inventory import inventory
 from components import verified_kernel
-root=Path(os.environ['ROOT']); work=Path(os.environ['WORK_DIR']); q=Path(__file__).parent
+root=Path(os.environ['ROOT']); work=Path(os.environ['WORK_DIR']); q=Path(__file__).resolve().parents[1]
 before=json.loads((work/'logs/inspect/files.json').read_text()); after=inventory(root)
 # Exclude this generated attestation to avoid hashing its own previous version.
 before.pop('/opt/darkos-qemu/provenance.json',None);after.pop('/opt/darkos-qemu/provenance.json',None)

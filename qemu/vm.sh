@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/scripts/lib.sh"
 source "$QEMU_DIR/scripts/workflow-common.sh"
 # Reject a foreign/unfinished work directory before starting QEMU or appending logs.
 case ${1:-help} in
@@ -35,6 +35,6 @@ case ${1:-help} in
   ;;
  diagnose) vm verify; remote sudo -n bash -s < "$QEMU_DIR/scripts/graphics-diagnose.sh" | tee "$WORK_DIR/logs/graphics-diagnose.log";;
  logs) tail -n 100 "$WORK_DIR/logs/workflow/serial.log";;
- export) vm check; python3 "$QEMU_DIR/bundle.py" export-runtime "$2";;
+ export) vm check; python3 "$QEMU_DIR/scripts/bundle.py" export-runtime "$2";;
  *) echo 'Usage: qemu/vm.sh start [gtk-gl|serial]|audio|stop|status|ssh [command]|es|logs|check|export <directory>'; exit 2;;
 esac

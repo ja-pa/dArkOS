@@ -2,7 +2,7 @@
 import hashlib,json,os,subprocess as sp,sys,time
 from pathlib import Path
 from PIL import Image
-from workflow_qmp import QMP
+from helpers.workflow_qmp import QMP
 Q=Path(__file__).resolve().parents[1];W=Path(os.environ['WORK_DIR']);logs=W/'logs/351files';logs.mkdir(parents=True,exist_ok=True)
 qmp=QMP(os.environ.get('QMP_SOCKET',str(W/'state/qmp.sock')))
 result={'passed':False,'runtime_id':(W/'state/runtime-id').read_text().strip(),'image_fingerprint':json.loads((W/'state/image.json').read_text())['fingerprint'],'checks':[]}

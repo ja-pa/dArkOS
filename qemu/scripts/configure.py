@@ -1,7 +1,7 @@
 """Offline guest integration. Retain the release's theme, ROM paths and saves."""
 import json,os,shutil,sys,xml.etree.ElementTree as ET
 from pathlib import Path
-root=Path(os.environ['ROOT']); work=Path(os.environ['WORK_DIR']); q=Path(__file__).parent
+root=Path(os.environ['ROOT']); work=Path(os.environ['WORK_DIR']); q=Path(__file__).resolve().parents[1]
 profile=json.loads((work/'state/profile.json').read_text())
 def write(path,text,mode=None):
     p=root/path.lstrip('/'); p.parent.mkdir(parents=True,exist_ok=True); p.write_text(text)
