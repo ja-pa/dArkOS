@@ -1,4 +1,204 @@
 {
+  "window": {
+    "title": "dArkOS — Controls",
+    "size": [
+      1120,
+      920
+    ],
+    "minimum_size": [
+      980,
+      720
+    ]
+  },
+  "ui": {
+    "heading": {
+      "text": "G350 · Klávesnice v QEMU",
+      "font": [
+        "sans",
+        18,
+        "bold"
+      ]
+    },
+    "subtitle": {
+      "text": "Tlačítko na konzoli → klávesa na počítači"
+    },
+    "sidebar_heading": {
+      "text": "Zkratky a navigace",
+      "font": [
+        "sans",
+        12,
+        "bold"
+      ]
+    },
+    "sidebar_width": 255,
+    "action_width": 160,
+    "key_width": 90,
+    "key_font": [
+      "sans",
+      10,
+      "bold"
+    ],
+    "help": [
+      "M a analogové páčky nemají\nv tomto profilu klávesové mapování.\n— = bez přiřazené klávesy",
+      "Toto okno pouze ukazuje nápovědu.\nKlávesy posílejte do okna QEMU."
+    ]
+  },
+  "diagram": {
+    "image": "../assets/controls-template.png",
+    "background": "white",
+    "missing_key": "—",
+    "text_padding": 15,
+    "fields": [
+      {
+        "source": "label",
+        "position": [
+          0.5,
+          0.28
+        ],
+        "font": [
+          "sans",
+          22,
+          "bold"
+        ],
+        "color": "#475569"
+      },
+      {
+        "source": "mapping",
+        "position": [
+          0.5,
+          0.68
+        ],
+        "font": [
+          "sans",
+          32,
+          "bold"
+        ],
+        "color": "#1d4ed8"
+      }
+    ],
+    "boxes": [
+      {
+        "key": "m",
+        "label": "M",
+        "box": [
+          27,
+          310,
+          328,
+          405
+        ]
+      },
+      {
+        "key": "dpad",
+        "label": "D-pad",
+        "box": [
+          27,
+          451,
+          328,
+          548
+        ]
+      },
+      {
+        "key": "select",
+        "label": "SELECT",
+        "box": [
+          27,
+          606,
+          328,
+          702
+        ]
+      },
+      {
+        "key": "x",
+        "label": "X",
+        "box": [
+          927,
+          270,
+          1227,
+          366
+        ]
+      },
+      {
+        "key": "y",
+        "label": "Y",
+        "box": [
+          927,
+          386,
+          1227,
+          482
+        ]
+      },
+      {
+        "key": "a",
+        "label": "A",
+        "box": [
+          927,
+          499,
+          1227,
+          596
+        ]
+      },
+      {
+        "key": "b",
+        "label": "B",
+        "box": [
+          927,
+          612,
+          1227,
+          709
+        ]
+      },
+      {
+        "key": "start",
+        "label": "START",
+        "box": [
+          927,
+          728,
+          1227,
+          825
+        ]
+      },
+      {
+        "key": "r",
+        "label": "R1",
+        "box": [
+          27,
+          1119,
+          305,
+          1212
+        ]
+      },
+      {
+        "key": "r2",
+        "label": "R2",
+        "box": [
+          333,
+          1119,
+          613,
+          1212
+        ]
+      },
+      {
+        "key": "l2",
+        "label": "L2",
+        "box": [
+          641,
+          1119,
+          921,
+          1212
+        ]
+      },
+      {
+        "key": "l",
+        "label": "L1",
+        "box": [
+          949,
+          1119,
+          1227,
+          1212
+        ]
+      }
+    ]
+  },
   "profiles": [
     {
       "name": "EmulationStation",

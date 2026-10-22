@@ -65,18 +65,21 @@ class ReleaseTests(unittest.TestCase):
                         release.main(['--output-root', tmp])
                     run.assert_not_called()
 
-    def test_package_is_allowlisted_and_has_photographic_controls(self):
+    def test_package_is_allowlisted_and_has_controls_template(self):
         with tempfile.TemporaryDirectory(prefix='release with spaces ') as tmp:
             stage = Path(tmp)
             release.package(stage, {'root_partuuid': 'test', 'root_fstype': 'btrfs'})
             self.assertEqual({p.name for p in stage.iterdir()}, {
                 'start.sh', 'stop.sh', 'controls.sh', 'README.md', 'LICENSES.txt',
-                'scripts', 'config', 'G350-ROM-NOTICES.md', 'PORTMASTER.md'})
-            self.assertEqual((stage / 'config/g350_picture.jpg').read_bytes(),
-                             (REPO / 'qemu/assets/g350_picture.jpg').read_bytes())
+                'scripts', 'config', 'assets', 'G350-ROM-NOTICES.md', 'PORTMASTER.md'})
+            self.assertEqual((stage / 'assets/controls-template.png').read_bytes(),
+                             (REPO / 'qemu/assets/controls-template.png').read_bytes())
             self.assertEqual(json.loads((stage / 'config/image.json').read_text())['root_partuuid'], 'test')
             self.assertEqual((stage / 'scripts/controls-window.py').read_bytes(),
                              (REPO / 'qemu/scripts/controls-window.py').read_bytes())
+            settings = json.loads((stage / 'config/controls.json').read_text())
+            self.assertEqual((stage / 'config' / settings['diagram']['image']).resolve(),
+                             (stage / 'assets/controls-template.png').resolve())
             release.seal(stage)
             (stage / 'start.sh').write_text('tampered')
             result = sp.run(['sha256sum', '-c', 'SHA256SUMS'], cwd=stage, capture_output=True)

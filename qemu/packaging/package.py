@@ -70,7 +70,8 @@ def package(stage, profile):
                     ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
     (stage / 'config').mkdir()
     shutil.copy2(REPO / 'qemu/config/controls.json', stage / 'config/controls.json')
-    shutil.copy2(REPO / 'qemu/assets/g350_picture.jpg', stage / 'config/g350_picture.jpg')
+    (stage / 'assets').mkdir()
+    shutil.copy2(REPO / 'qemu/assets/controls-template.png', stage / 'assets/controls-template.png')
     for name in ('controls-window.py', 'qemu-audio.sh'):
         shutil.copy2(REPO / 'qemu/scripts' / name, stage / 'scripts' / name)
     shutil.copy2(REPO / 'qemu/tests/fixtures/test-roms-LICENSES.md', stage / 'G350-ROM-NOTICES.md')
