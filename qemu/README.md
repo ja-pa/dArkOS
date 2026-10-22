@@ -143,11 +143,21 @@ env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SO
   WORK_DIR="$HOME/darkos-g350-qemu" bash qemu/vm.sh es
 ```
 
-`vm.sh es` also opens the keyboard help window with the supplied G350 photo.
+`vm.sh es` also opens the keyboard help window with the G350 control diagram.
 Switch between EmulationStation and RetroArch to see the actual per-profile
 keys at the physical buttons; closing help leaves QEMU running. `vm.sh stop`
 also closes help. It requires `python3-tk` and `python3-pil.imagetk`.
-The photo is a user-supplied reference under `qemu/assets/g350_picture.jpg`.
+The static background is `qemu/assets/controls-template.png`, generated from the
+user-supplied `qemu/assets/g350-replacement.png`; text is rendered live over its empty boxes.
+`qemu/config/controls.json` contains the profiles, UI labels and diagram layout/styles.
+Box coordinates are source-image pixels; text positions are fractions of each box.
+Diagram font sizes are pixels at source resolution; UI font sizes use Tk points.
+Optional `styles.label` / `styles.mapping` on a box override its text style.
+Restart the help window after changing configuration. The default system cursor is preserved.
+
+The window implementation stays in one file: `ControlsWindow` manages the interface,
+`ControlsDiagram` manages rendering, and standalone functions manage process lifecycle.
+Release packages include the same configuration and background under `config/` and `assets/`.
 
 SSH is key-only on `127.0.0.1:2232` by default, separate from the old port's 2222.
 The serial console logs in as ark for development. Export `SSH_PORT` explicitly

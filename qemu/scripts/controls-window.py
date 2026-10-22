@@ -8,13 +8,145 @@ import signal
 import subprocess
 import sys
 import time
+import tkinter as tk
+from tkinter import ttk
+from tkinter.font import Font
+
+from PIL import Image, ImageTk
 
 SCRIPT = Path(__file__).resolve()
 CONFIG = SCRIPT.parents[1] / 'config/controls.json'
-# Source checkout stores assets separately; standalone bundles keep config/photo together.
-PHOTO = SCRIPT.parents[1] / 'assets/g350_picture.jpg'
-if not PHOTO.is_file():
-    PHOTO = CONFIG.parent / 'g350_picture.jpg'
+
+
+class ControlsDiagram(tk.Canvas):
+    """Static background and configurable text, scaled together on resize."""
+
+    def __init__(self, parent, settings, config_dir):
+        super().__init__(parent, name='diagram', background=settings['background'],
+                         highlightthickness=0)
+        self.settings = settings
+        self.mapping = {}
+        with Image.open(config_dir / settings['image']) as image:
+            self.template = image.convert('RGB')
+        self.template_image = None
+        self.template_size = None
+        self.background = self.create_image(0, 0, anchor='nw')
+        self.entries = [
+            (box, field, self.create_text(0, 0, fill=field['color']))
+            for box in settings['boxes'] for field in settings['fields']
+        ]
+        self.measure_font = Font(root=self)
+        self.bind('<Configure>', self.redraw)
+
+    def set_mapping(self, mapping):
+        self.mapping = mapping
+        self.redraw()
+
+    def redraw(self, _event=None):
+        scale = min(self.winfo_width() / self.template.width,
+                    self.winfo_height() / self.template.height)
+        size = tuple(max(1, round(dimension * scale)) for dimension in self.template.size)
+        ox = (self.winfo_width() - size[0]) / 2
+        oy = (self.winfo_height() - size[1]) / 2
+        sx, sy = size[0] / self.template.width, size[1] / self.template.height
+        if size != self.template_size:
+            self.template_image = ImageTk.PhotoImage(
+                self.template.resize(size, Image.Resampling.LANCZOS), master=self)
+            self.itemconfigure(self.background, image=self.template_image)
+            self.template_size = size
+        self.coords(self.background, ox, oy)
+        for box, field, item in self.entries:
+            self._draw_text(box, field, item, ox, oy, sx, sy)
+
+    def _draw_text(self, box, field, item, ox, oy, sx, sy):
+        style = field | box.get('styles', {}).get(field['source'], {})
+        x1, y1, x2, y2 = box['box']
+        px, py = style['position']
+        self.coords(item, ox + (x1 + (x2-x1)*px)*sx,
+                    oy + (y1 + (y2-y1)*py)*sy)
+        text = (box['label'] if field['source'] == 'label'
+                else self.mapping.get(box['key'], self.settings['missing_key']))
+        available = 2*min(px, 1-px)*(x2-x1)*sx - 2*self.settings['text_padding']*sx
+        font = self._fit_font(text, style['font'], sy, available)
+        self.itemconfigure(item, text=text, fill=style['color'], font=font)
+
+    def _fit_font(self, text, specification, scale, available):
+        family, base_size, weight = specification
+        pixels = max(1, round(base_size * scale))
+        self.measure_font.configure(family=family, size=-pixels, weight=weight)
+        while pixels > 1 and self.measure_font.measure(text) > available:
+            pixels -= 1
+            self.measure_font.configure(size=-pixels)
+        return family, -pixels, weight
+
+
+class ControlsWindow(tk.Tk):
+    """Profile selection, control diagram and sidebar; no process management."""
+
+    def __init__(self, settings, config_dir):
+        super().__init__()
+        self.settings = settings
+        self.ui = settings['ui']
+        self.profiles = settings['profiles']
+        try:
+            self._configure_window(settings['window'])
+            self._build_interface(config_dir)
+            self.profile.current(0)
+            self.select_profile()
+        except Exception:
+            self.destroy()
+            raise
+
+    def _configure_window(self, settings):
+        self.title(settings['title'])
+        self.attributes('-type', 'normal')
+        width, height = settings['size']
+        self.geometry(f'{min(width, self.winfo_screenwidth()-60)}x'
+                      f'{min(height, self.winfo_screenheight()-90)}+40+40')
+        self.minsize(*settings['minimum_size'])
+
+    def _build_interface(self, config_dir):
+        outer = ttk.Frame(self, padding=16)
+        outer.pack(fill='both', expand=True)
+        ttk.Label(outer, **self.ui['heading']).pack(anchor='w')
+        ttk.Label(outer, **self.ui['subtitle']).pack(anchor='w', pady=(4, 8))
+        self.profile = ttk.Combobox(outer, values=[p['name'] for p in self.profiles],
+                                   state='readonly')
+        self.profile.pack(fill='x', pady=(0, 10))
+        self.profile.bind('<<ComboboxSelected>>', self.select_profile)
+        body = ttk.Frame(outer)
+        body.pack(fill='both', expand=True)
+        self.diagram = ControlsDiagram(body, self.settings['diagram'], config_dir)
+        self.diagram.pack(side='left', fill='both', expand=True)
+        self._build_sidebar(body)
+
+    def _build_sidebar(self, parent):
+        side = ttk.Frame(parent, padding=(16, 0, 0, 0))
+        side.pack(side='right', fill='y')
+        ttk.Label(side, **self.ui['sidebar_heading']).pack(anchor='w', pady=(4, 12))
+        self.rows = ttk.Frame(side, name='rows')
+        self.rows.pack(fill='x')
+        self.note = ttk.Label(side, wraplength=self.ui['sidebar_width'], justify='left')
+        self.note.pack(fill='x', pady=(20, 0))
+        for text in self.ui['help']:
+            ttk.Label(side, text=text, wraplength=self.ui['sidebar_width'],
+                      justify='left').pack(anchor='w', pady=(20, 0))
+
+    def select_profile(self, _event=None):
+        current = self.profiles[self.profile.current()]
+        self._update_controls(current['controls'])
+        self.note.configure(text=current['note'])
+        self.diagram.set_mapping(current['diagram'])
+
+    def _update_controls(self, controls):
+        for child in self.rows.winfo_children():
+            child.destroy()
+        for row, (action, key) in enumerate(controls):
+            ttk.Label(self.rows, text=action, wraplength=self.ui['action_width']).grid(
+                row=row, column=0, sticky='w', pady=6)
+            ttk.Label(self.rows, text=key, font=self.ui['key_font'],
+                      wraplength=self.ui['key_width']).grid(
+                row=row, column=1, sticky='e', padx=(10, 0), pady=6)
 
 
 def window_pid(state, work):
@@ -33,125 +165,67 @@ def window_pid(state, work):
 
 
 def show(work, state):
-    # The window itself holds the lock, including during Tk initialization.
+    """Own the single-instance lock, signal handling and PID state."""
     with (work / 'state/controls.lock').open('w') as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             return
-        import tkinter as tk
-        from tkinter import ttk
-        profiles = json.loads(CONFIG.read_text())['profiles']
-        root = tk.Tk()
-        root.title('dArkOS — Controls')
-        root.attributes('-type', 'normal')
-        root.geometry(f'{min(1120, root.winfo_screenwidth()-60)}x{min(920, root.winfo_screenheight()-90)}+40+40')
-        root.minsize(980, 720)
-        outer = ttk.Frame(root, padding=16)
-        outer.pack(fill='both', expand=True)
-        ttk.Label(outer, text='G350 · Klávesnice v QEMU', font=('sans', 18, 'bold')).pack(anchor='w')
-        ttk.Label(outer, text='Tlačítko na konzoli → klávesa na počítači').pack(anchor='w', pady=(4, 8))
-        profile = ttk.Combobox(outer, values=[p['name'] for p in profiles], state='readonly')
-        profile.pack(fill='x', pady=(0, 10))
-        body = ttk.Frame(outer)
-        body.pack(fill='both', expand=True)
-        canvas = tk.Canvas(body, name='diagram', background='white', highlightthickness=0)
-        canvas.pack(side='left', fill='both', expand=True)
-        side = ttk.Frame(body, padding=(16, 0, 0, 0))
-        side.pack(side='right', fill='y')
-        ttk.Label(side, text='Zkratky a navigace', font=('sans', 12, 'bold')).pack(anchor='w', pady=(4, 12))
-        rows = ttk.Frame(side, name='rows')
-        rows.pack(fill='x')
-        note = ttk.Label(side, wraplength=255, justify='left')
-        note.pack(fill='x', pady=(20, 0))
-        ttk.Label(side, text='M a analogové páčky nemají\nv tomto profilu klávesové mapování.\n— = bez přiřazené klávesy',
-                  wraplength=255, justify='left').pack(anchor='w', pady=(20, 0))
-        ttk.Label(side, text='Toto okno pouze ukazuje nápovědu.\nKlávesy posílejte do okna QEMU.',
-                  wraplength=255, justify='left').pack(anchor='w', pady=(20, 0))
-        from PIL import Image, ImageTk
-        photo = Image.open(PHOTO).convert('RGB')
-        # Crops are UI viewports of the original photograph; labels stay live canvas items.
-        front = photo.crop((170, 240, 537, 812))
-        rear = photo.crop((570, 380, 930, 505))
-        canvas.images = []
-
-        def draw(_event=None):
-            if profile.current() < 0:
-                return
-            mapping = profiles[profile.current()]['diagram']
-            canvas.delete('all')
-            scale = min(max(1, canvas.winfo_width()) / 740, max(1, canvas.winfo_height()) / 730)
-            ox = (canvas.winfo_width() - 740 * scale) / 2
-            def xy(x, y): return ox+x*scale, y*scale
-            def text(x, y, value, size=11, **kw):
-                return canvas.create_text(*xy(x,y), text=value, font=('sans', max(8, round(size*scale)), 'bold'), **kw)
-            def line(points, color='#64748b'):
-                canvas.create_line(*[v for x,y in points for v in xy(x,y)], fill=color, width=max(1,2*scale))
-            def image_at(source, x, y, width):
-                im=ImageTk.PhotoImage(source.resize((max(1,round(width*scale)),max(1,round(source.height*width/source.width*scale))),Image.Resampling.LANCZOS))
-                canvas.images.append(im)
-                canvas.create_image(*xy(x,y),image=im,anchor='nw')
-            canvas.images=[]
-            image_at(front, 205, 16, 330)
-            def target(x,y): return 205+(x-170)*330/367,16+(y-240)*330/367
-            def callout(name, key, point, x,y):
-                tx,ty=target(*point)
-                edge=x+155 if x<200 else x
-                line([(tx,ty),(edge, y+27)])
-                radius=6*scale
-                px,py=xy(tx,ty)
-                canvas.create_oval(px-radius,py-radius,px+radius,py+radius,outline='#2563eb',width=max(1,2*scale))
-                x1,y1=xy(x,y);x2,y2=xy(x+155,y+55)
-                canvas.create_rectangle(x1,y1,x2,y2,fill='#f1f5f9',outline='#cbd5e1')
-                text(x+10,y+15,name,10,anchor='w',fill='#475569')
-                text(x+10,y+37,key,14,anchor='w',fill='#1d4ed8')
-            callout('D-pad',mapping['dpad'],(255,600),10,275)
-            callout('M','—',(355,563),10,175)
-            callout('SELECT',mapping['select'],(325,655),10,420)
-            for button,point,y in [('x',(454,563),175),('y',(418,600),245),('a',(490,600),315),('b',(454,635),385)]:
-                callout(button.upper(),mapping[button],point,575,y)
-            callout('START',mapping['start'],(385,655),575,465)
-            text(370,554,'Analogové páčky: bez mapování',10,fill='#64748b')
-            text(370,585,'Ramena · pohled zezadu',12,fill='#334155')
-            image_at(rear, 220, 610, 280)
-            # Rear view is mirrored: R1/R2 on the left, L2/L1 on the right.
-            for button,x,tx in [('r',45,610),('r2',185,670),('l2',365,825),('l',535,885)]:
-                key=mapping[button];label={'r':'R1','l':'L1','r2':'R2','l2':'L2'}[button]
-                bx=220+(tx-570)*280/360
-                line([(bx,656),(x+68,704)])
-                text(x+68,718,label+' → '+key,11,fill='#1d4ed8')
-
-        def select(_event=None):
-            for child in rows.winfo_children():
-                child.destroy()
-            current = profiles[profile.current()]
-            for row, (action, key) in enumerate(current['controls']):
-                # Long descriptions wrap within the side panel instead of widening the diagram window.
-                ttk.Label(rows, text=action, wraplength=160).grid(row=row, column=0, sticky='w', pady=6)
-                ttk.Label(rows, text=key, font=('sans', 10, 'bold'), wraplength=90).grid(
-                    row=row, column=1, sticky='e', padx=(10, 0), pady=6)
-            note.configure(text=current['note'])
-            draw()
-
-        profile.bind('<<ComboboxSelected>>', select)
-        canvas.bind('<Configure>', draw)
-        profile.current(0)
-        select()
-        signal.signal(signal.SIGTERM, lambda *_: root.destroy())
+        settings = json.loads(CONFIG.read_text(encoding='utf-8'))
+        window = ControlsWindow(settings, CONFIG.parent)
+        previous_handler = signal.signal(signal.SIGTERM, lambda *_: window.destroy())
 
         def tick():
-            root.after(200, tick)  # Allow Python to deliver SIGTERM while idle in Tk.
+            # Wake Python to deliver SIGTERM; this does not redraw the window.
+            window.after(200, tick)
 
-        tick()
-        root.update_idletasks()
-        root.lift()
-        pid = os.getpid()
-        started = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()[19]
-        state.write_text(json.dumps({'pid': pid, 'started': started}))
         try:
-            root.mainloop()
+            tick()
+            window.update_idletasks()
+            window.lift()
+            pid = os.getpid()
+            started = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()[19]
+            state.write_text(json.dumps({'pid': pid, 'started': started}))
+            window.mainloop()
         finally:
+            signal.signal(signal.SIGTERM, previous_handler)
             state.unlink(missing_ok=True)
+            try:
+                window.destroy()
+            except tk.TclError:
+                pass  # Closing the window normally already destroyed it.
+
+
+def stop_window(work, state):
+    pid = window_pid(state, work)
+    if pid:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        for _ in range(20):
+            if not window_pid(state, work):
+                break
+            time.sleep(0.1)
+
+
+def start_window(work, state):
+    if window_pid(state, work):
+        return
+    log = work / 'logs/workflow/controls.log'
+    log.parent.mkdir(parents=True, exist_ok=True)
+    with log.open('ab') as output:
+        child = subprocess.Popen([sys.executable, str(SCRIPT), 'show', str(work)],
+                                 stdin=subprocess.DEVNULL, stdout=output, stderr=output,
+                                 start_new_session=True)
+    for _ in range(30):
+        if window_pid(state, work):
+            return
+        if child.poll() is not None:
+            break
+        time.sleep(0.1)
+    print(f'Warning: controls window unavailable; install python3-tk python3-pil '
+          f'python3-pil.imagetk and check WSLg. Log: {log}', file=sys.stderr)
 
 
 def main():
@@ -162,36 +236,8 @@ def main():
     work = args.work.resolve()
     (work / 'state').mkdir(parents=True, exist_ok=True)
     state = work / 'state/controls.json'
-    if args.action == 'show':
-        show(work, state)
-    elif args.action == 'stop':
-        pid = window_pid(state, work)
-        if pid:
-            try:
-                os.kill(pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-            for _ in range(20):
-                if not window_pid(state, work):
-                    break
-                time.sleep(0.1)
-    else:
-        if window_pid(state, work):
-            return
-        log = work / 'logs/workflow/controls.log'
-        log.parent.mkdir(parents=True, exist_ok=True)
-        with log.open('ab') as output:
-            child = subprocess.Popen([sys.executable, str(SCRIPT), 'show', str(work)],
-                                     stdin=subprocess.DEVNULL, stdout=output, stderr=output,
-                                     start_new_session=True)
-        for _ in range(30):
-            if window_pid(state, work):
-                return
-            if child.poll() is not None:
-                break
-            time.sleep(0.1)
-        print(f'Warning: controls window unavailable; install python3-tk python3-pil python3-pil.imagetk and check WSLg. Log: {log}',
-              file=sys.stderr)
+    actions = {'start': start_window, 'stop': stop_window, 'show': show}
+    actions[args.action](work, state)
 
 
 if __name__ == '__main__':
