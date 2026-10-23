@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "runtime_id": "fffdb6e2014ba3df31cbde895f7044bcdaa50b530825313ad9a36411c8acdaf8",
+  "image_fingerprint": "66fd818ce9a56990414146778138766a9f226a70d2736add5fe1c6c860ce6283",
+  "checks": [
+    "arrows",
+    "enter-directory",
+    "backspace-parent",
+    "page-up-down",
+    "selection",
+    "context-backspace",
+    "escape-main-return",
+    "escape-dialog-return",
+    "f4-return"
+  ],
+  "es_pid": "5346",
+  "binary_sha256": "b5156e3de238ddf88ce87629f0f307fbcd13d3008388685a3dac158f38fb08d1"
+}

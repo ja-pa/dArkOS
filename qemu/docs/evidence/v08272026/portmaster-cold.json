@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "physical_g350": "unverified",
+  "cold_boot": true,
+  "runs": [
+    {
+      "game_pid": "1758",
+      "es_pid": "1585",
+      "save_load": true,
+      "returned": true
+    }
+  ],
+  "portmaster_returned_to_same_es": true,
+  "binary_sha256": "986f5606d272d775249fafe7086e47444effd8393941f0ae75bc61db058e6b5c",
+  "image_receipt": "66fd818ce9a56990414146778138766a9f226a70d2736add5fe1c6c860ce6283"
+}

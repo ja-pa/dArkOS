@@ -1,0 +1,17 @@
+{
+  "image_sha256": "8c533554b2be4819653c8b16a32871e311c23ef89665e85cd40d9d6bc98f6897",
+  "kernel": {
+    "repo": "https://github.com/ja-pa/kernel_5_10_226",
+    "commit": "bef65b1793524bc7bd27c4d70d0ce59cbebee032",
+    "version": "5.10.226",
+    "actual_commit": "bef65b1793524bc7bd27c4d70d0ce59cbebee032",
+    "transport_repo": "/home/japa1/darkos-g350-qemu/kernel",
+    "image_sha256": "269a675df7a42e04992375076f3b8d581648a6db7832e94449f4546af72ec9f1"
+  },
+  "runtime_id": "fffdb6e2014ba3df31cbde895f7044bcdaa50b530825313ad9a36411c8acdaf8",
+  "local_tests": 80,
+  "sdk_demo_cross_build": true,
+  "controls_window_visually_checked": true,
+  "source_commit_before_evidence": "8d71a05aad3fe41011f6fab7ed986791d908f14a",
+  "standalone_release": "Export and acceptance results are recorded separately after this source commit."
+}

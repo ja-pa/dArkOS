@@ -1,0 +1,76 @@
+{
+  "runtime_id": "fffdb6e2014ba3df31cbde895f7044bcdaa50b530825313ad9a36411c8acdaf8",
+  "image_fingerprint": "66fd818ce9a56990414146778138766a9f226a70d2736add5fe1c6c860ce6283",
+  "passed": true,
+  "systems": {
+    "gb": {
+      "passed": true,
+      "core": "gambatte",
+      "state": "/roms/gb/gb240p.state",
+      "es_pid": "640",
+      "screenshots": [
+        "gb-es.png",
+        "gb-game.png",
+        "gb-returned.png"
+      ]
+    },
+    "gbc": {
+      "passed": true,
+      "core": "gambatte",
+      "state": "/roms/gbc/gb240p.state",
+      "es_pid": "1473",
+      "screenshots": [
+        "gbc-es.png",
+        "gbc-game.png",
+        "gbc-returned.png"
+      ]
+    },
+    "nes": {
+      "passed": true,
+      "core": "fceumm",
+      "state": "/roms/nes/240pee.state",
+      "es_pid": "2249",
+      "screenshots": [
+        "nes-es.png",
+        "nes-game.png",
+        "nes-returned.png"
+      ]
+    },
+    "snes": {
+      "passed": true,
+      "core": "snes9x",
+      "state": "/roms/snes/240pSuite.state",
+      "es_pid": "3022",
+      "screenshots": [
+        "snes-es.png",
+        "snes-game.png",
+        "snes-returned.png"
+      ]
+    },
+    "gba": {
+      "passed": true,
+      "core": "mgba",
+      "state": "/roms/gba/240pee_mb.state",
+      "es_pid": "3790",
+      "screenshots": [
+        "gba-es.png",
+        "gba-game.png",
+        "gba-returned.png"
+      ]
+    },
+    "megadrive": {
+      "passed": true,
+      "core": "genesis_plus_gx",
+      "state": "/roms/megadrive/240pSuite-1.32.state",
+      "es_pid": "4544",
+      "screenshots": [
+        "megadrive-es.png",
+        "megadrive-game.png",
+        "megadrive-returned.png"
+      ]
+    }
+  },
+  "limitations": [
+    "Audio not validated by this graphics test; no physical gamepad; no timing/playability claim"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "monitor": "RDPSink.monitor",
+  "left_marker_windows": 0,
+  "right_marker_windows": 0,
+  "expected_muted": true,
+  "passed": true,
+  "limitation": "Confirms samples at the WSLg output monitor; physical audibility and crackling require listening."
+}
