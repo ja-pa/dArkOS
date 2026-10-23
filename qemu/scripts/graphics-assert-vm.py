@@ -4,10 +4,12 @@ import os
 from pathlib import Path
 import sys
 
-work = Path(os.environ.get('WORK_DIR', str(Path.home() / 'darkos-g350-qemu')))
+from release_config import selection
+selected = selection()
+work = Path(selected['WORK_DIR'])
 expected = Path(os.environ.get('DISK_IMAGE', str(work / 'images/graphics.qcow2'))).resolve()
 base = Path(os.environ.get('BASE_DISK_IMAGE', str(work / 'images/darkos.qcow2'))).resolve()
-raw = Path(os.environ.get('RAW_IMAGE', str(work / 'images/dArkOS_G350_trixie_02012026.img'))).resolve()
+raw = Path(selected['RAW_IMAGE'])
 if expected in (base, raw):
     sys.exit('Refusing graphics changes to the base/primary disk; select its isolated copy')
 if os.environ.get('SSH_HOST', '127.0.0.1') not in ('localhost', '127.0.0.1'):

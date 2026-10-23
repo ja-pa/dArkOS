@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "input": {
+    "upstream_release": "v08272026",
+    "image_filename": "dArkOS_G350_trixie_09022026.img",
+    "image_size": 8301576192,
+    "source_board": "g350",
+    "chipset": "rk3326",
+    "debian_codename": "trixie",
+    "image_created": "2026-09-02T20:59:05Z",
+    "archives": [
+      {
+        "name": "dArkOS_G350_trixie_09022026.img.7z.001",
+        "sha256": "f97600de2d798061ba7224a41809321f072b8fbe51156cfd33e643cf6fc569be"
+      },
+      {
+        "name": "dArkOS_G350_trixie_09022026.img.7z.002",
+        "sha256": "ab9916fb7a1f80582e2930ab96759c1d98f2975f302e7a0e7656de1adf7e718a"
+      }
+    ],
+    "image_sha256": "8c533554b2be4819653c8b16a32871e311c23ef89665e85cd40d9d6bc98f6897",
+    "image_timestamp_source": "7z l -slt with TZ=UTC"
+  },
+  "sources": {
+    "darkos": {
+      "repo": "https://github.com/christianhaitian/dArkOS",
+      "commit": "9faeb5883ea6bb567d802ee8ca7333b6ce6c8854",
+      "relationship_to_image": "release-tag; binary build provenance unverified"
+    },
+    "emulationstation": {
+      "repo": "https://github.com/christianhaitian/EmulationStation-fcamod",
+      "branch": "351v",
+      "commit": "74498be31cd016af6a42d00310f876d7256eff52",
+      "relationship_to_image": "inferred: latest selected upstream branch commit before image timestamp; binary source provenance unverified",
+      "version": "2.13.0.0 CHMOD"
+    },
+    "core_builds": {
+      "repo": "https://github.com/christianhaitian/rk3326_core_builds",
+      "commit": "809c58cd0bf8f9dcef045d8baf380331a789836f",
+      "relationship_to_image": "inferred: latest selected upstream branch commit before image timestamp; binary source provenance unverified"
+    },
+    "retroarch": {
+      "repo": "https://github.com/libretro/RetroArch",
+      "tag": "v1.22.2",
+      "commit": "69a4f0ea1e8aaf442ae4858f2e7f2b31a1776576",
+      "relationship_to_image": "version selected by pinned rk3326 recipe",
+      "version": "1.22.2"
+    },
+    "kernel": {
+      "repo": "https://github.com/ja-pa/kernel_5_10_226",
+      "commit": "bef65b1793524bc7bd27c4d70d0ce59cbebee032",
+      "version": "5.10.226"
+    },
+    "351files": {
+      "repo": "https://github.com/christianhaitian/351Files",
+      "commit": "ad0c1061423ca9dfb489aa566260c440f1941677",
+      "relationship_to_image": "inferred: latest selected upstream branch commit before image timestamp; binary source provenance unverified"
+    }
+  },
+  "target": {
+    "machine": "virt",
+    "architecture": "arm64",
+    "graphics": "mesa-sdl2-kmsdrm",
+    "default_build_mode": "arm64-chroot",
+    "audio": "dummy",
+    "ssh_port": 2232
+  },
+  "replacements": {
+    "emulationstation": {
+      "base_path": "/usr/bin/emulationstation/emulationstation",
+      "base_version": "2.13.0.0 CHMOD",
+      "base_version_evidence": "Embedded binary strings; source provenance unverified",
+      "target_version": "2.13.0.0 CHMOD + QEMU patches (351v, inferred revision)",
+      "action": "replace",
+      "base_image_sha256": "8c533554b2be4819653c8b16a32871e311c23ef89665e85cd40d9d6bc98f6897",
+      "base_sha256": "1e3e303e41b9f01422289e5fde5f4b559acac6ba3c0c7d7c9258059ef4d7bc6c"
+    },
+    "retroarch": {
+      "base_path": "/opt/retroarch/bin/retroarch",
+      "base_version": "1.22.2",
+      "base_version_evidence": "Read-only chroot --version: RetroArch 1.22.2 (Git 69a4f0ea1e), Jul 24 2026, GCC 12.4.0. Matches pinned v1.22.2 commit.",
+      "target_version": "1.22.2",
+      "action": "replace",
+      "base_image_sha256": "8c533554b2be4819653c8b16a32871e311c23ef89665e85cd40d9d6bc98f6897",
+      "base_sha256": "a77c8118d4fecef8308fa62b622b44ea99ac30dc51daf8ae6e0036a21a001cb2"
+    },
+    "351files": {
+      "base_path": "/opt/351Files/351Files",
+      "base_version": null,
+      "base_version_evidence": "No original version established; original binary SHA256 recorded.",
+      "target_version": "inferred source revision + QEMU keyboard patches",
+      "action": "private replacement; original preserved",
+      "base_image_sha256": "8c533554b2be4819653c8b16a32871e311c23ef89665e85cd40d9d6bc98f6897",
+      "base_sha256": "f0471ac5824dcb2e877f05dbc030434e61c0218a81afd28d178d7545494c4089"
+    },
+    "kernel": {
+      "base_path": "/boot/Image",
+      "base_version": "4.4.189",
+      "base_version_evidence": "Linux version 4.4.189 (dev@devbox) (gcc version 6.3.1 20170404 (Linaro GCC 6.3-2017.05) ) #1 SMP Wed Sep 2 11:50:09 EDT 2026",
+      "target_version": "5.10.226 + QEMU virt config",
+      "action": "QEMU boot kernel",
+      "base_sha256": "1bf82e58625d8d6ba1f6b268d17b85c73278b55704d56e636d6b1b2a40f3d752",
+      "base_image_sha256": "8c533554b2be4819653c8b16a32871e311c23ef89665e85cd40d9d6bc98f6897"
+    }
+  }
+}

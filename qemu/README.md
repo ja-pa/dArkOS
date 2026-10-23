@@ -1,8 +1,8 @@
 # dArkOS G350 on ARM64 QEMU
 
-Release-to-QEMU conversion in `ja-pa/darkos`, branch `codex/qemu-arm64`.
-The branch starts at upstream `v01302026`, commit
-`4518be7d0a665fb03619b840ce6015775d88765a`. Existing handheld builds are unchanged.
+Release-to-QEMU conversion in `ja-pa/darkos`, branch `codex/qemu-arm64-v08272026`.
+The branch starts at upstream `v08272026`, commit
+`9faeb5883ea6bb567d802ee8ca7333b6ce6c8854`. Existing handheld builds are unchanged.
 
 ## Directory layout
 
@@ -29,6 +29,19 @@ or the explicit `--output-root` destination. Existing `qemu-release/` exports
 are left untouched and remain ignored. Working disks, builds, caches and logs
 stay in the external `$WORK_DIR`; they are not source inputs or release locks.
 
+## Release selection
+
+Defaults select `locks/g350-v08272026.json`, the September 2 G350 image, and
+`$HOME/darkos-g350-qemu-v08272026`. Shell tools, diagnostics and packaging share
+`scripts/release_config.py`; `RAW_IMAGE` is derived from the selected lock.
+To reproduce the old release, explicitly set both `RELEASE_LOCK` to
+`$PWD/qemu/locks/g350-v01302026.json` and `WORK_DIR` to a separate old runtime.
+Never reuse old overlays or stage receipts for a new image.
+
+The new image contains ES 2.13.0.0 CHMOD, RetroArch 1.22.2 (69a4f0ea1e), and
+hardware kernel 4.4.189. QEMU uses its independently pinned 5.10.226 kernel.
+Source mapping and known uncertainties are in `docs/UPGRADE-v08272026.md`.
+
 ## Build
 
 Run on the native Linux filesystem inside Ubuntu WSL2 with WSLg. Install host
@@ -37,7 +50,7 @@ prerequisites with `sudo bash qemu/scripts/setup-host.sh`. On Ubuntu 26.04,
 verify `/proc/sys/fs/binfmt_misc/qemu-aarch64` before building.
 
 ```bash
-export WORK_DIR="$HOME/darkos-g350-qemu"
+export WORK_DIR="$HOME/darkos-g350-qemu-v08272026"
 export ARCHIVE_DIR=/mnt/c/Users/japa1/Documents/ChatGPT/darkos_qemu/images
 make qemu-inspect
 make qemu-prepare
@@ -61,7 +74,8 @@ EmulationStation uses historical `351v`, and RetroArch uses the version from the
 historical `rk3326_core_builds` recipe. Exact correspondence to binaries in the
 release is unverified. No upstream image/bootstrap script is executed.
 
-The original archive hashes come from GitHub release asset metadata. The base
+Archive hashes in the new release lock were calculated from the supplied volumes;
+the archive CRC and extracted raw image SHA256 were also checked. The base
 image stays read-only. Build and runtime use separate QCOW2 overlays, and the
 runtime receives runtime libraries and rebuilt binaries rather than the build
 rootfs.
@@ -93,7 +107,7 @@ dependency refresh, use a new WORK_DIR and review the new manifests.
 ```bash
 make qemu-components
 RELEASE_LOCK=qemu/locks/new-release.json make qemu-components \
-  PREVIOUS_LOCK=qemu/locks/g350-v01302026.json
+  PREVIOUS_LOCK=qemu/locks/g350-v08272026.json
 ```
 
 This command only reads metadata and any matching original-image inventory; it
@@ -140,7 +154,7 @@ To select the prepared G350 runtime independently of those overrides:
 
 ```bash
 env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET \
-  WORK_DIR="$HOME/darkos-g350-qemu" bash qemu/vm.sh es
+  WORK_DIR="$HOME/darkos-g350-qemu-v08272026" bash qemu/vm.sh es
 ```
 
 `vm.sh es` also opens the keyboard help window with the G350 control diagram.
@@ -231,7 +245,7 @@ or playable performance on an x86 TCG host.
 
 `artifacts/delta.json` records the release lock, source commit, dirty-worktree
 status, exact runtime packages, component hashes and added/removed/changed files.
-The immutable source lock is `locks/g350-v01302026.json`. Historical audit
+The immutable source lock is `locks/g350-v08272026.json`. Historical audit
 material under `docs/reference/` describes RG353M and must not be treated as G350
 validation. The original `darkos_qemu` checkout and disks remain the reference.
 

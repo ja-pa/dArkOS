@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")/lib.sh"
+check_import_space() {
+ python3 "$QEMU_DIR/scripts/space.py" "$WORK_DIR" "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["input"]["image_size"]+1024**3)' "$RELEASE_LOCK")"
+}
 archive_dir=${ARCHIVE_DIR:-$REPO_DIR/images}
 if [[ -n ${IMAGE:-} ]]; then
  [[ -f $IMAGE ]] || fail "Missing IMAGE=$IMAGE"
@@ -7,9 +10,9 @@ if [[ -n ${IMAGE:-} ]]; then
  expected=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["input"].get("image_sha256", ""))' "$RELEASE_LOCK")
  [[ -n $expected ]] || fail 'Raw IMAGE requires image_sha256 in release lock; use verified archives for first import'
  echo "$expected  $IMAGE" | sha256sum -c -
- if [[ ! -e $RAW_IMAGE ]]; then cp --reflink=auto --sparse=always "$IMAGE" "$RAW_IMAGE.partial"; mv "$RAW_IMAGE.partial" "$RAW_IMAGE"; fi
+ if [[ ! -e $RAW_IMAGE ]]; then check_import_space; cp --reflink=auto --sparse=always "$IMAGE" "$RAW_IMAGE.partial"; mv "$RAW_IMAGE.partial" "$RAW_IMAGE"; fi
 else
- [[ -d $archive_dir ]] || fail 'Set ARCHIVE_DIR to both G350 archive volumes from https://github.com/christianhaitian/dArkOS/releases/tag/v01302026'
+ [[ -d $archive_dir ]] || fail "Set ARCHIVE_DIR to the archive volumes specified by RELEASE_LOCK=$RELEASE_LOCK (https://github.com/christianhaitian/dArkOS/releases)"
  python3 - "$RELEASE_LOCK" "$archive_dir" <<'PY' > "$WORK_DIR/state/archive.sha256"
 import json,sys
 from pathlib import Path
@@ -21,6 +24,7 @@ PY
  sevenzip=$(command -v 7zz || command -v 7z)
  "$sevenzip" t "$archive" > "$WORK_DIR/logs/archive-test.log"
  if [[ ! -e $RAW_IMAGE ]]; then
+  check_import_space
   stage=$(mktemp -d "$WORK_DIR/images/.import.XXXXXX")
   "$sevenzip" x "$archive" "-o$stage" > "$WORK_DIR/logs/archive-extract.log"
   candidate=$stage/$(basename "$RAW_IMAGE")

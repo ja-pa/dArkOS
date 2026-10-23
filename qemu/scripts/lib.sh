@@ -2,11 +2,9 @@
 set -euo pipefail
 QEMU_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 REPO_DIR=$(dirname "$QEMU_DIR")
-export WORK_DIR=${WORK_DIR:-$HOME/darkos-g350-qemu}
-WORK_DIR=$(realpath -m "$WORK_DIR")
+release_settings=$(python3 "$QEMU_DIR/scripts/release_config.py")
+eval "$release_settings"
 [[ $WORK_DIR != / && $WORK_DIR != /home && $WORK_DIR != "$REPO_DIR" && $WORK_DIR != /mnt/* ]] || { echo 'WORK_DIR must be a dedicated native Linux directory' >&2; exit 1; }
-export RELEASE_LOCK=${RELEASE_LOCK:-$QEMU_DIR/locks/g350-v01302026.json}
-export RAW_IMAGE=$WORK_DIR/images/$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["input"]["image_filename"])' "$RELEASE_LOCK")
 export SSH_PORT=${SSH_PORT:-2232}
 export SSH_KEY=${SSH_KEY:-$WORK_DIR/ssh/id_ed25519}
 export DISK_IMAGE=${DISK_IMAGE:-$WORK_DIR/images/work.qcow2}

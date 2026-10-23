@@ -9,8 +9,8 @@ Stop the prepared development VM, then run from the repository root:
 ./make_qemu_release.sh --output-root "/path with spaces/releases"
 ```
 
-Defaults: `WORK_DIR=$HOME/darkos-g350-qemu`, its `images/work.qcow2` and
-`build/arch/arm64/boot/Image`, and `qemu/locks/g350-v01302026.json`.
+Defaults: `WORK_DIR=$HOME/darkos-g350-qemu-v08272026`, its `images/work.qcow2` and
+`build/arch/arm64/boot/Image`, and `qemu/locks/g350-v08272026.json`.
 `WORK_DIR`, `DISK_IMAGE`, `KERNEL_IMAGE`, `RELEASE_LOCK` can be specified in the
 environment. The selected lock must match the prepared runtime record.
 No guest rebuild or download is performed. Prepare the runtime using the

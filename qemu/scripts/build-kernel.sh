@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source "$(dirname -- "$0")/common.sh"
-RELEASE_LOCK=${RELEASE_LOCK:-$PROJECT_DIR/locks/g350-v01302026.json}
 # One source of truth, including direct invocation of this script.
+python3 "$PROJECT_DIR/scripts/space.py" "$WORK_DIR" $((1024**3))
 source_info=$(python3 "$PROJECT_DIR/scripts/components.py" --lock "$RELEASE_LOCK" --kernel-source)
 readarray -t kernel_source <<< "$source_info"
 KERNEL_REPO=${kernel_source[0]}

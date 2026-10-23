@@ -3,13 +3,20 @@
 Osobní návod pro reprodukci našeho prostředí. Je oddělený od hlavního README
 projektu; popisuje postup z releasového obrazu až po funkční VM, SDK a exporty.
 
-Zapsáno 20. 10. 2026. Technický stav, ke kterému se postup vztahuje:
-`codex/qemu-arm64`. Upstream základ je tag `v01302026`,
-commit `4518be7d0a665fb03619b840ce6015775d88765a`.
+Aktualizováno 23. 10. 2026. Technický stav, ke kterému se postup vztahuje:
+`codex/qemu-arm64-v08272026`. Upstream základ je tag `v08272026`,
+commit `9faeb5883ea6bb567d802ee8ca7333b6ce6c8854`.
 
 **Nevytváříme celý oficiální dArkOS od začátku.** Stahujeme původní G350 obraz
 z releasu, nad ním vytváříme pracovní QCOW2 a upravujeme prostředí pro QEMU.
 Z tohoto počítače není potřeba přenášet hotový QCOW2 ani SDK.
+
+Výchozí lock je `qemu/locks/g350-v08272026.json` a nový pracovní adresář
+`$HOME/darkos-g350-qemu-v08272026`. Starý pracovní adresář se nepřepisuje.
+ES a 351Files se překládají z novějších připnutých zdrojů. RetroArch zůstává
+1.22.2 a QEMU kernel 5.10.226; původní hardwarový kernel obrazu je 4.4.189.
+Skripty kontrolují volné místo ve WSL i na podkladovém C:. Při jeho nedostatku
+končí bez mazání starých VM či exportů.
 
 ## 1. Co potřebuji
 
@@ -40,7 +47,7 @@ Pak:
 ```bash
 mkdir -p "$HOME/projects"
 cd "$HOME/projects"
-git clone --branch codex/qemu-arm64 https://github.com/ja-pa/dArkOS.git darkos-g350
+git clone --branch codex/qemu-arm64-v08272026 https://github.com/ja-pa/dArkOS.git darkos-g350
 cd darkos-g350
 ```
 
@@ -74,12 +81,12 @@ Grafické kroky vyžadují funkční WSLg; v terminálu má být nastavené `DIS
 
 ## 4. Připravit vstupy a proměnné
 
-Z [upstream releasu v01302026](https://github.com/christianhaitian/dArkOS/releases/tag/v01302026)
+Z [upstream releasu v01302026](https://github.com/christianhaitian/dArkOS/releases/tag/v08272026)
 stáhnout oba soubory do stejného adresáře:
 
 ```text
-dArkOS_G350_trixie_02012026.img.7z.001
-dArkOS_G350_trixie_02012026.img.7z.002
+dArkOS_G350_trixie_09022026.img.7z.001
+dArkOS_G350_trixie_09022026.img.7z.002
 ```
 
 Lze použít kopie našich již stažených archivů. Ručně je nerozbalovat;
@@ -93,7 +100,7 @@ cd "$HOME/projects/darkos-g350"
 unset DISK_IMAGE KERNEL_IMAGE SSH_KEY SSH_PORT ES_SYSROOT QMP_SOCKET
 unset BUILD_DIR KERNEL_SRC RELEASE_LOCK SOURCE_REPO IMAGE RAW_IMAGE
 
-export WORK_DIR="$HOME/darkos-g350-qemu"
+export WORK_DIR="$HOME/darkos-g350-qemu-v08272026"
 export ARCHIVE_DIR="/mnt/c/Users/TVUJ_WINDOWS_UZIVATEL/Downloads/darkos-images"
 export JOBS=4
 ```
@@ -157,7 +164,7 @@ Pro běžné používání teď na tomto počítači spouštím z `~/projects/da
 
 ```bash
 cd "$HOME/projects/darkos-g350"
-env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET WORK_DIR="$HOME/darkos-g350-qemu" bash qemu/vm.sh es
+env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET WORK_DIR="$HOME/darkos-g350-qemu-v08272026" bash qemu/vm.sh es
 ```
 
 `env -u` pro toto spuštění odstraní případné zděděné proměnné ze starého portu
@@ -206,7 +213,7 @@ Vše pod zvoleným `$WORK_DIR`:
 
 | Cesta vůči WORK_DIR | Obsah |
 |---|---|
-| `images/dArkOS_G350_trixie_02012026.img` | Neměnný oficiální základ |
+| `images/dArkOS_G350_trixie_09022026.img` | Neměnný oficiální základ |
 | `images/build.qcow2` | Prostředí pro závislosti a kompilaci |
 | `images/work.qcow2` | Runtime používaný při běžném spuštění |
 | `build/arch/arm64/boot/Image` | Kernel pro QEMU |
@@ -254,7 +261,7 @@ Porovnat připravovaný lockfile s dnešním základem:
 
 ```bash
 RELEASE_LOCK=qemu/locks/novy-release.json make qemu-components \
-  PREVIOUS_LOCK=qemu/locks/g350-v01302026.json
+  PREVIOUS_LOCK=qemu/locks/g350-v08272026.json
 ```
 
 Tabulka ukáže původní a cílové verze, repozitáře, SHA a změněné i ponechané

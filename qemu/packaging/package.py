@@ -11,6 +11,8 @@ import subprocess as sp
 import sys
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / 'qemu/scripts'))
+from release_config import selection
 UNKNOWN = "unavailable"
 
 
@@ -93,10 +95,11 @@ def main(argv=None):
     parser.add_argument('--output-root', type=Path, default=REPO / 'dist/qemu')
     parser.add_argument('--dry-run', action='store_true', help='show identity and paths without exporting')
     args = parser.parse_args(argv)
-    work = Path(os.environ.get('WORK_DIR', Path.home() / 'darkos-g350-qemu')).resolve()
+    selected = selection()
+    work = Path(selected['WORK_DIR'])
     disk = Path(os.environ.get('DISK_IMAGE', work / 'images/work.qcow2')).resolve()
     kernel = Path(os.environ.get('KERNEL_IMAGE', work / 'build/arch/arm64/boot/Image')).resolve()
-    lock = Path(os.environ.get('RELEASE_LOCK', REPO / 'qemu/locks/g350-v01302026.json')).resolve()
+    lock = Path(selected['RELEASE_LOCK'])
     resolved = read(work / 'state/resolved-release.json')
     validate_release(read(lock), resolved)
     profile = read(work / 'state/profile.json')

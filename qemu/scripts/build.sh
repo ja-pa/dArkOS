@@ -12,6 +12,7 @@ if [[ ${1:-} == --mounted ]]; then
  exit
 fi
 git() { command git -c safe.directory="$WORK_DIR/sources/emulationstation" -c safe.directory="$WORK_DIR/sources/retroarch" -c safe.directory="$WORK_DIR/sources/351files" "$@"; }
+python3 "$QEMU_DIR/scripts/space.py" "$WORK_DIR" $((2 * 1024**3))
 component=${1:-all}
 [[ $component == all || $component == emulationstation || $component == retroarch || $component == 351files ]] || fail 'COMPONENT must be emulationstation|retroarch|351files|all'
 for name in emulationstation retroarch 351files; do

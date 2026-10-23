@@ -14,6 +14,7 @@ find "$ROOT/etc/systemd/system" -type l -printf '%P -> %l\n' | sort > "$out/serv
 find "$ROOT/etc/apt" -name '*.list' -o -name '*.sources' | while read -r p; do printf '\n%s\n' "${p#"$ROOT"}"; cat "$p"; done > "$out/apt-sources.txt"
 [[ -z $BOOT_DEVICE ]] || mount -o ro "$BOOT_DEVICE" "$ROOT/boot"
 [[ -z $ROMS_DEVICE ]] || mount -o ro "$ROMS_DEVICE" "$ROOT/roms"
+python3 "$QEMU_DIR/scripts/release_versions.py" "$ROOT" "$out/versions.json"
 python3 "$QEMU_DIR/scripts/inventory.py" "$ROOT" "$out/files.json"
 python3 - "$ROOT" "$out" <<'PY'
 import json,os,subprocess,sys,shlex

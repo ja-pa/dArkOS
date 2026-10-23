@@ -7,7 +7,7 @@ case ${1:-help} in
   [[ -s $WORK_DIR/state/profile.env ]] || fail "Missing G350 image profile in WORK_DIR=$WORK_DIR.
 An exported WORK_DIR from the old port overrides the default.
 For the prepared G350 runtime, run:
-  env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET WORK_DIR=\"\$HOME/darkos-g350-qemu\" bash qemu/vm.sh ${1}
+  env -u DISK_IMAGE -u KERNEL_IMAGE -u SSH_KEY -u SSH_PORT -u ES_SYSROOT -u QMP_SOCKET WORK_DIR=\"\$HOME/darkos-g350-qemu-v08272026\" bash qemu/vm.sh ${1}
 For a new work directory, run make qemu-image or import a runtime bundle first."
   ;;
 esac

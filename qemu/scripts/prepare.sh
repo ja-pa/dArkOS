@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")/lib.sh"
+[[ -e $WORK_DIR/images/build.qcow2 && -e $DISK_IMAGE ]] || python3 "$QEMU_DIR/scripts/space.py" "$WORK_DIR" $((6 * 1024**3))
 [[ -s $WORK_DIR/state/profile.json ]] || fail 'Run qemu-inspect first'
 # Provision capacity before DNS/APT, dependency installation or any compilation.
 # The imported ROOTFS is too small for builds; grow both overlays on fresh setup.

@@ -7,6 +7,10 @@ from pathlib import Path
 import re
 import subprocess
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from release_config import DEFAULT_LOCK, DEFAULT_WORK
+
 Q = Path(__file__).resolve().parents[1]
 
 
@@ -116,8 +120,8 @@ def report(lock, work, previous=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--lock', type=Path, default=Path(os.environ.get('RELEASE_LOCK', Q/'locks/g350-v01302026.json')))
-    parser.add_argument('--work-dir', type=Path, default=Path(os.environ.get('WORK_DIR', Path.home() / 'darkos-g350-qemu')))
+    parser.add_argument('--lock', type=Path, default=Path(os.environ.get('RELEASE_LOCK', DEFAULT_LOCK)))
+    parser.add_argument('--work-dir', type=Path, default=Path(os.environ.get('WORK_DIR', DEFAULT_WORK)))
     parser.add_argument('--compare-lock', type=Path)
     parser.add_argument('--output', type=Path)
     mode = parser.add_mutually_exclusive_group()
