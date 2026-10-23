@@ -94,7 +94,26 @@ class LauncherTests(unittest.TestCase):
         result = self.run_launcher('--dry-run', QEMU_AUDIO='pa',
                                    PULSE_SERVER='unix:' + str(self.path / 'absent.sock'))
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('PulseAudio connection failed', result.stderr)
+        self.assertIn('PulseAudio playback did not complete', result.stderr)
+
+    def test_connected_but_failed_playback_is_rejected(self):
+        # A reachable server is insufficient: a stalled sink must fail before boot.
+        source = self.path / 'pulse.c'
+        source.write_text("""#include <stddef.h>
+void *pa_simple_new(void *server, ...) { return (void *)1; }
+int pa_simple_write(void *stream, const void *data, size_t n, int *error) {
+    if (n != 17640) { *error = 99; return -1; } return 0;
+}
+int pa_simple_drain(void *stream, int *error) { *error = 77; return -1; }
+void pa_simple_free(void *stream) {}
+""")
+        subprocess.run(['gcc', '-shared', '-fPIC', str(source), '-o',
+                        str(self.path / 'libpulse-simple.so.0')], check=True, capture_output=True)
+        result = self.run_launcher('--dry-run', QEMU_AUDIO='pa',
+                                   PULSE_SERVER='test:stub', LD_LIBRARY_PATH=str(self.path))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('libpulse drain error 77', result.stderr)
+        self.assertIn('PulseAudio playback did not complete', result.stderr)
 
     @unittest.skipUnless(os.environ.get('PULSE_SERVER'), 'requires an active Pulse server')
     def test_pulse_audio_command(self):

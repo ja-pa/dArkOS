@@ -1,0 +1,60 @@
+{
+  "before": {
+    "pid": 464,
+    "frame": 15,
+    "x": 77,
+    "y": 118,
+    "room": 1,
+    "intro": 0
+  },
+  "after": {
+    "pid": 464,
+    "frame": 15,
+    "x": 100,
+    "y": 118,
+    "room": 1,
+    "intro": 0
+  },
+  "audio": "normal ALSA/HDA/WSLg",
+  "binary": "original PortMaster prince.aarch64",
+  "passed": true,
+  "date": "2026-10-24",
+  "binary_sha256": "986f5606d272d775249fafe7086e47444effd8393941f0ae75bc61db058e6b5c",
+  "failure": {
+    "keyboard_events": "USB keyboard arrows delivered as SDL scancode 79; gameplay control_x=1",
+    "kid_frame": 109,
+    "symptom": "crouched at level 1 start; menu works",
+    "host_test": "0.1-second paplay playback timed out after 8 seconds",
+    "dummy_audio": "intro completed and kid stood up; no binary/map changes"
+  },
+  "recovery": "clean shutdown of both guests; restart Weston, then PulseAudio after its audio socket became ready; cold boot VM",
+  "audio_monitor": {
+    "rate": 44100,
+    "channels": 2,
+    "samples": 529010,
+    "peak": 4019,
+    "rms": 249.9324225408335,
+    "physical_listening": "not asserted"
+  },
+  "screenshots": [
+    "sdlpop-input-before.png",
+    "sdlpop-input-after.png"
+  ],
+  "standalone_release": {
+    "release_id": "darkos-qemu-g350-trixie-09022026-gfa2420dca4f0",
+    "launch": "ES -> Ports -> Prince of Persia",
+    "runs": 2,
+    "idle_between_runs_seconds": 10,
+    "intro_finished": true,
+    "movement": "visually confirmed in original QEMU window on both launches",
+    "audio_monitor": {
+      "samples": 705928,
+      "peak": 4019
+    },
+    "left_running": "SDLPoP at level 1 for user to try"
+  },
+  "local_checks": {
+    "tests": 90,
+    "passed": true
+  }
+}

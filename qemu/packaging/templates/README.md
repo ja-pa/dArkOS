@@ -99,3 +99,34 @@ celé WSL. Pokud používáte jiný název distribuce, nahraďte `Ubuntu`.
 upstream release, kernel a revizi použitých receptů včetně necommitnutých změn.
 Nedostupné údaje jsou výslovně označeny. Licenční informace jsou v `LICENSES.txt`
 a uvnitř image v `/usr/share/doc`.
+
+## WSLg audio a nehybný princ v SDLPoP
+
+Pokud funguje herní menu, ale princ zůstává po startu přikrčený a šipky nereagují,
+může jít o zaseknuté přehrávání zvuku. SDLPoP v první úrovni čeká na dohrání
+úvodního zvuku (`control_crouched` v [upstream zdroji](https://github.com/NagyD/SDLPoP/blob/master/src/seg005.c)).
+Menu dál přijímá klávesy, takže tento stav vypadá jako chyba ovládání. Stejné
+chování jsme reprodukovali s původní binárkou PortMasteru; s backendem `dummy`
+se úvod dokončil a po obnově WSLg fungoval pohyb i s původním ALSA/HDA zvukem.
+
+Kontrola před startem nyní nejen připojí PulseAudio, ale také přehraje 100 ms
+ticha a čeká na jeho odbavení, s limitem 8 sekund. Nepoužívá mikrofon. Již běžící
+VM se při pozdějším zaseknutí WSLg tímto testem neopraví.
+
+Pro obnovu nejprve vypněte VM přes `stop.sh` (vývojovou přes `qemu/vm.sh stop`)
+a uložte práci v ostatních linuxových GUI aplikacích: restart Weston je zavře.
+Pak ve Windows PowerShellu spusťte:
+
+```powershell
+wsl.exe --system -- pkill -TERM -x weston
+Start-Sleep -Seconds 5
+wsl.exe --system -- pkill -KILL -x pulseaudio
+```
+
+PulseAudio se automaticky obnoví; restartujte jej až po obnovení Weston, aby
+navázal nové spojení s jeho audio socketem. Potom spusťte VM znovu. Běžící VM
+při restartu těchto služeb nenechávejte otevřené. Nouzově lze vypnutou VM
+spustit bez zvukového zařízení: `QEMU_AUDIO=none bash start.sh`.
+
+Regresní test SDLPoP kontroluje také posun postavy po držené šipce. Samotný
+start, otevření menu a vytvoření quicksave neprokazují funkční pohyb.

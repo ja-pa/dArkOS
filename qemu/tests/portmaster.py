@@ -31,8 +31,8 @@ def wait(command, timeout=180):
         time.sleep(1)
     raise RuntimeError('Timed out: ' + command)
 
-def key(*codes):
-    qmp.command('send-key', {'keys': [{'type': 'qcode', 'data': c} for c in codes], 'hold-time': 200})
+def key(*codes, hold=200):
+    qmp.command('send-key', {'keys': [{'type': 'qcode', 'data': c} for c in codes], 'hold-time': hold})
     time.sleep(1)
 
 def shot(name, timeout=30):
@@ -48,6 +48,18 @@ def shot(name, timeout=30):
             return hashlib.sha256(im.tobytes()).hexdigest()
         time.sleep(2)
     raise RuntimeError('Blank frame: ' + name)
+
+def prince_x(name):
+    # Fixed acceptance scene: level 1, room 1. White trousers identify the kid;
+    # exclude the bars at the left edge, torches above and HUD at the bottom.
+    im = Image.open(OUT / (name + '.png')).convert('RGB')
+    w, h = im.size
+    xs = [x for y in range(int(h * .45), int(h * .85))
+          for x in range(int(w * .06), int(w * .94))
+          if min(im.getpixel((x, y))) > 200]
+    if not xs:
+        raise RuntimeError('Cannot locate SDLPoP kid in first-room acceptance scene')
+    return sum(xs) / len(xs) / w
 
 settings = remote('sudo -n cat /home/ark/.emulationstation/es_settings.cfg')
 savepath = '/home/ark/.SDLPoP/QUICKSAVE.SAV'
@@ -108,8 +120,14 @@ p.write_text('<?xml version="1.0"?>\n'+'\n'.join(E.tostring(x,encoding='unicode'
         children.append((game_pid, 'prince.aarch64'))
         time.sleep(3)
         key('ret'); key('ret')
-        time.sleep(3)
+        time.sleep(8)  # Allow the intro sound to end and release crouch immobilization.
         shot(f'game-{number}')
+        before_x = prince_x(f'game-{number}')
+        key('right', hold=500)
+        shot(f'movement-{number}')
+        after_x = prince_x(f'movement-{number}')
+        if abs(after_x - before_x) < .03:
+            raise RuntimeError('SDLPoP kid did not move: menu input/save-load alone is insufficient; check WSLg audio playback')
         maps = remote('sudo -n cat /proc/' + game_pid + '/maps').decode()
         (OUT / f'game-{number}.maps').write_text(maps)
         if '/opt/darkos-graphics/usr/lib/aarch64-linux-gnu/libSDL2' not in maps or any(s in maps.lower() for s in ['libmali', 'librga', 'libgo2']):
@@ -125,7 +143,8 @@ p.write_text('<?xml version="1.0"?>\n'+'\n'.join(E.tostring(x,encoding='unicode'
             raise RuntimeError('Game restarted ES')
         wait('! pidof gptokeyb gptokeyb2 oga_controls >/dev/null')
         shot(f'returned-{number}')
-        result['runs'].append({'game_pid': game_pid, 'es_pid': es_pid, 'save_load': True, 'returned': True})
+        result['runs'].append({'game_pid': game_pid, 'es_pid': es_pid, 'save_load': True, 'returned': True,
+                               'movement': {'before_x_fraction': before_x, 'after_x_fraction': after_x}})
     result['binary_sha256'] = remote('sha256sum /roms/ports/sdlpop/prince.aarch64').decode().split()[0]
     result['image_receipt'] = json.loads((W / 'state/image.json').read_text())['fingerprint']
     result['passed'] = True
