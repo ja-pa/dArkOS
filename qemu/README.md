@@ -118,11 +118,11 @@ commits, retained content, and changed/unchanged selections between two locks.
 The report does not automatically approve an unchanged or older selection.
 
 `replacements` in the release lock records original and target versions. Original
-ES and RetroArch version strings were inspected statically in the read-only G350
+ES and RetroArch versions were inspected against the read-only G350
 image and are tied to its image and binary hashes. An image upgrade invalidates
 that version evidence until reviewed; unknown versions stay explicit. Embedded
-version strings do not prove the original source commit. 351Files and the original
-hardware kernel currently have no established version. Debian library versions
+version strings do not prove the original source commit. 351Files has no established original version; the hardware kernel is verified
+as 4.4.189 and is distinct from the QEMU kernel. Debian library versions
 are resolved separately by APT and recorded in the graphics package manifests.
 
 All kernel builds, including direct `scripts/build-kernel.sh` invocation, read
