@@ -35,10 +35,10 @@ def key(*codes):
     qmp.command('send-key', {'keys': [{'type': 'qcode', 'data': c} for c in codes], 'hold-time': 200})
     time.sleep(1)
 
-def shot(name):
+def shot(name, timeout=30):
     for attempt in range(12):
         remote('sudo -n mkdir -p /run/darkos-qemu; sudo -n rm -f /run/darkos-qemu/frame.ppm; sudo -n touch /run/darkos-qemu/capture.request')
-        wait('test -s /run/darkos-qemu/frame.ppm && test ! -e /run/darkos-qemu/capture.request', 30)
+        wait('test -s /run/darkos-qemu/frame.ppm && test ! -e /run/darkos-qemu/capture.request', timeout)
         data = remote('sudo -n cat /run/darkos-qemu/frame.ppm')
         p = OUT / (name + '.ppm')
         p.write_bytes(data)
@@ -77,7 +77,7 @@ p.write_text('<?xml version="1.0"?>\n'+'\n'.join(E.tostring(x,encoding='unicode'
     pm_pid = wait('pgrep -f "^python3 /opt/darkos-qemu/portmaster-gui.py"')
     children.append((pm_pid, 'portmaster-gui.py'))
     time.sleep(8)
-    shot('portmaster')
+    shot('portmaster', timeout=180)  # First launch installs the pinned pilot before rendering.
     # Accept the first-run upstream notice, or enter a harmless port list.
     key('z')
     time.sleep(4)
