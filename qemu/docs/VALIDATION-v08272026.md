@@ -46,7 +46,18 @@ crackling were not assessed by listening. Console timing/playability, physical
 controllers, hardware G350 and the full PortMaster catalogue are not established
 by these tests. Historical evidence folders still refer to earlier images.
 
-Standalone export provenance identifies its exact clean packaging commit. Its
-separate copied-release acceptance results live in the new WORK_DIR logs and are
-reported when the finished release is handed over; development tests alone do
-not establish standalone acceptance.
+Standalone release `darkos-qemu-g350-trixie-09022026-gfa2420dca4f0` was exported
+from clean packaging commit `fa2420dca4f0ab2d8222839897b8e36c3a4fc24c`.
+Its full independent QCOW2 has no backing file. A complete copy in a path with
+spaces passed first/repeated automatic ES starts, the actual G350 controls
+window, duplicate-start rejection and no forwarded SSH port. Game Boy and
+SDLPoP launched and returned to the same ES process; the SDLPoP audio output
+was captured at the WSLg monitor. Offline inspection confirmed state/quicksave
+files and the RetroArch save/load log. The saved Game Boy state loaded after
+another boot and both saved-file hashes remained unchanged.
+
+Both `stop.sh` runs shut the guest down cleanly through its power-button path.
+Both copied-disk checks passed; SSH/getty units were masked and SSH keys absent.
+The pristine unbooted export still passed its complete `SHA256SUMS` afterward.
+See [standalone evidence](evidence/v08272026/standalone.json). The final
+validation documentation commit follows packaging; it changes no runtime code.

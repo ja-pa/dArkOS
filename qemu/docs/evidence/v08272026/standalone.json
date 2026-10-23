@@ -1,0 +1,55 @@
+{
+  "duplicate-start": {
+    "passed": true,
+    "returncode": 1,
+    "message": "Error: This release image is already running; use stop.sh first"
+  },
+  "audio": {
+    "passed": true,
+    "frames": 325635,
+    "peak": 3327,
+    "rms": 92.25193792032796,
+    "monitor": "RDPSink.monitor",
+    "game": "SDLPoP",
+    "limitation": "Software output monitor only; no physical listening claim."
+  },
+  "first-boot-persistence": {
+    "passed": true,
+    "retroarch_save_and_load_log_confirmed": true,
+    "states": {
+      "roms/gb/gb240p.state": {
+        "size": 12247,
+        "sha256": "83adb71002abd670a41ede1a894b383b922638abad2023da1cb7ecc9e238f956"
+      }
+    },
+    "sdlpop_save": {
+      "size": 3467,
+      "sha256": "f69834f2512780ac137e2c9c838b1df58ad92c74edc57a60e4dcd9dd34ea432f"
+    },
+    "frontend_pid_first_boot": "406",
+    "ssh_and_serial_getty_masked": true,
+    "no_ssh_keys": true
+  },
+  "second-boot": {
+    "passed": true,
+    "frontend_autostart": true,
+    "audio_initialized": true
+  },
+  "second-boot-persistence": {
+    "passed": true,
+    "saved_state_loaded_after_reboot": true,
+    "state_and_sdlpop_save_hashes_preserved": true,
+    "no_ssh_keys_after_reboot": true
+  },
+  "passed": true,
+  "release_id": "darkos-qemu-g350-trixie-09022026-gfa2420dca4f0",
+  "packaging_commit": "fa2420dca4f0ab2d8222839897b8e36c3a4fc24c",
+  "portable_test_path": "WORK_DIR/release tests/portable copy",
+  "first_and_repeated_es_autostart": true,
+  "controls_window_opened": true,
+  "clean_shutdowns": 2,
+  "qcow2_checks_passed": true,
+  "pristine_export_checksums_unchanged": true,
+  "no_forwarded_ssh": true,
+  "manifest_sha256sums": "c7e8351349f40a1152f32ae6bcd6f25c51031d047f2979cc3126dbaf4fbadeda  G350-ROM-NOTICES.md\n269a675df7a42e04992375076f3b8d581648a6db7832e94449f4546af72ec9f1  Image\n4a93b016f0ae5b60d97c2d529cc538abdb7e0a7d011fc71636d798b4d2a328b7  LICENSES.txt\n630ddd100810f80b3f3d745029e1ef0039ba86fab74fc498655eb28fa92bce19  PORTMASTER.md\na1289008c41cc04dfd949cadb4afd9ff8aa9f17d27ccc3f4b7b43d7136c47065  README.md\neb897fca5720152217aa1665b94b38e175117daffaa0d97ce867fca8deb4c6be  assets/controls-template.png\n6a09139f8626b612480ce6d1d6230074d0486825c30158416d289928a67c15ea  config/controls.json\n003fd5878ac61c475e6d04bc51321f7d65eb44e8a98f8a4cc3a8b26b6a2a158e  config/image.json\nd3b73a0f1cdddd492fff8aaf271f53e78e93a6c576891d4a9a021fada0117d75  controls.sh\n855debf1105f65eb307bf24c2cce5ee2b50b61c48f934417772dd51c11a29fca  darkos.qcow2\n65489fd4077b093f15ced3955fa4c85beb47575e7f0133e0a810bd2d989229fb  provenance.json\n330f4b686f2293339e2a95513c0afd530ce83a7da5434a07827c0f93557576c4  scripts/common.sh\n35b78480633fa62430acf130ed713841597f47431cc51620b841395d1e346df0  scripts/controls-window.py\na9d73380fca46858db9cf9a978b283d1ef942225bb98af2ef073f34db06941bf  scripts/qemu-audio.sh\n4e87d514b108cf7eeeec6467f49b7253f03e3c9d77b99230736cc2d491ad1f7f  scripts/release-vm.py\n7a855d57b047c06cc32e8c2047f31d458be5052c277967cd63f0203db3a72d4b  scripts/run-qemu.sh\n0ff1d7691c56ec57078605e81833028d3a2a1ae4c7522de473124c34dfc57da3  start.sh\n3e7e9256f9b0fda71a33845d77762e358d32d94dee44fc117b7e78f58a2497af  stop.sh\n"
+}

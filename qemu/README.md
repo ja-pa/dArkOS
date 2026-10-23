@@ -4,6 +4,9 @@ Release-to-QEMU conversion in `ja-pa/darkos`, branch `codex/qemu-arm64-v08272026
 The branch starts at upstream `v08272026`, commit
 `9faeb5883ea6bb567d802ee8ca7333b6ce6c8854`. Existing handheld builds are unchanged.
 
+Current release results: [v08272026 validation](docs/VALIDATION-v08272026.md),
+including the standalone copied-package checks and recorded limits.
+
 ## Directory layout
 
 - `scripts/`: build stages, image preparation and development helpers.
