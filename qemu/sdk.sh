@@ -1,20 +1,23 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")/scripts/lib.sh"
 export ES_SYSROOT=$WORK_DIR/sdk/sysroot
+refresh_launchers() {
+ cp "$QEMU_DIR/scripts/sdk-environment.sh" "$WORK_DIR/sdk/environment.sh"
+ cp "$QEMU_DIR/scripts/es-toolchain.cmake" "$WORK_DIR/sdk/toolchain.cmake"
+}
 case ${1:-help} in
  prepare)
   [[ $# == 1 ]] || fail 'Usage: sdk.sh prepare'
   mkdir -p "$WORK_DIR/sdk"
   [[ -s $WORK_DIR/state/runtime-id ]] || fail 'Package runtime before preparing SDK'
-  if [[ -s $WORK_DIR/sdk/manifest.json ]] && python3 "$QEMU_DIR/scripts/workflow-sdk.py" check; then exit; fi
+  if [[ -s $WORK_DIR/sdk/manifest.json ]] && python3 "$QEMU_DIR/scripts/workflow-sdk.py" check; then refresh_launchers; exit; fi
   if [[ -e $WORK_DIR/sdk/sysroot.partial ]]; then mv "$WORK_DIR/sdk/sysroot.partial" "$WORK_DIR/sdk/sysroot.interrupted.$(date +%s)"; fi
   with_disk "$WORK_DIR/images/build.qcow2" ro bash "$QEMU_DIR/sdk.sh" --mounted
   python3 "$QEMU_DIR/scripts/es-sysroot.py" "$WORK_DIR/sdk/sysroot.partial"
   [[ ! -e $ES_SYSROOT ]] || mv "$ES_SYSROOT" "$ES_SYSROOT.previous.$(date +%s)"
   mv "$WORK_DIR/sdk/sysroot.partial" "$ES_SYSROOT"
   cp "$WORK_DIR/state/runtime-id" "$WORK_DIR/sdk/runtime-id"
-  cp "$QEMU_DIR/scripts/sdk-environment.sh" "$WORK_DIR/sdk/environment.sh"
-  cp "$QEMU_DIR/scripts/es-toolchain.cmake" "$WORK_DIR/sdk/toolchain.cmake"
+  refresh_launchers
   cp "$WORK_DIR/artifacts/graphics/build-packages.lock" "$WORK_DIR/sdk/packages.tsv"
   python3 "$QEMU_DIR/scripts/workflow-sdk.py" record
   python3 "$QEMU_DIR/scripts/workflow-sdk.py" check

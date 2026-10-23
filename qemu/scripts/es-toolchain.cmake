@@ -11,4 +11,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 set(CMAKE_PREFIX_PATH /opt/darkos-graphics/usr /usr)
 set(CMAKE_C_FLAGS_INIT "-B${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu/ -isystem ${CMAKE_SYSROOT}/usr/include/aarch64-linux-gnu -isystem ${CMAKE_SYSROOT}/usr/include")
 set(CMAKE_CXX_FLAGS_INIT "${CMAKE_C_FLAGS_INIT}")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-L${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,${CMAKE_SYSROOT}/opt/darkos-graphics/usr/lib/aarch64-linux-gnu")
+# Resolve transitive SDL/Mesa dependencies before the image's vendor GBM/EGL.
+set(QEMU_GRAPHICS_LIB "${CMAKE_SYSROOT}/opt/darkos-graphics/usr/lib/aarch64-linux-gnu")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-L${QEMU_GRAPHICS_LIB} -L${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,${QEMU_GRAPHICS_LIB} -Wl,-rpath-link,${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu")
