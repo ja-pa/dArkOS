@@ -78,6 +78,9 @@ p.write_text('<?xml version="1.0"?>\n'+'\n'.join(E.tostring(x,encoding='unicode'
     children.append((pm_pid, 'portmaster-gui.py'))
     time.sleep(8)
     shot('portmaster', timeout=180)  # First launch installs the pinned pilot before rendering.
+    # Pinned pugwash/scenes/startup.py requires 15 seconds before accepting
+    # the first-run disclaimer. Do not race it on a clean image.
+    time.sleep(16)
     # Accept the first-run upstream notice, or enter a harmless port list.
     key('z')
     time.sleep(4)
