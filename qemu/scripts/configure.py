@@ -15,7 +15,7 @@ lines=[]
 for part,mount,fs,opts in [('root','/',profile['root_fstype'],'defaults,noatime,compress=zlib:1'),('boot','/boot','vfat','defaults,nofail'),('roms','/roms','vfat','defaults,umask=000,uid=1000,gid=1000,nofail')]:
     if profile.get(part+'_partuuid'): lines.append(f'PARTUUID={profile[part+"_partuuid"]} {mount} {fs} {opts} 0 0')
 write('/etc/fstab','\n'.join(lines)+'\n')
-for name in ['firstboot','emulationstation','ogage','audiostate','audiopath','shutdowntasks','welcome-message','buttonmon','panel','check_battery']:
+for name in ['firstboot','emulationstation','ogage','audiostate','audiopath','shutdowntasks','welcome-message','buttonmon','panel','check_battery','351mp','batt_led','logo','wifi_importer']:
     link('/etc/systemd/system/'+name+'.service','/dev/null')
 link('/etc/systemd/system/multi-user.target.wants/ssh.service','/usr/lib/systemd/system/ssh.service')
 link('/etc/systemd/system/getty.target.wants/serial-getty@ttyAMA0.service','/usr/lib/systemd/system/serial-getty@.service')
