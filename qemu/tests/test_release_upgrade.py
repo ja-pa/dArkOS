@@ -63,6 +63,22 @@ class UpgradeTests(unittest.TestCase):
             self.assertIn('Wrong image size', result.stderr)
             self.assertFalse((Path(tmp) / 'images/work.qcow2').exists())
 
+    def test_raw_import_rejects_wrong_hash_even_when_size_matches(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            image = Path(tmp) / 'wrong.img'
+            image.write_bytes(b'wrong image')
+            lock = json.loads((Q / 'locks/g350-v08272026.json').read_text())
+            lock['input']['image_size'] = image.stat().st_size
+            lock['input']['image_sha256'] = '0' * 64
+            selected = Path(tmp) / 'release.json'
+            selected.write_text(json.dumps(lock))
+            env = dict(os.environ, WORK_DIR=tmp, IMAGE=str(image), RELEASE_LOCK=str(selected))
+            env.pop('RAW_IMAGE', None)
+            result = subprocess.run(['bash', str(Q / 'scripts/import.sh')], env=env, text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('FAILED', result.stdout)
+            self.assertFalse((Path(tmp) / 'state/resolved-release.json').exists())
+
     def test_low_space_is_reported_without_mutation(self):
         with tempfile.TemporaryDirectory() as tmp, patch('space.shutil.disk_usage') as usage:
             usage.return_value.free = 1
