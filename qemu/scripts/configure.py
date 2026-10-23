@@ -21,6 +21,8 @@ link('/etc/systemd/system/multi-user.target.wants/ssh.service','/usr/lib/systemd
 link('/etc/systemd/system/getty.target.wants/serial-getty@ttyAMA0.service','/usr/lib/systemd/system/serial-getty@.service')
 write('/etc/systemd/system/serial-getty@ttyAMA0.service.d/qemu.conf','[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin ark --noclear %I 115200 vt100\n')
 write('/etc/ssh/sshd_config.d/00-qemu.conf','HostKey /etc/ssh/ssh_host_ed25519_key\nPubkeyAuthentication yes\nPasswordAuthentication no\nKbdInteractiveAuthentication no\nPermitRootLogin no\n')
+# Explicit DHCP profile: do not depend on first-boot wired-profile generation.
+write('/etc/NetworkManager/system-connections/qemu-virtio.nmconnection','[connection]\nid=QEMU VirtIO Ethernet\nuuid=057ad911-3d70-5eec-94f7-0bc2a3450542\ntype=ethernet\nautoconnect=true\nautoconnect-priority=100\n\n[ethernet]\n\n[ipv4]\nmethod=auto\n\n[ipv6]\nmethod=disabled\n',0o600)
 write('/home/ark/.ssh/authorized_keys',(work/'ssh/id_ed25519.pub').read_text(),0o600)
 os.chmod(root/'home/ark/.ssh',0o700)
 os.chown(root/'home/ark/.ssh',1000,1000); os.chown(root/'home/ark/.ssh/authorized_keys',1000,1000)
