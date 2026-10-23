@@ -56,3 +56,95 @@ test first/repeated ES boots, games and saves, sound, controls, duplicate-start
 protection and clean shutdown, followed by `qemu-img check`. Local Python tests
 do not replace these GUI/guest checks. Export does not publish to GitHub or
 produce native Windows launchers. License notices and source links are bundled.
+
+## Archiv a GitHub Release
+
+Po exportu ponechte původní složku bez spuštění a testujte její kopii. VM mění
+`darkos.qcow2` už při bootu. Balicí skript vyžaduje původní `SHA256SUMS`, čistý
+commitovaný export a vypnutou VM. Použitý nebo pozměněný disk standardně odmítne; pro otestovaný disk
+použijte `--clean-tested-disk` (viz níže). Samotné přepsání součtů nenahrazuje
+čištění dat. Logy uvnitř guestu, SSH klíče a testovací
+save soubory čistí už `make_qemu_release.sh` na exportované kopii. Pokud už byl spuštěn jediný export, lze zabalit jeho vyčištěnou kopii.
+
+```bash
+release=dist/qemu/darkos-qemu-g350-trixie-09022026-gfa2420dca4f0
+cp -a -- "$release" "$HOME/release test"
+# Otestujte kopii, potom ji řádně vypněte přes její stop.sh.
+bash archive_qemu_release.sh "$release" --dry-run
+bash archive_qemu_release.sh "$release"
+# Volitelně jiné zapisovatelné umístění:
+bash archive_qemu_release.sh "$release" --output-root "$HOME/GitHub release assets"
+```
+
+Výchozí výstup je `dist/qemu/github/<release_id>/`. Obsahuje díly
+`<release_id>.tar.gz.001`, `.002`, …, jejich `SHA256SUMS` a český `RELEASE.md`
+s příkazy pro stažení a rozbalení. Vedle je `upload-draft.sh` pro nahrání na GitHub. Jméno a revize pochází
+z `provenance.json` exportu, nikoli z aktuálního checkoutu balicího skriptu.
+
+Do archivu jde jen pevný seznam souborů původního exportu. `.runtime`, logy,
+screenshoty a jiné přidané soubory se nezabalí. Zdrojové soubory se nemažou ani
+neupravují; balení pouze používá `.runtime/state/` pro stejné zámky jako launcher.
+Při běhu drží zámky proti startu VM, ověřuje samostatnost QCOW2 a `qemu-img check`.
+Před balením i po něm ověřuje zdrojové součty a celý spojený archiv znovu přečte
+včetně hashů jednotlivých souborů. Existující výstup ani `.partial` nepřepisuje.
+
+Komprimovaný tar se zapisuje přímo do dílů, bez velkého mezilehlého archivu.
+Předem se kontroluje místo na cílovém filesystemu i fyzickém C: ve WSL;
+konzervativní rezerva je velikost všech vstupních souborů plus 256 MiB.
+Při čištění testovaného disku je rezerva dvojnásobek virtuální velikosti disku
+plus 256 MiB, protože se vytváří i pracovní QCOW2.
+Výchozí díl má nejvýše **1 900 MiB**. `--part-size-mib` dovoluje 1 až 2047 MiB.
+[GitHub vyžaduje soubory menší než 2 GiB a nejvýše 1000 assetů](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases).
+
+Pro kontrolu a rozbalení stáhněte všechny díly a `SHA256SUMS` do jedné složky:
+
+```bash
+sha256sum -c SHA256SUMS
+cat darkos-qemu-*.tar.gz.[0-9][0-9][0-9] | tar -xz
+# V rozbalené složce ještě před prvním spuštěním:
+sha256sum -c SHA256SUMS
+```
+
+Používejte konkrétní jméno archivu uvedené ve vygenerovaném `RELEASE.md`,
+pokud je ve složce více vydání. Na Windows tyto příkazy spusťte v Ubuntu WSL.
+
+Po instalaci GitHub CLI a `gh auth login` nahrajte koncept:
+
+```bash
+bash /cesta/k/assetům/upload-draft.sh NOVY_TAG
+```
+
+Helper nejprve ověří součty a zavolá `gh release create --draft` s přesnou revizí
+exportu a explicitním seznamem assetů. Nahraje jen díly, součty a uživatelský
+`RELEASE.md`; sám sebe nenahrává. Koncept zkontrolujte a publikujte v GitHub UI.
+Samotné balení nic nenahrává ani nepublikuje a nepotřebuje přístupový token.
+
+### Balení již otestované složky
+
+```bash
+sudo -v
+bash archive_qemu_release.sh "/cesta/release po testech" --clean-tested-disk
+```
+
+Tento režim přijme změněný disk, ale stále požaduje nezměněné ostatní soubory
+včetně původního `SHA256SUMS` a `provenance.json`. Zdrojový disk musí být vypnutý,
+samostatný a projít kontrolou. Skript zkopíruje payload do pracovního adresáře,
+zkopíruje samostatný QCOW2 a připojí **pouze tuto kopii**. Přes `sudo -n`
+použije stejný NBD/mount postup jako exportér. Potřebuje stejné závislosti
+jako export a platné přihlášení sudo (nejprve `sudo -v` ve stejném terminálu).
+Kontrola sudo proběhne před kopírováním disku.
+
+Z kopie odstraní guest logy, SSH identitu a klíče, historii shellu a testovací
+RetroArch/ROM save soubory. Instalované hry a konfigurace ponechá. Nemění
+launchery, kernel ani verze komponent. Nové součty a záznam
+`distribution_cleanup` v `provenance.json` zachycují původní součet testovaného
+disku, hashe čisticích skriptů a rozsah čištění. Jméno výstupu získá `-cleaned`.
+Hostitelské logy a stav se opět nezabalí. Původní testovaná složka se nemaže.
+
+Na rozbalené kopii vyčištěného balíčku ověřte první start a vypnutí před
+publikováním; vyčištěný disk se po tomto testu opět nebalí přímo. Pracovní kopie
+se po úspěchu odstraní, při chybě zůstává v `.partial` pro diagnostiku.
+
+Při dlouhém kopírování může přihlášení sudo vypršet. V takovém případě spusťte celý
+příkaz jako root: `sudo bash archive_qemu_release.sh "/cesta/release" --clean-tested-disk`.
+Souborové výstupy pak vlastní root; zůstávají čitelné běžnému uživateli.

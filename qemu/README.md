@@ -290,4 +290,5 @@ See [SDLPoP preparation, installation and sources](ports/README.md).
 ## Standalone release
 
 Run `./make_qemu_release.sh` from the repository root to package a stopped,
-prepared runtime. See [release creation and validation](docs/RELEASE.md).
+prepared runtime. Use `./archive_qemu_release.sh /path/to/untouched-release` to
+prepare verified split archives for GitHub. See [release creation and validation](docs/RELEASE.md).
