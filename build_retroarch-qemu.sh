@@ -2,7 +2,7 @@
 # Release-image QEMU variation of the related upstream component recipe.
 set -euo pipefail
 if [[ ${QEMU_COMPONENT_BUILD:-} != guest ]]; then
- exec bash "$(dirname "$0")/qemu/build.sh" retroarch
+ exec bash "$(dirname "$0")/qemu/scripts/build.sh" retroarch
 fi
  # Keep a writable source copy on the build disk; never apply Rockchip patches.
  src=/opt/darkos-qemu/sources/retroarch

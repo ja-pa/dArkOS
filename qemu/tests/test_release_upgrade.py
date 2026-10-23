@@ -33,6 +33,17 @@ class UpgradeTests(unittest.TestCase):
         shell = subprocess.check_output(['bash', '-c', 'source "$1/scripts/common.sh"; printf "%s" "$RAW_IMAGE"', 'bash', str(Q)], env=env, text=True)
         self.assertEqual(shell, selection(env)['RAW_IMAGE'])
 
+    def test_public_component_wrappers_reach_the_reorganized_build_script(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            stub = Path(tmp) / 'bash'
+            stub.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\n')
+            stub.chmod(0o755)
+            env = dict(os.environ, PATH=tmp + ':' + os.environ['PATH'])
+            env.pop('QEMU_COMPONENT_BUILD', None)
+            for name in ('emulationstation', 'retroarch', '351files'):
+                output = subprocess.check_output(['/bin/bash', str(Q.parent / ('build_' + name + '-qemu.sh'))], env=env, text=True).splitlines()
+                self.assertEqual(output, [str(Q / 'scripts/build.sh'), name])
+
     def test_versions_are_bound_to_the_new_image(self):
         new = json.loads((Q / 'locks/g350-v08272026.json').read_text())
         old = json.loads((Q / 'locks/g350-v01302026.json').read_text())

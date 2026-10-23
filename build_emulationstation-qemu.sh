@@ -2,7 +2,7 @@
 # Release-image QEMU variation of the related upstream component recipe.
 set -euo pipefail
 if [[ ${QEMU_COMPONENT_BUILD:-} != guest ]]; then
- exec bash "$(dirname "$0")/qemu/build.sh" emulationstation
+ exec bash "$(dirname "$0")/qemu/scripts/build.sh" emulationstation
 fi
  src=/opt/darkos-qemu/sources/emulationstation
  build=/opt/darkos-qemu/build/emulationstation
