@@ -62,7 +62,7 @@
     "architecture": "arm64",
     "graphics": "mesa-sdl2-kmsdrm",
     "default_build_mode": "arm64-chroot",
-    "audio": "dummy",
+    "audio": "hda-pulseaudio-wslg",
     "ssh_port": 2232
   },
   "replacements": {
