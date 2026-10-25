@@ -99,15 +99,68 @@ request. Deliberate package refreshes belong in a fresh work directory.
 
 ## Local validation
 
+Choose checks according to the change rather than rerunning the entire guest
+suite after every edit:
+
+| Change | Checks |
+|---|---|
+| Documentation only | Links and diff; export/archive tests when bundled text changes |
+| Host tooling | `make qemu-check` |
+| Shared guest environment, graphics or frontend | `make qemu-check` and `make qemu-smoke` |
+| PICO-8, PortMaster or 351Files | Host checks and the corresponding standalone integration scenario |
+| Input image, kernel, libraries or release candidate | Complete `make qemu-test`; standalone package acceptance before distribution |
+
 ```bash
 make qemu-check
-make qemu-test
+make qemu-smoke  # prepared, stopped runtime; one representative console
+make qemu-test   # full conversion prerequisites and release validation
 ```
 
 There is no GitHub Actions workflow for this target. `qemu-check` runs Bash syntax,
 host helper compilation with warnings as errors, Python compilation and regression
 tests; it does not install packages, compile guest components or boot a VM.
 Tk rendering checks need `DISPLAY`; environment-dependent skips must be reported.
+
+`qemu-smoke` bypasses the conversion pipeline and runs no builds, host regression
+suite or full base-image hashing. It requires existing image/profile metadata,
+runtime identity, kernel, disk and SSH key. It refuses an already running VM or
+an active pipeline. It tests the currently prepared runtime, not unbuilt source
+changes; rebuild the affected guest component first when necessary.
+
+Smoke performs one graphical boot, checks SSH, VirtIO networking, DRM and the ROM
+mount, then uses the shared console scenario for Game Boy: ES launch, original
+core, rendered frames, save/load, private graphics libraries and return to the
+same frontend process. It shuts down cleanly and checks QCOW2 afterward. All its
+logs and results are under `$WORK_DIR/logs/smoke/`, including `serial.log`,
+`smoke.log`, `integration-results.json` and lifecycle summary `results.json`.
+The summary includes runtime identity, image fingerprint and elapsed seconds.
+Failure returns a nonzero status and retains diagnostic files; if the test's
+guest is still running, inspect it and stop it explicitly before retrying.
+
+Smoke results do not replace complete validation and are never read by
+`qemu-attest`. The complete console results remain in `logs/test-results.json`
+and retain all six systems. The standalone integration command defaults to the
+complete console selection; `--profile smoke` selects only GB and isolated output.
+
+For a feature-specific iteration, start a prepared development guest with no
+frontend/game running, then execute only the affected scenario:
+
+```bash
+export WORK_DIR="${WORK_DIR:-$HOME/darkos-g350-qemu-v08272026}"
+export SSH_PORT="${SSH_PORT:-2232}"
+export QMP_SOCKET="${QMP_SOCKET:-$WORK_DIR/state/qmp.sock}"
+bash qemu/vm.sh start gtk-gl
+python3 qemu/tests/pico8.py       # PICO-8 changes
+# Or: python3 qemu/tests/portmaster.py
+# Or: python3 qemu/tests/filemanager.py
+bash qemu/vm.sh stop
+```
+
+These feature runners write their normal component results; they are not a
+complete release validation. Export the same `WORK_DIR`, `SSH_PORT` and
+`QMP_SOCKET` used for the guest when overriding defaults. Do not repeat a full
+suite after a small fix unless its scope, a failure or an unresolved concern
+requires it.
 
 `qemu-test` verifies prerequisite stages and can recreate invalid outputs. Its
 integration checks include original GB/GBC, NES, SNES, GBA and Mega Drive cores,

@@ -14,7 +14,7 @@ WORK = Path(os.environ['WORK_DIR'])
 DISK = Path(os.environ['DISK_IMAGE']).resolve()
 PORT = int(os.environ.get('SSH_PORT', '2222'))
 STATE = WORK / 'state/vm.json'
-LOG = WORK / 'logs/workflow/serial.log'
+LOG = Path(os.environ.get('QEMU_VM_LOG', WORK / 'logs/workflow/serial.log'))
 
 def run(*args, **kw):
     return sp.run(args, check=True, **kw)
@@ -88,6 +88,8 @@ def main():
     parser.add_argument('action', choices=['start', 'stop', 'status', 'verify', 'check'])
     parser.add_argument('mode', nargs='?', default='gtk-gl', choices=['serial', 'gtk-gl'])
     parser.add_argument('--quiet', action='store_true')
+    parser.add_argument('--require-stopped', action='store_true',
+                        help='refuse to reuse a running VM (for isolated test runs)')
     args = parser.parse_args()
     if not 1 <= PORT <= 65535:
         raise RuntimeError('SSH_PORT must be between 1 and 65535')
@@ -100,6 +102,8 @@ def main():
         return 0 if current else 1
     if args.action == 'start':
         current = identity(False)
+        if current and args.require_stopped:
+            raise RuntimeError('VM is already running; stop it before starting a smoke test')
         if current:
             if args.mode == 'gtk-gl' and not any('virtio-gpu-gl-pci' in a for a in current[3]):
                 raise RuntimeError('VM is in serial mode; stop it before starting gtk-gl')

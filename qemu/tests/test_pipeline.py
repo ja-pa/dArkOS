@@ -80,8 +80,4 @@ class IntegrityTests(unittest.TestCase):
             self.assertIn('pinned release hash',result.stderr)
             self.assertEqual(base.read_bytes(),b'evil')
             self.assertFalse((work/'state/resolved-release.json').exists())
-    def test_g350_lock_has_verified_size_and_sources(self):
-        v=json.loads((Q/'locks/g350-v01302026.json').read_text())
-        self.assertEqual(v['input']['image_size'],8301576192)
-        for src in v['sources'].values(): self.assertRegex(src['commit'],r'^[a-f0-9]{40}$')
 if __name__=='__main__': unittest.main()

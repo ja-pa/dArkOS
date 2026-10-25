@@ -62,6 +62,17 @@ class WorkflowTests(unittest.TestCase):
         with patch.object(vm, 'processes', return_value=[(42, True, True, [])]):
             self.assertEqual(vm.identity()[0], 42)
 
+    def test_require_stopped_refuses_vm_that_started_before_lifecycle_lock(self):
+        vm = load('workflow-vm')
+        with patch.object(vm, 'identity', return_value=(42, True, True, [])), \
+                patch.object(vm, 'wait_ssh') as wait, \
+                patch.object(vm.sp, 'Popen') as launch, \
+                patch('sys.argv', ['workflow-vm.py', 'start', 'gtk-gl', '--require-stopped']):
+            with self.assertRaisesRegex(RuntimeError, 'already running'):
+                vm.main()
+        wait.assert_not_called()
+        launch.assert_not_called()
+
     def test_start_waits_for_preflight_before_looking_for_qemu(self):
         vm = load('workflow-vm')
         process = Mock(pid=42)

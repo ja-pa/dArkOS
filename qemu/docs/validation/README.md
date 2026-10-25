@@ -15,6 +15,7 @@ new results tied to their input image, source revision, runtime and evidence.
 | [v08272026 upgrade](UPGRADE-v08272026.md) | Input inspection, chosen source mapping and migration findings |
 | [G350 v08272026, 2026-10-23](G350-v08272026-2026-10-23.md) | Development runtime, SDK/audio and independent standalone-package tests |
 | [PICO-8, 2026-10-24](../evidence/pico8/README.md) | Original FAKE-08 core, cartridges, persistence and standalone checks |
+| [Test iteration, 2026-10-25](TEST-ITERATION-2026-10-25.md) | Isolated smoke profile, complete-suite regression and measured run times |
 
 Compact JSON, screenshots and original logs stay under [evidence](../evidence/).
 Historical data is retained unchanged. Older image results do not establish

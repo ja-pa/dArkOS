@@ -19,6 +19,10 @@ unchanged.
 | Understand the architecture, upgrade inputs and validate changes | [Maintenance](docs/MAINTENANCE.md) |
 | Find dated test results and their limits | [Validation records](docs/validation/README.md) |
 
+For normal iteration use `make qemu-check` and, when guest behavior changes,
+`make qemu-smoke` on a prepared, stopped runtime. Keep `make qemu-test` for full
+validation. See [check selection](docs/MAINTENANCE.md#local-validation).
+
 The default input is upstream `v08272026`, G350 image
 `dArkOS_G350_trixie_09022026.img`, selected by
 [`locks/g350-v08272026.json`](locks/g350-v08272026.json).

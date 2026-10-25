@@ -178,6 +178,11 @@ qemu-attest:
 qemu-check:
 	bash qemu/scripts/check.sh
 
+# One representative guest scenario on an already prepared, stopped runtime.
+.PHONY: qemu-smoke
+qemu-smoke:
+	bash qemu/scripts/smoke.sh
+
 # Read-only release review: no import, mount, compilation or VM boot.
 .PHONY: qemu-components
 qemu-components:
