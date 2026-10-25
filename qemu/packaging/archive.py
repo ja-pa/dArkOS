@@ -316,8 +316,8 @@ def main(argv=None):
                 f'{sha(path)}  {path.name}\n' for path in parts))
             instructions = f"""# {name}
 
-Stáhněte všechny díly `.tar.gz.001`, `.002`, … a `SHA256SUMS` do stejné složky.
-Na Linuxu / Ubuntu WSL ověřte a rozbalte:
+Download every `.tar.gz.001`, `.002`, etc. part and `SHA256SUMS` into one folder.
+On Linux or Ubuntu WSL, verify and extract:
 
 ```bash
 sha256sum -c SHA256SUMS
@@ -327,15 +327,16 @@ sha256sum -c SHA256SUMS
 bash start.sh
 ```
 
-Příkazy provádějte v Linuxovém filesystemu WSL. Balíček vyžaduje Linux/WSLg;
-závislosti, ovládání a vypnutí popisuje README.md uvnitř archivu.
-Každý díl má nejvýše {args.part_size_mib} MiB (pod limitem GitHubu 2 GiB).
-Archiv obsahuje pouze ověřené soubory původního exportu, bez hostitelských
-logů a stavu .runtime. Režim čištění testovaného disku: {args.clean_tested_disk}.
-Obsah a kontrolní součty popisuje provenance.json uvnitř archivu.
-Revize exportu: `{provenance['packaging']['commit']}`.
+On Windows, use the native Linux filesystem inside WSL. The package requires
+a Linux graphical session (WSLg on Windows); see the included README.md for
+dependencies, keyboard controls and clean shutdown.
+Each part is at most {args.part_size_mib} MiB, below the 2 GiB asset limit.
+The archive contains only verified export payloads, without host logs or .runtime
+state. Tested-disk cleanup mode: {args.clean_tested_disk}.
+The included provenance.json describes source identity and available hashes.
+Export revision: `{provenance['packaging']['commit']}`.
 
-Pro testování rozbalte samostatnou kopii. Po startu VM se disk i jeho součet mění.
+Extract a separate copy for testing. Booting changes the disk and its checksum.
 
 """
             (partial / 'RELEASE.md').write_text(instructions)

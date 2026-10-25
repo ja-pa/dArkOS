@@ -1,138 +1,154 @@
-# dArkOS QEMU — uživatelský release
+# dArkOS QEMU standalone release
 
-Samostatný ARM64 systém pro QEMU na Linuxu nebo Ubuntu ve Windows WSL2 s WSLg.
-Kernel `Image` a disk `darkos.qcow2` jsou součástí balíčku. Vývojový repozitář,
-SDK, kompilátor ani původní dArkOS image nejsou potřeba. Nativní Windows QEMU
-není podporováno; na Windows provádějte příkazy uvnitř Ubuntu WSL.
-Varianta systému, kořenový oddíl a paměť VM jsou zaznamenané v `config/image.json`;
-balíček obsahuje přehled kláves odpovídající této variantě.
-
-## Příprava
-
-Na Ubuntu nainstalujte hostitelské závislosti:
+A user package includes the kernel, writable disk, launchers and controls window.
+It needs no source checkout, SDK, compiler or original image. On Windows, run it
+inside Ubuntu WSL2 with WSLg; native Windows QEMU launchers are not provided.
+A Linux desktop needs working GTK/OpenGL and PulseAudio or a compatible service.
 
 ```bash
 sudo apt-get update
 sudo apt-get install qemu-system-arm qemu-system-gui qemu-utils python3 python3-tk python3-pil python3-pil.imagetk libpulse0 libpulse-mainloop-glib0
 ```
 
-Je potřeba funkční GTK/OpenGL a PulseAudio. WSLg je obvykle poskytuje automaticky;
-na běžném Linuxu použijte grafickou desktopovou relaci s PulseAudio nebo
-kompatibilní službou PipeWire. Doporučené umístění balíčku je Linuxový filesystem
-ve WSL, například `~/qemu-release`. Adresář musí být zapisovatelný.
+Download all archive parts and `SHA256SUMS` into one directory. Follow the exact
+archive name in the release's generated instructions; verify parts before
+extracting, and verify the extracted folder before its first boot. Keep the
+package in a writable Linux directory, for example `~/qemu-release`.
 
-Před prvním použitím lze ověřit kompletnost vydaného balíčku:
+From the extracted folder:
 
 ```bash
 sha256sum -c SHA256SUMS
-```
-
-## Použití
-
-```bash
 bash start.sh
-bash controls.sh       # znovu otevře přehled kláves
-bash stop.sh           # řádně vypne systém a zavře přehled kláves
+bash controls.sh
+bash stop.sh
 ```
 
-EmulationStation se načte automaticky, první boot může trvat několik minut.
-Nápověda G350 obsahuje fotografii konzole s popisky tlačítek; jejich mapování
-se mění podle vybraného profilu EmulationStation, RetroArch nebo 351Files.
-Klávesy posílejte do okna QEMU. Tkinter okno je přehled ovládání, ve kterém lze
-ručně přepínat profily; jeho zavření nechá VM běžet. Chybějící Tkinter nebrání
-spuštění VM. Skripty lze volat i z jiného pracovního adresáře.
+ES starts automatically; the first boot can take several minutes. Scripts also
+work from another current directory. `bash start.sh --no-controls` hides the
+keyboard helper. Closing the helper leaves the VM running. Missing Tkinter does
+not prevent VM startup. The package forwards no SSH or other host network port.
+
+Stop through `stop.sh` or the ES shutdown command. Closing the QEMU window may
+terminate the emulator without clean guest shutdown. If `stop.sh` times out,
+the VM remains available for diagnosis. F4 exits ES but leaves the guest running;
+stop and start the standalone package to reopen ES.
+
+Settings and saves are written into `darkos.qcow2`. Back up or move the package
+only while stopped; do not share one disk between simultaneous VMs. Its published
+checksum changes after boot. Restore the original package for a clean reset.
+Logs are `.runtime/logs/qemu.log` and `.runtime/logs/workflow/controls.log`;
+locks and process state are in `.runtime/state/`.
+
+## Keyboard and games
+
+Send keys to the QEMU window, not the controls window. The G350 photograph and
+profile selector show mappings for ES, RetroArch, 351Files and example ports.
+
+| Application | Keys |
+|---|---|
+| EmulationStation | Arrows; Enter confirm; Escape back; Space menu; Tab options; F4 exit |
+| RetroArch games | Arrows; Z/X = A/B; S/A = X/Y; Q/W = L/R; Enter = Start; Right Shift = Select |
+| RetroArch actions | F1 menu; F2 save state; F4 load state; Escape return to ES |
+| 351Files | Arrows; Enter open; Backspace parent/cancel; X context menu; Insert select; Page Up/Down scroll; Escape/F4 exit |
+
+351Files is under **Options -> 351Files**. The QEMU rebuild uses the G350
+640x480 layout and Mesa/OpenGL; original hardware files remain under
+`/opt/351Files`. Escape/F4 also exits nested dialogs. DinguxCommander is unchanged.
+
+The menu exposes GB/GBC, NES, SNES, GBA, Mega Drive, PICO-8 and Ports. Original
+ROM paths and themes are retained. Save/state behavior depends on the core and
+original dArkOS settings. [PortMaster](PORTMASTER.md) covers installing SDLPoP
+and other ports.
+
+## SDLPoP example
+
+Open **Ports -> PortMaster** once to install the prepared SDLPoP example. Accept
+the first-run notice, quit and restart ES to refresh the game list, then select
+**Ports -> SDLPoP**. See [PortMaster](PORTMASTER.md) for controls, additional
+ports, the shared handheld ZIP, sources and compatibility limits.
+
+## PICO-8
+
+Put cartridges in `/roms/pico-8/carts/`. Supported extensions are `.p8`, `.png`
+and `.p8.png`, including uppercase variants. An ordinary PNG image is not a game
+cartridge. The original ARM64 FAKE-08 core runs through RetroArch: arrows move,
+Z/X are game buttons, Escape returns to ES, F1 opens RetroArch and F2/F4 save/load
+states where supported. In the inspected image, PICO-8 save data and states are
+stored beside cartridges in that directory.
+
+FAKE-08 has no editor or Splore, and game compatibility is incomplete. Build
+preparation renames any `zzzsplore.p8`, `zzzsplore.png` or `zzzsplore.p8.png`
+placeholder with `.qemu-disabled`. `/opt/darkos-qemu/pico8.cfg` disables the image
+viewer only for this system. Hardware launch scripts are bypassed. Standalone
+exports retain PICO-8 cartridges and saved data.
+
+## Sound
+
+The default `QEMU_AUDIO=auto` uses PCI HDA through the host PulseAudio service.
+`QEMU_AUDIO=pa` explicitly enables playback; `none` omits sound devices. Stop the
+VM before changing audio mode:
 
 ```bash
-bash start.sh --no-controls
-QEMU_AUDIO=none bash start.sh   # bez zvukových zařízení; nastavte před startem
+QEMU_AUDIO=none bash start.sh
 ```
 
-Pro změnu režimu zvuku VM nejprve vypněte. Zvuk standardně používá HDA a
-PulseAudio (`QEMU_AUDIO=auto` nebo `pa`). Bez dostupné služby PulseAudio použijte
-`none`. SSH ani žádný síťový port hostitele se neotevírá.
+The software route is guest ALSA -> HDA -> QEMU PulseAudio -> WSLg -> Windows.
+No microphone is exposed. TCG scheduling can affect sound and game performance.
 
-Vypínejte přes `stop.sh` nebo vypnutí systému v ES. Zavření okna QEMU může
-ukončit emulátor bez řádného vypnutí hostovaného systému. Pokud vypnutí přes
-skript selže nebo překročí timeout, VM zůstane běžet pro diagnostiku.
-Po opuštění ES přes F4 zůstane VM zapnutá; pro návrat do ES ji vypněte a spusťte.
+## Invisible WSLg windows
 
-## Ukázková hra SDLPoP
-
-Pokud image obsahuje PortMaster, otevřete v ES **Ports -> PortMaster**. Při
-prvním spuštění se nainstaluje připravený ukázkový port SDLPoP. PortMaster
-ukončete a restartujte ES, aby se aktualizoval seznam her; poté zvolte
-**Ports -> SDLPoP**. Ovládání a podrobnosti najdete v [PORTMASTER.md](PORTMASTER.md).
-
-Stejný ZIP vytvořený vývojovým workflow je určen i k instalaci přes PortMaster
-na fyzickém dArkOS. Uživatel ověřil hraní, zvuk a ovládání na dArkOS s podobným
-výchozím obrazem, z jakého vychází QEMU. Ukládání a načítání pozice netestoval.
-Jde o ukázku přenositelnosti mezi příbuznými prostředími dArkOS, nikoli ověření
-všech modelů handheldů nebo dalších her z katalogu.
-
-## Data, původ a diagnostika
-
-Nastavení a uložené hry se zapisují přímo do `darkos.qcow2`. Pro čistý návrat
-obnovte image z původního vydání. Zálohujte jej pouze při vypnuté VM.
-Kontrolní součet disku v `SHA256SUMS` platí pro okamžik vydání; po prvním
-použití se disk změní. Nespouštějte stejný image současně ve více VM.
-
-Log QEMU a sériové konzole: `.runtime/logs/qemu.log`.
-Log okna kláves: `.runtime/logs/workflow/controls.log`.
-Stav a zámky: `.runtime/state/`. Tyto soubory nejsou součástí vydaných dat.
-Balíček přemisťujte pouze při vypnuté VM.
-
-Pokud se aplikace objeví jen na hlavním panelu s názvem `[WARN:COPY MODE]`, ale
-okna jsou neviditelná nebo průhledná, může jít o známou chybu sdílené paměti WSLg:
+A taskbar entry containing `[WARN:COPY MODE]` with transparent or invisible windows
+may indicate the WSLg shared-memory failure recorded in
 [microsoft/wslg #1456](https://github.com/microsoft/wslg/issues/1456).
-Spouštěč tuto kombinaci chyb v logu rozpozná před startem VM. Po zavření
-grafických WSL aplikací lze ve Windows PowerShellu obnovit jen compositor:
+The launcher checks for the known log signature before boot.
+
+First stop the VM with `bash stop.sh` and save other WSL GUI work. Restarting
+Weston closes those applications. Run in Windows PowerShell, replacing `Ubuntu`
+if needed:
 
 ```powershell
 wsl.exe -d Ubuntu --system -- pkill -TERM -x weston
 ```
 
-Před tím běžící VM vypněte pomocí `bash stop.sh`. Příkaz ukončí grafické
-WSL aplikace; Weston se automaticky znovu spustí. Nemění image ani nevypíná
-celé WSL. Pokud používáte jiný název distribuce, nahraďte `Ubuntu`.
+Weston restarts automatically. Then start the VM again.
 
-`provenance.json` uvádí původní dArkOS image, dostupné kontrolní součty,
-upstream release, kernel a revizi použitých receptů včetně necommitnutých změn.
-Nedostupné údaje jsou výslovně označeny. Licenční informace jsou v `LICENSES.txt`
-a uvnitř image v `/usr/share/doc`.
+## SDLPoP remains crouched or audio startup fails
 
-## WSLg audio a nehybný princ v SDLPoP
+If menus work but the prince stays crouched and arrows do not move him, playback
+may be stalled. In the first level, SDLPoP waits for the introductory sound to
+finish (`control_crouched` in [upstream source](https://github.com/NagyD/SDLPoP/blob/master/src/seg005.c)).
+This was reproduced with the original PortMaster binary. Dummy audio allowed the
+intro to finish; after WSLg recovery, movement worked with normal ALSA/HDA audio.
 
-Pokud funguje herní menu, ale princ zůstává po startu přikrčený a šipky nereagují,
-může jít o zaseknuté přehrávání zvuku. SDLPoP v první úrovni čeká na dohrání
-úvodního zvuku (`control_crouched` v [upstream zdroji](https://github.com/NagyD/SDLPoP/blob/master/src/seg005.c)).
-Menu dál přijímá klávesy, takže tento stav vypadá jako chyba ovládání. Stejné
-chování jsme reprodukovali s původní binárkou PortMasteru; s backendem `dummy`
-se úvod dokončil a po obnově WSLg fungoval pohyb i s původním ALSA/HDA zvukem.
+The audio preflight connects to PulseAudio, plays 100 ms of silence and waits
+for drain with an eight-second limit. It uses no microphone and cannot repair a
+VM whose host audio stalls later.
 
-Kontrola před startem nyní nejen připojí PulseAudio, ale také přehraje 100 ms
-ticha a čeká na jeho odbavení, s limitem 8 sekund. Nepoužívá mikrofon. Již běžící
-VM se při pozdějším zaseknutí WSLg tímto testem neopraví.
-
-Pro obnovu nejprve vypněte VM přes `stop.sh` (vývojovou přes `qemu/vm.sh stop`)
-a uložte práci v ostatních linuxových GUI aplikacích: restart Weston je zavře.
-Pak ve Windows PowerShellu spusťte:
+Stop the VM and save other WSL GUI work first. In Windows PowerShell:
 
 ```powershell
-wsl.exe --system -- pkill -TERM -x weston
+wsl.exe -d Ubuntu --system -- pkill -TERM -x weston
 Start-Sleep -Seconds 5
-wsl.exe --system -- pkill -KILL -x pulseaudio
+wsl.exe -d Ubuntu --system -- pkill -KILL -x pulseaudio
 ```
 
-PulseAudio se automaticky obnoví; restartujte jej až po obnovení Weston, aby
-navázal nové spojení s jeho audio socketem. Potom spusťte VM znovu. Běžící VM
-při restartu těchto služeb nenechávejte otevřené. Nouzově lze vypnutou VM
-spustit bez zvukového zařízení: `QEMU_AUDIO=none bash start.sh`.
+Restart PulseAudio after Weston has recovered so it reconnects to the new socket.
+Both services restart automatically. Start the VM afterward. For a temporary run
+without sound devices, use `QEMU_AUDIO=none bash start.sh` from a stopped state.
 
-Regresní test SDLPoP kontroluje také posun postavy po držené šipce. Samotný
-start, otevření menu a vytvoření quicksave neprokazují funkční pohyb.
+An SDL application can use `SDL_AUDIODRIVER=dummy` inside the guest through
+`/opt/darkos-qemu/env.sh`; setting it only on the host is not a guest override.
+Check that the character moves after recovery; working menus alone do not prove
+that gameplay input is working.
 
-## PICO-8
+## Provenance and licenses
 
-Hry v `/roms/pico-8/carts/` spouští FAKE-08 přes RetroArch.
-Šipky = pohyb, Z/X = tlačítka, Escape = návrat do menu. Splore a editor nejsou podporované.
-Podrobnosti: [PICO8.md](PICO8.md).
+`config/image.json` identifies the guest profile, root partition and VM memory.
+`provenance.json` records the official image, available input hashes, upstream
+release, kernel, runtime build and packaging source identity. Unavailable values
+are explicit. See `LICENSES.txt`, `G350-ROM-NOTICES.md` and `/usr/share/doc` inside
+the guest for license notices and source references.
+
+For build, SDK and maintainer workflows, see the
+[QEMU documentation](https://github.com/ja-pa/dArkOS/blob/codex/qemu-arm64-v08272026/qemu/README.md).

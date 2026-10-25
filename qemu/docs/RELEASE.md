@@ -1,150 +1,142 @@
-# Standalone QEMU user releases
+# Create a standalone user release
 
-Stop the prepared development VM, then run from the repository root:
+[Documentation index](../README.md)
+
+Use this workflow for an end-user package without a checkout, SDK or development
+SSH access. For transferable development environments, see [SDK bundles](SDK.md).
+Commands run from the repository root in Ubuntu WSL unless stated otherwise.
+
+## Prepare and export
+
+Complete [Build](BUILD.md), review [local validation](MAINTENANCE.md#local-validation),
+and stop the development VM. Use a clean committed checkout for public releases.
 
 ```bash
+export WORK_DIR="$HOME/darkos-g350-qemu-v08272026"
+bash qemu/vm.sh stop
 ./make_qemu_release.sh --dry-run
 ./make_qemu_release.sh
 # Optional destination parent:
 ./make_qemu_release.sh --output-root "/path with spaces/releases"
 ```
 
-Defaults: `WORK_DIR=$HOME/darkos-g350-qemu-v08272026`, its `images/work.qcow2` and
-`build/arch/arm64/boot/Image`, and `qemu/locks/g350-v08272026.json`.
-`WORK_DIR`, `DISK_IMAGE`, `KERNEL_IMAGE`, `RELEASE_LOCK` can be specified in the
-environment. The selected lock must match the prepared runtime record.
-No guest rebuild or download is performed. Prepare the runtime using the
-[QEMU guide](../README.md) first. Export requires Python 3.11+, qemu-img, qemu-nbd,
-util-linux, Btrfs tools and sudo for mounting the exported copy.
+Defaults are the selected work directory's `images/work.qcow2` and
+`build/arch/arm64/boot/Image`, with `qemu/locks/g350-v08272026.json`.
+`WORK_DIR`, `DISK_IMAGE`, `KERNEL_IMAGE` and `RELEASE_LOCK` may override them;
+the lock must match the prepared runtime. Export does not download or rebuild.
+Host requirements include Python 3.11+, qemu-img, qemu-nbd, util-linux, Btrfs tools
+and sudo for mounting the copy.
 
-Example output:
+Output defaults to `dist/qemu/<release_id>/`, for example
+`darkos-qemu-g350-trixie-09022026-g<commit-prefix>`. The input filename supplies
+the image version. Provenance records the full packaging commit; a dirty checkout
+adds a content hash covering tracked changes and nonignored untracked files.
+Runtime build metadata is recorded separately from packaging identity.
 
-```text
-dist/qemu/darkos-qemu-g350-trixie-02012026-g172967430b47/
-```
+The exporter makes a compressed independent QCOW2, sanitizes only that copy,
+installs automatic ES startup and power-button shutdown, and copies the kernel.
+It verifies disk integrity, absence of a backing file and delivered checksums
+before renaming `.partial`. Existing final/partial directories are never replaced;
+failed partial output stays available for inspection. Allow at least the virtual
+disk size plus 1 GiB of temporary space. Keep the source disk stopped throughout.
 
-The image filename supplies the version; provenance records the full Git commit.
-A modified checkout adds `-dirty-<content hash>` covering the tracked diff and
-nonignored untracked files. This identifies packaging code. The already built
-runtime has separate build metadata, including any kernel/audio upgrade.
-Use a clean committed checkout for releases intended for users.
+Host launchers and the bundled README come from `qemu/packaging/templates/`;
+controls/audio helpers and assets are copied explicitly from the QEMU source tree.
+Export-only guest payloads are under `qemu/packaging/guest/`. The package includes
+license/source notices and provenance, but excludes the SDK, development tools,
+checkout and SSH identity.
 
-The exporter creates a compressed, independent QCOW2, sanitizes only that copy,
-installs ES autostart and power-button shutdown, and copies the kernel. It checks
-disk integrity, absence of a backing file and all delivered checksums before
-renaming the `.partial` directory. Existing final or partial folders are never
-overwritten; failures retain the partial folder for inspection. Allow at least
-the virtual disk size plus 1 GiB of free temporary space. The source disk stays
-unchanged. Never boot or mutate it during export.
+## Acceptance before distribution
 
-Editable launchers and documentation live in `qemu/packaging/templates/`. Packaging
-adds the existing controls helper, audio helper, controls mapping and G350 photo
-from `qemu/scripts/`, `qemu/config/` and `qemu/assets/`, using an explicit copy list. Guest-only
-payloads and cleanup live under `qemu/packaging/guest/`. Development tools, SDK, SSH keys
-and the repository are excluded.
+Keep the original export unbooted and test a complete copy in a path containing
+spaces. A boot changes `darkos.qcow2`, so its release checksum stops matching.
+Verify first/repeated automatic ES starts, the actual controls window, games,
+save/load across reboot, audio, duplicate-start protection and clean shutdown.
+Run `qemu-img check` on the stopped test copy afterward. Host unit tests do not
+replace these guest/GUI checks. Record failures and limitations with the results.
 
-The finished folder is movable and self-contained. Use `./start.sh`,
-`./controls.sh` and `./stop.sh`. The controls window includes the G350 photograph.
-`--no-controls` and `QEMU_AUDIO=none` are supported. Logs and state live in
-`.runtime/`. Settings and saves persist directly in `darkos.qcow2`; its published
-checksum changes after use. Subsequent boots preserve settings. No-audio boots
-skip HDA setup. No SSH port is forwarded. Host dependencies and troubleshooting
-are documented in the bundled README.
+User commands are `start.sh`, `controls.sh` and `stop.sh`. `--no-controls` and
+`QEMU_AUDIO=none` are supported. Settings/saves persist in the disk; logs and
+locks go to `.runtime/`. No host SSH port is forwarded. The included README has
+dependencies, keyboard/PICO-8 instructions and WSLg recovery commands.
 
-Before handing a release to users, move a copy to a path containing spaces and
-test first/repeated ES boots, games and saves, sound, controls, duplicate-start
-protection and clean shutdown, followed by `qemu-img check`. Local Python tests
-do not replace these GUI/guest checks. Export does not publish to GitHub or
-produce native Windows launchers. License notices and source links are bundled.
-
-## Archiv a GitHub Release
-
-Po exportu ponechte původní složku bez spuštění a testujte její kopii. VM mění
-`darkos.qcow2` už při bootu. Balicí skript vyžaduje původní `SHA256SUMS`, čistý
-commitovaný export a vypnutou VM. Použitý nebo pozměněný disk standardně odmítne; pro otestovaný disk
-použijte `--clean-tested-disk` (viz níže). Samotné přepsání součtů nenahrazuje
-čištění dat. Logy uvnitř guestu, SSH klíče a testovací
-save soubory čistí už `make_qemu_release.sh` na exportované kopii. Pokud už byl spuštěn jediný export, lze zabalit jeho vyčištěnou kopii.
+## Split archives and GitHub draft
 
 ```bash
-release=dist/qemu/darkos-qemu-g350-trixie-09022026-gfa2420dca4f0
+release="/path/to/untouched-release"
 cp -a -- "$release" "$HOME/release test"
-# Otestujte kopii, potom ji řádně vypněte přes její stop.sh.
+# Test the copy and shut it down using its stop.sh.
 bash archive_qemu_release.sh "$release" --dry-run
 bash archive_qemu_release.sh "$release"
-# Volitelně jiné zapisovatelné umístění:
+# Optional destination:
 bash archive_qemu_release.sh "$release" --output-root "$HOME/GitHub release assets"
 ```
 
-Výchozí výstup je `dist/qemu/github/<release_id>/`. Obsahuje díly
-`<release_id>.tar.gz.001`, `.002`, …, jejich `SHA256SUMS` a český `RELEASE.md`
-s příkazy pro stažení a rozbalení. Vedle je `upload-draft.sh` pro nahrání na GitHub. Jméno a revize pochází
-z `provenance.json` exportu, nikoli z aktuálního checkoutu balicího skriptu.
+The default output is `dist/qemu/github/<release_id>/`, containing
+`<release_id>.tar.gz.001`, `.002`, etc., `SHA256SUMS`, English `RELEASE.md`
+instructions and `upload-draft.sh`. Name/revision come from the export's
+`provenance.json`, not the archiving checkout. Public assets require an export
+made from clean committed source and a stopped VM.
 
-Do archivu jde jen pevný seznam souborů původního exportu. `.runtime`, logy,
-screenshoty a jiné přidané soubory se nezabalí. Zdrojové soubory se nemažou ani
-neupravují; balení pouze používá `.runtime/state/` pro stejné zámky jako launcher.
-Při běhu drží zámky proti startu VM, ověřuje samostatnost QCOW2 a `qemu-img check`.
-Před balením i po něm ověřuje zdrojové součty a celý spojený archiv znovu přečte
-včetně hashů jednotlivých souborů. Existující výstup ani `.partial` nepřepisuje.
+Archiving accepts only the explicit payload list. Host logs, `.runtime`, screenshots
+and unrelated additions are excluded. It uses the launcher's locks, verifies the
+independent disk and checksums before/after archiving, and rereads the joined
+archive including each member's hash. It does not overwrite final/partial output.
+Source payloads remain unchanged; `.runtime/state/` is used for coordination.
 
-Komprimovaný tar se zapisuje přímo do dílů, bez velkého mezilehlého archivu.
-Předem se kontroluje místo na cílovém filesystemu i fyzickém C: ve WSL;
-konzervativní rezerva je velikost všech vstupních souborů plus 256 MiB.
-Při čištění testovaného disku je rezerva dvojnásobek virtuální velikosti disku
-plus 256 MiB, protože se vytváří i pracovní QCOW2.
-Výchozí díl má nejvýše **1 900 MiB**. `--part-size-mib` dovoluje 1 až 2047 MiB.
-[GitHub vyžaduje soubory menší než 2 GiB a nejvýše 1000 assetů](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases).
+Compressed tar data streams straight into parts. The default maximum part is
+1900 MiB; `--part-size-mib` accepts 1 through 2047. Free-space allowance is total
+input size plus 256 MiB, checked on the destination and Windows C: backing drive
+where applicable. Clean-tested mode needs twice the virtual disk size plus
+256 MiB because it creates another working QCOW2.
 
-Pro kontrolu a rozbalení stáhněte všechny díly a `SHA256SUMS` do jedné složky:
+To verify and extract, download all parts and their `SHA256SUMS` into one folder:
 
 ```bash
 sha256sum -c SHA256SUMS
 cat darkos-qemu-*.tar.gz.[0-9][0-9][0-9] | tar -xz
-# V rozbalené složce ještě před prvním spuštěním:
+# Inside the extracted folder, before first boot:
 sha256sum -c SHA256SUMS
 ```
 
-Používejte konkrétní jméno archivu uvedené ve vygenerovaném `RELEASE.md`,
-pokud je ve složce více vydání. Na Windows tyto příkazy spusťte v Ubuntu WSL.
+Use the exact archive name in the generated instructions if multiple versions
+share a directory. Windows users run these commands inside Ubuntu WSL.
 
-Po instalaci GitHub CLI a `gh auth login` nahrajte koncept:
+After installing GitHub CLI and authenticating with `gh auth login`:
 
 ```bash
-bash /cesta/k/assetům/upload-draft.sh NOVY_TAG
+bash /path/to/assets/upload-draft.sh NEW_TAG
 ```
 
-Helper nejprve ověří součty a zavolá `gh release create --draft` s přesnou revizí
-exportu a explicitním seznamem assetů. Nahraje jen díly, součty a uživatelský
-`RELEASE.md`; sám sebe nenahrává. Koncept zkontrolujte a publikujte v GitHub UI.
-Samotné balení nic nenahrává ani nepublikuje a nepotřebuje přístupový token.
+The helper verifies checksums and invokes `gh release create --draft` for the
+exact export commit. It uploads only parts, checksums and `RELEASE.md`; it does
+not upload itself. Review/publish the draft in GitHub. Export/archiving alone
+neither uploads nor publishes and requires no access token.
 
-### Balení již otestované složky
+## Archive an already tested disk
+
+Prefer an untouched export. If the only export has already been booted:
 
 ```bash
 sudo -v
-bash archive_qemu_release.sh "/cesta/release po testech" --clean-tested-disk
+bash archive_qemu_release.sh "/path/to/tested-release" --clean-tested-disk
 ```
 
-Tento režim přijme změněný disk, ale stále požaduje nezměněné ostatní soubory
-včetně původního `SHA256SUMS` a `provenance.json`. Zdrojový disk musí být vypnutý,
-samostatný a projít kontrolou. Skript zkopíruje payload do pracovního adresáře,
-zkopíruje samostatný QCOW2 a připojí **pouze tuto kopii**. Přes `sudo -n`
-použije stejný NBD/mount postup jako exportér. Potřebuje stejné závislosti
-jako export a platné přihlášení sudo (nejprve `sudo -v` ve stejném terminálu).
-Kontrola sudo proběhne před kopírováním disku.
+This accepts a changed disk while requiring all other payloads, original checksums
+and provenance to remain intact. Merely rewriting checksums is not cleanup.
+The source must be stopped, independent and pass disk checks. The tool copies the
+payload and disk, mounts only the copy, and applies the export cleanup using
+`sudo -n` and the same NBD/mount procedure. Sudo is checked before copying.
 
-Z kopie odstraní guest logy, SSH identitu a klíče, historii shellu a testovací
-RetroArch/ROM save soubory. Instalované hry a konfigurace ponechá. Nemění
-launchery, kernel ani verze komponent. Nové součty a záznam
-`distribution_cleanup` v `provenance.json` zachycují původní součet testovaného
-disku, hashe čisticích skriptů a rozsah čištění. Jméno výstupu získá `-cleaned`.
-Hostitelské logy a stav se opět nezabalí. Původní testovaná složka se nemaže.
+Cleanup removes guest logs, SSH identity/keys, shell history and test RetroArch/ROM
+saves/states. Installed games and configuration remain. Launchers, kernel and
+component versions are unchanged. New checksums and `distribution_cleanup` in
+provenance record the original tested-disk hash, cleanup script hashes and scope.
+The output name gains `-cleaned`. The source test folder is preserved.
 
-Na rozbalené kopii vyčištěného balíčku ověřte první start a vypnutí před
-publikováním; vyčištěný disk se po tomto testu opět nebalí přímo. Pracovní kopie
-se po úspěchu odstraní, při chybě zůstává v `.partial` pro diagnostiku.
-
-Při dlouhém kopírování může přihlášení sudo vypršet. V takovém případě spusťte celý
-příkaz jako root: `sudo bash archive_qemu_release.sh "/cesta/release" --clean-tested-disk`.
-Souborové výstupy pak vlastní root; zůstávají čitelné běžnému uživateli.
+Test first boot and shutdown on a disposable extracted copy of the cleaned
+archive before publication. Do not archive that booted copy directly again.
+Working copies are removed after success and retained in `.partial` after failure.
+If sudo expires during a long copy, run the entire command as root with
+`sudo bash archive_qemu_release.sh "/path/to/tested-release" --clean-tested-disk`;
+the resulting files will be owned by root.

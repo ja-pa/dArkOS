@@ -49,6 +49,6 @@ ImCoKeMaN for testing and feedback \
 ## QEMU development target
 
 Convert the official G350 release image into an ARM64 QEMU runtime with the
-[release-to-QEMU pipeline](qemu/README.md). This target preserves the release
+[QEMU documentation and guides](qemu/README.md). This target preserves the release
 userspace and builds only hardware-dependent frontends; handheld builds retain
 their existing commands.

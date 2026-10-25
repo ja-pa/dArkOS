@@ -12,6 +12,10 @@ spec = importlib.util.spec_from_file_location('user_release', REPO / 'qemu/packa
 release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
+archive_spec = importlib.util.spec_from_file_location('release_archive', REPO / 'qemu/packaging/archive.py')
+archive = importlib.util.module_from_spec(archive_spec)
+archive_spec.loader.exec_module(archive)
+
 
 class ReleaseTests(unittest.TestCase):
     def test_image_version_and_code_id(self):
@@ -71,7 +75,7 @@ class ReleaseTests(unittest.TestCase):
             release.package(stage, {'root_partuuid': 'test', 'root_fstype': 'btrfs'})
             self.assertEqual({p.name for p in stage.iterdir()}, {
                 'start.sh', 'stop.sh', 'controls.sh', 'README.md', 'LICENSES.txt',
-                'scripts', 'config', 'assets', 'G350-ROM-NOTICES.md', 'PORTMASTER.md', 'PICO8.md'})
+                'scripts', 'config', 'assets', 'G350-ROM-NOTICES.md', 'PORTMASTER.md'})
             self.assertEqual((stage / 'assets/controls-template.png').read_bytes(),
                              (REPO / 'qemu/assets/controls-template.png').read_bytes())
             self.assertEqual(json.loads((stage / 'config/image.json').read_text())['root_partuuid'], 'test')
@@ -84,6 +88,17 @@ class ReleaseTests(unittest.TestCase):
             (stage / 'start.sh').write_text('tampered')
             result = sp.run(['sha256sum', '-c', 'SHA256SUMS'], cwd=stage, capture_output=True)
             self.assertNotEqual(result.returncode, 0)
+
+    def test_exported_payload_is_accepted_by_archiver(self):
+        with tempfile.TemporaryDirectory(prefix='release documentation ') as tmp:
+            stage = Path(tmp)
+            release.package(stage, {'root_fstype': 'btrfs'})
+            # Guest export is unnecessary for verifying the delivered file contract.
+            for name in ('Image', 'darkos.qcow2', 'provenance.json'):
+                (stage / name).write_text('synthetic payload\n')
+            release.seal(stage)
+            manifest = archive.inventory(stage)
+            archive.verify(stage, manifest)
 
     def test_dry_run_resolves_default_and_custom_output_without_exporting(self):
         import contextlib
