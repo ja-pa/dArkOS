@@ -32,7 +32,7 @@ write('/etc/sudoers.d/qemu-development','ark ALL=(ALL) NOPASSWD: ALL\n',0o440)
 p=root/'etc/emulationstation/es_systems.cfg'; original=p.with_suffix('.cfg.before-qemu')
 if not original.exists(): shutil.copy2(p,original)
 tree=ET.parse(original); systems=tree.getroot(); selected={
- 'gb':'gambatte','gbc':'gambatte','nes':'fceumm','snes':'snes9x','gba':'mgba','megadrive':'genesis_plus_gx'}
+ 'gb':'gambatte','gbc':'gambatte','nes':'fceumm','snes':'snes9x','gba':'mgba','megadrive':'genesis_plus_gx','pico-8':'fake08'}
 found=set()
 for system in list(systems):
     name=system.findtext('name')

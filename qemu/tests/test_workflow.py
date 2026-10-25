@@ -7,7 +7,7 @@ import tempfile
 import subprocess
 import socket
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 SCRIPTS = Path(__file__).resolve().parents[1] / 'scripts'
 
@@ -61,6 +61,35 @@ class WorkflowTests(unittest.TestCase):
         vm = load('workflow-vm')
         with patch.object(vm, 'processes', return_value=[(42, True, True, [])]):
             self.assertEqual(vm.identity()[0], 42)
+
+    def test_start_waits_for_preflight_before_looking_for_qemu(self):
+        vm = load('workflow-vm')
+        process = Mock(pid=42)
+        process.poll.return_value = None
+        with patch.object(vm, 'identity', side_effect=[None, None, (42, True, True, [])]) as identity, \
+                patch.object(vm.time, 'sleep'):
+            self.assertEqual(vm.wait_launch(process, 0), 42)
+            self.assertEqual(identity.call_args_list, [unittest.mock.call(False)] * 3)
+
+    def test_preflight_failure_shows_only_this_attempt_log(self):
+        vm = load('workflow-vm')
+        vm.LOG.parent.mkdir(parents=True)
+        previous = b'old unrelated failure\n'
+        vm.LOG.write_bytes(previous + b'Error: PulseAudio playback did not complete; use QEMU_AUDIO=none\n')
+        process = Mock(pid=42)
+        process.poll.return_value = 1
+        with self.assertRaisesRegex(RuntimeError, 'PulseAudio playback did not complete') as error:
+            vm.wait_launch(process, len(previous))
+        self.assertNotIn('old unrelated failure', str(error.exception))
+        self.assertNotIn('VM is stopped', str(error.exception))
+
+    def test_preflight_timeout_never_uses_stopped_vm_error(self):
+        vm = load('workflow-vm')
+        process = Mock(pid=42)
+        process.poll.return_value = None
+        with patch.object(vm.time, 'monotonic', side_effect=[0, 31]):
+            with self.assertRaisesRegex(RuntimeError, 'launcher timed out'):
+                vm.wait_launch(process, 0)
 
     def test_start_requires_restart_to_change_audio(self):
         vm = load('workflow-vm')

@@ -8,6 +8,7 @@ sha256sum -c "$WORK_DIR/state/base-image.sha256"
 vm start gtk-gl
 remote 'nmcli -g GENERAL.CONNECTION device show enp0s2 | grep -Fx "QEMU VirtIO Ethernet"'
 python3 "$QEMU_DIR/tests/integration.py"
+python3 "$QEMU_DIR/tests/pico8.py"
 python3 "$QEMU_DIR/tests/filemanager.py"
 python3 "$QEMU_DIR/tests/portmaster.py"
 vm stop

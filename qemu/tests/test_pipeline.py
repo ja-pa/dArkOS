@@ -38,7 +38,8 @@ class IntegrityTests(unittest.TestCase):
             'build-351files': ['tests/helpers/capture.c'],
             'kernel': ['config/kernel/qemu-arm64.fragment', 'scripts/components.py'],
             'image': ['scripts/configure.py', 'tests/helpers/install-test-roms.py',
-                      'tests/helpers/test-roms.py', 'tests/fixtures/test-roms.json'],
+                      'tests/helpers/test-roms.py', 'tests/fixtures/test-roms.json',
+                      'scripts/pico8-configure.py', 'runtime/pico8.cfg'],
         }
         for stage, dependencies in cases.items():
             for dependency in dependencies:

@@ -1,0 +1,11 @@
+{
+  "backend": "QEMU WAV + guest HDA/ALSA",
+  "channels": 2,
+  "rate": 44100,
+  "frames": 35077687,
+  "peak": 18782,
+  "rms": 2992.7482225327713,
+  "nonzero_samples": 32907703,
+  "host_wslg_speaker_playback": "not verified: existing silent playback preflight times out",
+  "sha256": "06e6bd82a2a2d099782cf53e2dee070d471a92f835b6ec0876faba25afd621ec"
+}

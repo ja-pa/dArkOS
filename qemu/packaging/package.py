@@ -78,6 +78,7 @@ def package(stage, profile):
         shutil.copy2(REPO / 'qemu/scripts' / name, stage / 'scripts' / name)
     shutil.copy2(REPO / 'qemu/tests/fixtures/test-roms-LICENSES.md', stage / 'G350-ROM-NOTICES.md')
     shutil.copy2(REPO / 'qemu/docs/PORTMASTER.md', stage / 'PORTMASTER.md')
+    shutil.copy2(REPO / 'qemu/docs/PICO8.md', stage / 'PICO8.md')
     write(stage / 'config/image.json', {**profile, 'guest_layout': 'g350', 'memory_mb': 2048})
     for path in stage.rglob('*.sh'):
         path.chmod(0o755)

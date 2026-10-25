@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "original_core": true,
+  "games": {
+    "celeste.p8.png": {
+      "launched": true,
+      "returned_to_same_es": true
+    },
+    "cherrybomb-0.p8.png": {
+      "launched": true,
+      "returned_to_same_es": true
+    },
+    "dinkykong-0.p8.png": {
+      "launched": true,
+      "returned_to_same_es": true
+    },
+    "poom_0-9.p8.png": {
+      "launched": true,
+      "returned_to_same_es": true
+    },
+    "scrap_boy-6.p8.png": {
+      "launched": true,
+      "returned_to_same_es": true
+    }
+  },
+  "limitations": [
+    "No physical gamepad test; host speaker playback must be checked separately."
+  ],
+  "probe": {
+    "persistent_cartdata": true,
+    "text_cart_with_spaces": true,
+    "keyboard_movement": true,
+    "save_load_state": true,
+    "es_pid": "6571"
+  }
+}

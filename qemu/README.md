@@ -185,7 +185,7 @@ ES: arrows navigate, Enter confirms, Escape returns, Space opens the menu,
 Tab opens options, F4 exits. RetroArch: arrows, Z/X = A/B, S/A = X/Y,
 Q/W = L/R, Enter = Start, Right Shift = Select, F1 = menu, F2/F4 = save/load
 state, Escape = exit to ES. Original themes and ROM paths are retained.
-The QEMU menu initially exposes GB/GBC, NES, SNES, GBA and Mega Drive only.
+The QEMU menu exposes GB/GBC, NES, SNES, GBA, Mega Drive, PICO-8 and Ports.
 
 The SDK is derived offline from the same build environment and tied to the
 runtime fingerprint. Source `"$WORK_DIR/sdk/environment.sh"` for host GCC 12
@@ -292,3 +292,9 @@ See [SDLPoP preparation, installation and sources](ports/README.md).
 Run `./make_qemu_release.sh` from the repository root to package a stopped,
 prepared runtime. Use `./archive_qemu_release.sh /path/to/untouched-release` to
 prepare verified split archives for GitHub. See [release creation and validation](docs/RELEASE.md).
+
+## PICO-8
+
+Hry v `/roms/pico-8/carts/` spouští FAKE-08 přes RetroArch.
+Šipky = pohyb, Z/X = tlačítka, Escape = návrat do menu. Splore a editor nejsou podporované.
+Podrobnosti: [PICO8.md](docs/PICO8.md).

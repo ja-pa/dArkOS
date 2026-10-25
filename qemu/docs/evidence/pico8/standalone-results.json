@@ -1,0 +1,150 @@
+{
+  "passed": true,
+  "release": "/home/japa1/projects/darkos-g350-v08272026/dist/qemu/darkos-qemu-g350-trixie-09022026-gac98e39a4cb9-dirty-353dd2584a19",
+  "es_pid": "407",
+  "launches": {
+    "921": {
+      "argv": "/opt/retroarch/bin/retroarch --config /home/ark/.config/retroarch/retroarch.qemu.cfg --verbose --log-file /home/ark/.config/retroarch/logs/last-run.log --appendconfig /opt/darkos-qemu/pico8.cfg -L /home/ark/.config/retroarch/cores/fake08_libretro.so /roms/pico-8/carts/celeste.p8.png ",
+      "save_and_load": true
+    },
+    "600": {
+      "argv": "/opt/retroarch/bin/retroarch --config /home/ark/.config/retroarch/retroarch.qemu.cfg --verbose --log-file /home/ark/.config/retroarch/logs/last-run.log --appendconfig /opt/darkos-qemu/pico8.cfg -L /home/ark/.config/retroarch/cores/fake08_libretro.so /roms/pico-8/carts/celeste.p8.png ",
+      "save_and_load": true
+    }
+  },
+  "original_core_sha256": "eac9789566c6441758bac65cfab90b4b016aacd52c10d889eb49d1f70ec6cc46",
+  "no_ssh_keys_or_login": true,
+  "captured_frames": [
+    {
+      "tick": 5,
+      "colors": 7587,
+      "sha256": "d2b87ca8e1ef234cc4b6c213f30aaceea67116ac4e1e6e923ea45b1bad03cfec"
+    },
+    {
+      "tick": 6,
+      "colors": 7587,
+      "sha256": "d2b87ca8e1ef234cc4b6c213f30aaceea67116ac4e1e6e923ea45b1bad03cfec"
+    },
+    {
+      "tick": 7,
+      "colors": 4598,
+      "sha256": "4b69daf7e267eea81bae6c03c1261585bf93cd318cbcfc7e083e4853d209334c"
+    },
+    {
+      "tick": 8,
+      "colors": 4598,
+      "sha256": "4b69daf7e267eea81bae6c03c1261585bf93cd318cbcfc7e083e4853d209334c"
+    },
+    {
+      "tick": 11,
+      "colors": 7,
+      "sha256": "ff98b7dc52e9462ca70a1af7522670289ffe44b9d263405e85bf977def2d047a"
+    },
+    {
+      "tick": 12,
+      "colors": 7,
+      "sha256": "9af65835801a0e0bbd8238791ff0a1e357ef658707ce8a2031a6276e87cd75f9"
+    },
+    {
+      "tick": 13,
+      "colors": 7,
+      "sha256": "c27402ff559239edf2a797c19757a50a448b22e4649cfb93037cf5d16f7158d7"
+    },
+    {
+      "tick": 14,
+      "colors": 7,
+      "sha256": "94bd85d434f8cf160953fea6fb4e17129e89c52bf9279c18152ff9f33c5e702d"
+    },
+    {
+      "tick": 15,
+      "colors": 7,
+      "sha256": "415e0a026bf9cac8372566aeb1690d33fd525e292a331d25542f2f76aa290d71"
+    },
+    {
+      "tick": 16,
+      "colors": 11,
+      "sha256": "316bc69083683c578f5cbc9a19bbd313c052c87e2f4b9da6df450c18700a75c0"
+    },
+    {
+      "tick": 17,
+      "colors": 181,
+      "sha256": "6cfced5f2023a036d8dae0c1a2c6c994a2a5aae505ffc94a8b107000f9403d9c"
+    },
+    {
+      "tick": 18,
+      "colors": 163,
+      "sha256": "b97afb36702a4e6474567db2a53ed9ad69372db2732b7b78b3d6e45b11c2e22a"
+    },
+    {
+      "tick": 19,
+      "colors": 172,
+      "sha256": "1d762e4fbc6962b0714c8e0dd3894d4aced5f42d37224ca530d9bcdd87727d05"
+    },
+    {
+      "tick": 21,
+      "colors": 7551,
+      "sha256": "197f841b498a8f3664ff72a793b36bc8bd8aafd98972475f5ffc7b20b53d8e65"
+    },
+    {
+      "tick": 22,
+      "colors": 5928,
+      "sha256": "62ff985cb9dbec34fbc68981f397a2b27138ba3eed08498bbbc9a08267da754d"
+    },
+    {
+      "tick": 25,
+      "colors": 7,
+      "sha256": "c2903b9825a23c6c530f698f7c8195a8a9814608f0bb7e30c6333865e1290abe"
+    },
+    {
+      "tick": 26,
+      "colors": 7,
+      "sha256": "5a7fbdf215bf98d0c524e98dd583d426b4ce864c5dcdbb489b5b5c549b03da68"
+    },
+    {
+      "tick": 27,
+      "colors": 7,
+      "sha256": "e2c0d93c9fedcc04951a2108f64cf33f9bddd0f7ef9fd8234b644ed23a5c75cd"
+    },
+    {
+      "tick": 28,
+      "colors": 7,
+      "sha256": "09575c14286019125d767be8f4809e41124c34b866bca1ccf4b0d6e2720458c7"
+    },
+    {
+      "tick": 29,
+      "colors": 7,
+      "sha256": "c2efecb3b287ed005af77672d1a423a0929557caa7c160ecef9ac50550af57c3"
+    },
+    {
+      "tick": 30,
+      "colors": 7,
+      "sha256": "ef4873a2f009c1351f11377384a2bec2db32e611e7106ac44a56093b98ac3b46"
+    },
+    {
+      "tick": 31,
+      "colors": 11,
+      "sha256": "30a2de167735880f8a27a6e9e802b847b6d15f8424888f7be4b9abb717fc4dad"
+    },
+    {
+      "tick": 32,
+      "colors": 181,
+      "sha256": "3636cbae1f377faf1560dbb5edab009b1c9f43243ee71b589f1b2ca8db6e229b"
+    },
+    {
+      "tick": 33,
+      "colors": 172,
+      "sha256": "71322e712d6f28f465ac4e68e68caa73439d263e239e8df8da0fbdefba205306"
+    },
+    {
+      "tick": 34,
+      "colors": 11,
+      "sha256": "002abbfa3db799b7cd88aec287e6814ea9919e7fe7914425e1a1ef982973c120"
+    },
+    {
+      "tick": 36,
+      "colors": 7551,
+      "sha256": "197f841b498a8f3664ff72a793b36bc8bd8aafd98972475f5ffc7b20b53d8e65"
+    }
+  ],
+  "audio_backend": "QEMU WAV; host speakers not verified"
+}

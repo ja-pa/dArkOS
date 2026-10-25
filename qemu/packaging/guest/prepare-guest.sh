@@ -20,7 +20,7 @@ rm -f "$ROOT/var/lib/darkos-qemu/audio-v1.json" "$ROOT/var/lib/darkos-qemu/alsa-
 [[ -n $ROMS_DEVICE ]]
 mkdir -p "$ROOT/roms"
 mount "$ROMS_DEVICE" "$ROOT/roms"
-find "$ROOT/roms" -type f \( -iname '*.srm' -o -iname '*.sav' -o -name '*.state' -o -name '*.state[0-9]*' \) -delete
+bash "$assets/clean-rom-saves.sh"
 sync
 fstrim "$ROOT" || true
 umount "$ROOT/roms"

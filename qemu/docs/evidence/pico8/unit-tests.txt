@@ -1,0 +1,24 @@
+..............................s.................................G350-ROM-NOTICES.md: OK
+LICENSES.txt: OK
+PICO8.md: OK
+PORTMASTER.md: OK
+README.md: OK
+assets/controls-template.png: OK
+config/controls.json: OK
+config/image.json: OK
+controls.sh: OK
+scripts/common.sh: OK
+scripts/controls-window.py: OK
+scripts/qemu-audio.sh: OK
+scripts/release-vm.py: OK
+scripts/run-qemu.sh: OK
+start.sh: OK
+stop.sh: OK
+..............................
+----------------------------------------------------------------------
+Ran 94 tests in 10.187s
+
+OK (skipped=1)
+G350 runtime profile configured: {'root_fstype': 'btrfs'}
+G350 runtime profile configured: {'root_fstype': 'btrfs'}
+VM is stopped

@@ -48,6 +48,27 @@ def identity(required=True):
 def ssh(*args, **kw):
     return run('bash', str(PROJECT / 'scripts/graphics-ssh.sh'), *args, **kw)
 
+def wait_launch(process, log_offset, timeout=30):
+    """The shell performs preflight checks before exec replaces it with QEMU."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        status = process.poll()
+        if status is not None:
+            with LOG.open('rb') as stream:
+                stream.seek(log_offset)
+                detail = stream.read()[-4000:].decode(errors='replace').strip()
+            message = f'VM launcher exited {status}; inspect {LOG}'
+            if detail:
+                message += '\n' + detail
+            raise RuntimeError(message)
+        current = identity(False)
+        if current:
+            if current[0] != process.pid:
+                raise RuntimeError('VM identity changed during launch; VM left running for diagnosis')
+            return current[0]
+        time.sleep(0.2)
+    raise RuntimeError(f'VM launcher timed out; inspect {LOG}. Launcher left running for diagnosis')
+
 def wait_ssh(pid):
     deadline = time.monotonic() + int(os.environ.get('VM_TIMEOUT', '240'))
     while time.monotonic() < deadline:
@@ -98,13 +119,17 @@ def main():
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind(('127.0.0.1', PORT))
         with LOG.open('ab') as out:
+            log_offset = out.tell()
             process = sp.Popen(['bash', str(PROJECT / 'scripts/run-qemu.sh'), args.mode],
                                stdin=sp.DEVNULL, stdout=out, stderr=out, start_new_session=True)
         STATE.write_text(json.dumps({'pid': process.pid, 'disk': str(DISK), 'port': PORT, 'mode': args.mode}))
-        time.sleep(1)
-        if process.poll() is not None:
-            raise RuntimeError(f'QEMU exited {process.returncode}; inspect {LOG}')
-        wait_ssh(identity()[0])
+        try:
+            pid = wait_launch(process, log_offset)
+        except RuntimeError:
+            if process.poll() is not None:
+                STATE.unlink(missing_ok=True)
+            raise
+        wait_ssh(pid)
         print(f'VM ready: SSH 127.0.0.1:{PORT}; log {LOG}')
     elif args.action == 'stop':
         current = identity(False)

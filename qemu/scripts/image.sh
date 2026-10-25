@@ -26,6 +26,7 @@ bash "$QEMU_DIR/scripts/chroot-run.sh" /opt/darkos-qemu/strip-compilers.sh
 mkdir -p "$ROOT/roms"
 mount "$ROMS_DEVICE" "$ROOT/roms"
 [[ -z $BOOT_DEVICE ]] || mount -o ro "$BOOT_DEVICE" "$ROOT/boot"
+python3 "$QEMU_DIR/scripts/pico8-configure.py"
 python3 "$QEMU_DIR/tests/helpers/install-test-roms.py"
 python3 "$QEMU_DIR/scripts/portmaster.py" install
 # Fingerprint the exact libraries and binaries used by the runtime and SDK.

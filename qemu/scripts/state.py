@@ -18,7 +18,7 @@ def fingerprint(root,lock,previous,stage=None):
       'build-retroarch':['scripts/build.sh','scripts/build-guest.sh','tests/helpers/capture.c','scripts/chroot-run.sh','scripts/with-disk.sh'],
       'build-351files':['scripts/build.sh','scripts/build-guest.sh','tests/helpers/capture.c','scripts/chroot-run.sh','scripts/with-disk.sh','patches/351files/'],
       'kernel':['scripts/kernel.sh','scripts/build-kernel.sh','scripts/common.sh','scripts/components.py','config/kernel/'],
-      'image':['scripts/image.sh','scripts/prepare-runtime.sh','scripts/configure.py','scripts/strip-compilers.sh','scripts/manifest.py','scripts/components.py','scripts/inventory.py','scripts/grow.sh','scripts/grow_layout.py','scripts/with-disk.sh','scripts/chroot-run.sh','runtime/','tests/helpers/test-roms.py','tests/fixtures/test-roms.json','tests/helpers/install-test-roms.py'],
+      'image':['scripts/image.sh','scripts/prepare-runtime.sh','scripts/configure.py','scripts/pico8-configure.py','scripts/strip-compilers.sh','scripts/manifest.py','scripts/components.py','scripts/inventory.py','scripts/grow.sh','scripts/grow_layout.py','scripts/with-disk.sh','scripts/chroot-run.sh','runtime/','tests/helpers/test-roms.py','tests/fixtures/test-roms.json','tests/helpers/install-test-roms.py'],
     }
     if stage in groups:
         paths=[root/'scripts/lib.sh',root/'scripts/state.py',root/'scripts/release_config.py',root/'scripts/space.py']
@@ -26,7 +26,7 @@ def fingerprint(root,lock,previous,stage=None):
             p=root/name
             paths.extend(sorted(p.rglob('*')) if p.is_dir() else [p])
     else: paths=sorted(root.rglob('*'))
-    files={str(p.relative_to(root)):digest(p) for p in paths if p.is_file() and p.suffix in ['.sh','.py','.patch','.json','.cmake','.fragment','.config','.c'] and 'reference' not in p.parts and '__pycache__' not in p.parts}
+    files={str(p.relative_to(root)):digest(p) for p in paths if p.is_file() and p.suffix in ['.sh','.py','.patch','.json','.cmake','.fragment','.config','.cfg','.c'] and 'reference' not in p.parts and '__pycache__' not in p.parts}
     if stage and stage.startswith('build-'):
         p=root.parent/('build_'+stage[6:]+'-qemu.sh')
         if p.exists():files['../'+p.name]=digest(p)

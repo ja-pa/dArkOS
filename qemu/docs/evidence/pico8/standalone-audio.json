@@ -1,0 +1,9 @@
+{
+  "backend": "QEMU WAV + guest HDA/ALSA",
+  "channels": 2,
+  "rate": 44100,
+  "frames": 3558231,
+  "peak": 19126,
+  "nonzero_samples": 4675460,
+  "host_speakers_verified": false
+}

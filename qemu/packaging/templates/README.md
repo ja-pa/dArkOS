@@ -130,3 +130,9 @@ spustit bez zvukového zařízení: `QEMU_AUDIO=none bash start.sh`.
 
 Regresní test SDLPoP kontroluje také posun postavy po držené šipce. Samotný
 start, otevření menu a vytvoření quicksave neprokazují funkční pohyb.
+
+## PICO-8
+
+Hry v `/roms/pico-8/carts/` spouští FAKE-08 přes RetroArch.
+Šipky = pohyb, Z/X = tlačítka, Escape = návrat do menu. Splore a editor nejsou podporované.
+Podrobnosti: [PICO8.md](PICO8.md).
